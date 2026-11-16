@@ -133,9 +133,12 @@
 <section class="music">
 	<h2 class="animatableX">Discover</h2>
 	<div class="separator animatableOpacity"></div>
-	<!-- The YouTube gallery is rendered here by the video gallery feature. -->
-	<div id="video-gallery" class="ss-music">
-		<p class="hardLight animatableY">Videos coming soon.</p>
+	<!-- Rendered by js/videos.js from data/videos.json -->
+	<div id="video-gallery">
+		<p class="hardLight">Loading videos...</p>
+		<noscript>
+			<p class="pink"><a href="https://youtube.com/@hossandthehangmen">Watch on YouTube &#10142;</a></p>
+		</noscript>
 	</div>
 </section>
 <a id="contact"></a>
@@ -173,5 +176,6 @@
 </footer>
 <script defer src="js/vendor/rellax.min.js"></script>
 <script defer src="js/mainFunctions.js"></script>
+<script defer src="js/videos.js"></script>
 </body>
 </html>
