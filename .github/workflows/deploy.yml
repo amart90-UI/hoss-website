@@ -1,8 +1,15 @@
-name: Deploy site to GitHub Pages
+name: Build schedule and deploy site to GitHub Pages
 
+# Runs when:
+#   - commits are pushed to the "deploy" branch
+#   - every day (the schedule only runs from the default branch, so this file must also exist on main)
+#   - someone starts it manually from the Actions tab
 on:
   push:
     branches: [deploy]
+  schedule:
+    # 07:05 UTC = 00:05 Mountain Standard Time / 01:05 Mountain Daylight Time, just after Denver midnight.
+    - cron: "5 7 * * *"
   workflow_dispatch:
 
 permissions:
@@ -10,7 +17,7 @@ permissions:
   pages: write
   id-token: write
 
-# One deployment at a time; a newer run cancels a queued older one but never interrupts a running deploy.
+# One deployment at a time; a newer run waits for a running deploy but never interrupts it.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -22,10 +29,13 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # Always publish the deploy branch, even if a manual run is started from another branch.
+      # Always publish the deploy branch, even if the run was started from another branch.
       - uses: actions/checkout@v4
         with:
           ref: deploy
+
+      - name: Run schedule tests
+        run: python3 -m unittest discover tests -v
 
       # Publish only the files the website needs (not AGENTS.md, README, scripts, workflows, etc.).
       - name: Assemble site
@@ -34,13 +44,41 @@ jobs:
           for item in index.html css js img data robots.txt sitemap.xml; do
             if [ -e "$item" ]; then cp -r "$item" _site/; fi
           done
-          find _site -type f | sort
 
-      - uses: actions/configure-pages@v5
+      # Fails (and so skips the deployment) if the sheet cannot be downloaded or any row is invalid.
+      # The site that is already live is left untouched in that case.
+      - name: Generate schedule data from Google Sheets
+        env:
+          SCHEDULE_CSV_URL: ${{ secrets.SCHEDULE_CSV_URL }}
+        run: python3 scripts/process_schedule.py --output-dir _site/data
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      # Scheduled runs only deploy when the generated data differs from what is live.
+      # Pushes and manual runs always deploy.
+      - name: Decide whether to deploy
+        id: changed
+        env:
+          BASE_URL: ${{ steps.pages.outputs.base_url }}
+        run: |
+          deploy=true
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            deploy=false
+            for file in shows.json past-shows.json; do
+              if ! curl -fsSL --retry 2 "$BASE_URL/data/$file" -o "live-$file" || ! cmp -s "live-$file" "_site/data/$file"; then
+                deploy=true
+              fi
+            done
+          fi
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+          echo "Deploy: $deploy"
 
       - uses: actions/upload-pages-artifact@v3
+        if: steps.changed.outputs.deploy == 'true'
         with:
           path: _site
 
       - id: deployment
+        if: steps.changed.outputs.deploy == 'true'
         uses: actions/deploy-pages@v4

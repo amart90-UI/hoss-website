@@ -67,9 +67,9 @@
 	<h2 class="animatableX">Next show</h2>
 	<div class="separator animatableOpacity"></div>
 	<div class="ss-nextShow">
-		<!-- Filled in from data/shows.json once the schedule feature is built. -->
+		<!-- Rendered by js/shows.js from data/shows.json -->
 		<p id="next-show" class="hardLight animatableY">
-			Show details coming soon.
+			Loading shows...
 		</p>
 		<p class="pink"><a href="#date">Show all dates &#10140;</a></p>
 	</div>
@@ -125,7 +125,7 @@
 <section class="date">
 	<h2 class="animatableX">Shows</h2>
 	<div class="separator animatableOpacity"></div>
-	<!-- Both lists are rendered from the generated JSON files once the schedule feature is built. -->
+	<!-- Both lists are rendered by js/shows.js from data/shows.json and data/past-shows.json (generated from the Google Sheet). -->
 	<div id="shows-upcoming"></div>
 	<div id="shows-past"></div>
 </section>
@@ -177,5 +177,6 @@
 <script defer src="js/vendor/rellax.min.js"></script>
 <script defer src="js/mainFunctions.js"></script>
 <script defer src="js/videos.js"></script>
+<script defer src="js/shows.js"></script>
 </body>
 </html>
