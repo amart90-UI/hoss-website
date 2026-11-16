@@ -228,16 +228,13 @@ section {
 h1 {
 	position: absolute;
 	text-align: center;
-	width: 80%;
+	width: 100%;
+	max-width: 700px;
+	margin: 0;
 	left: 50%;
 	transform: translateX(-50%);
 	bottom: 20%;
-	font-family: "Amatic SC", cursive;
-	font-size: 11vh;
-	font-weight: 700;
-	color: #FEFEFE;
-	text-shadow: 0 2px 10px #1A1B1D;
-	text-transform: uppercase;
+	line-height: 0;
 	opacity: 0;
 	-webkit-animation: opacity 2s cubic-bezier(0.17, 0.67, 0.14, 0.97) both;
 	animation: opacity 2s cubic-bezier(0.17, 0.67, 0.14, 0.97) both;
@@ -594,9 +591,8 @@ footer img {
 
 @media screen and (max-width: 767px) {
 	h1 {
-		width: 90%;
-		font-size: 7vh;
-		bottom: 45%;
+		width: 100%;
+		bottom: 40%;
 	}
 
 	h2#slogan {
@@ -869,4 +865,14 @@ outline-offset: 4px;
 	font-size: 5vh;
 	font-weight: 700;
 	line-height: 1.2;
+}
+
+/* Band logo over the hero image: fills the width up to the h1's max-width, and never taller than 50% of the screen */
+.hero-logo {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-height: 50vh;
+	object-fit: contain;
+	filter: drop-shadow(0 2px 10px #1A1B1D);
 }
