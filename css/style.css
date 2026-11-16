@@ -844,3 +844,18 @@ cursor: pointer;
 outline: 2px solid #F4591E;
 outline-offset: 4px;
 }
+
+/* Contact email link */
+.email-link {
+	color: #F4591E;
+	font-weight: 400;
+	text-decoration: underline;
+	text-underline-offset: 4px;
+	text-decoration-thickness: 1px;
+	transition: color ease-in-out 250ms;
+}
+
+.email-link:hover,
+.email-link:focus-visible {
+	color: #FEFEFE;
+}
