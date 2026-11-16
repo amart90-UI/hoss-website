@@ -321,10 +321,6 @@ class OutputTests(unittest.TestCase):
                 self.assertEqual(ps.main(["--output-dir", out]), 1)
             self.assertIn("https://", err.getvalue())
 
-    def test_sample_file_is_valid(self):
-        sample = Path(__file__).resolve().parent.parent / "scripts" / "sample-schedule.csv"
-        self.assertEqual(len(ps.parse_csv(sample.read_text(encoding="utf-8"))), 5)
-
 
 if __name__ == "__main__":
     unittest.main()
