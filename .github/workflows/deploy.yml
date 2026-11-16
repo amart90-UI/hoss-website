@@ -22,7 +22,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Always publish the deploy branch, even if a manual run is started from another branch.
       - uses: actions/checkout@v4
+        with:
+          ref: deploy
 
       # Publish only the files the website needs (not AGENTS.md, README, scripts, workflows, etc.).
       - name: Assemble site
