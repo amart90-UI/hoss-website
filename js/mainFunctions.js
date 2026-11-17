@@ -91,11 +91,3 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	}
 });
-// Member cards: click opens the member's Instagram (set data-instagram-url on each card in index.html)
-document.addEventListener('DOMContentLoaded', function () {
-document.querySelectorAll('.card[data-instagram-url]').forEach(card => {
-card.addEventListener('click', function () {
-window.location.href = card.dataset.instagramUrl;
-});
-});
-});
