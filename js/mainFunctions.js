@@ -1,34 +1,53 @@
-// Toggle class menu
+// Hamburger menu: a toggle button that reveals the section links.
+// While closed, the links are "inert": they can't be focused or clicked and screen readers skip them.
 document.addEventListener('DOMContentLoaded', function () {
-	document.querySelector('.menu')?.addEventListener('click', function () {
-		this.classList.toggle('active');
-		const menus = [
-			'.ss-menu1',
-			'.ss-menu2',
-			'.ss-menu3',
-			'.ss-menu4',
-			'.ss-menu5'
-		];
-		menus.forEach(menu => {
-			document.querySelector(menu)?.classList.toggle('visible' + menu[8], this.classList.contains('active'));
-		});
-	});
-	document.querySelectorAll('.ss-menu').forEach(ssMenu => {
-		ssMenu.addEventListener('click', function () {
-			document.querySelector('.menu')?.classList.remove('active');
-			document.querySelectorAll('[class*="ss-menu"]').forEach(el => {
-				el.classList.remove('visible' + el.className.match(/\d+/)[0]);
-			});
-		});
-	});
-	window.addEventListener('scroll', function () {
-		if (document.querySelector('.menu')?.classList.contains('active')) {
-			document.querySelector('.menu').classList.remove('active');
-			document.querySelectorAll('[class*="ss-menu"]').forEach(el => {
-				el.classList.remove('visible' + el.className.match(/\d+/)[0]);
-			});
+	const nav = document.querySelector('.menu-nav');
+	const toggle = document.querySelector('.menu');
+	if (!nav || !toggle) {
+		return;
+	}
+	const list = document.getElementById('menu-items');
+	const items = nav.querySelectorAll('.ss-menu');
+	const isOpen = () => toggle.classList.contains('active');
+
+	function setOpen(open) {
+		toggle.classList.toggle('active', open);
+		toggle.setAttribute('aria-expanded', String(open));
+		if (list) {
+			list.inert = !open;
+		}
+		items.forEach((item, index) => item.classList.toggle('visible' + (index + 1), open));
+	}
+
+	toggle.addEventListener('click', () => setOpen(!isOpen()));
+	items.forEach(item => item.addEventListener('click', () => setOpen(false)));
+
+	// Escape closes the menu and returns focus to the toggle button.
+	nav.addEventListener('keydown', function (event) {
+		if (event.key === 'Escape' && isOpen()) {
+			setOpen(false);
+			toggle.focus();
 		}
 	});
+
+	// Tabbing out of the menu closes it.
+	nav.addEventListener('focusout', function (event) {
+		if (event.relatedTarget && !nav.contains(event.relatedTarget)) {
+			setOpen(false);
+		}
+	});
+
+	// Scrolling closes the menu, except while someone is moving through it with the keyboard.
+	window.addEventListener('scroll', function () {
+		if (!isOpen()) {
+			return;
+		}
+		const focused = document.activeElement;
+		if (focused && nav.contains(focused) && focused.matches(':focus-visible')) {
+			return;
+		}
+		setOpen(false);
+	}, {passive: true});
 });
 // Parallax effect
 document.addEventListener('DOMContentLoaded', function () {

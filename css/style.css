@@ -62,6 +62,11 @@ body {
 	border-radius: 50%;
 	cursor: pointer;
 	z-index: 3;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	-webkit-appearance: none;
+	appearance: none;
 }
 
 .menu .line {
@@ -856,4 +861,11 @@ outline-offset: 4px;
 	max-height: 50vh;
 	object-fit: contain;
 	filter: drop-shadow(0 2px 10px #323536);
+}
+
+/* Menu: visible keyboard focus */
+.menu:focus-visible,
+.ss-menu:focus-visible {
+	outline: 3px solid #AA5321;
+	outline-offset: 3px;
 }
