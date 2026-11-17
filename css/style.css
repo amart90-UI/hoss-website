@@ -25,7 +25,7 @@ a {
 
 body {
 	font-family: "Faculty Glyphic", sans-serif;
-	color: #F8EED1;
+	color: #efe1c6;
 	font-size: 16px;
 	background-color: #323536;
 }
@@ -57,8 +57,8 @@ body {
 	right: 5%;
 	width: 50px;
 	height: 50px;
-	background-color: #BDB199;
-	border: solid 2px #BDB199;
+	background-color: #efe1c6;
+	border: solid 2px #efe1c6;
 	border-radius: 50%;
 	cursor: pointer;
 	z-index: 3;
@@ -213,14 +213,14 @@ section {
 	height: 2px;
 	margin-top: 50px;
 	margin-bottom: 50px;
-	background-color: #AA5321;
+	background-color: #BDB199;
 }
 
 .mainView {
 	position: relative;
 	min-height: 100vh;
 	max-height: 100vh;
-	color: #BDB199;
+	color: #efe1c6;
 	background-size: cover;
 	background: transparent url("../img/hero-band.webp") center;
 }
@@ -264,7 +264,7 @@ h2 {
 	font-family: "Amatic SC", cursive;
 	font-size: 3rem;
 	font-weight: 700;
-	color: #F8EED1
+	color: #BDB199
 }
 
 h2#slogan {
@@ -275,7 +275,7 @@ h2#slogan {
 	bottom: 10%;
 	font-size: 7vh;
 	font-weight: 700;
-	color: #BDB199;
+	color: #efe1c6;
 	text-shadow: 0 2px 10px #323536;
 	opacity: 0;
 	transform: translateY(-45px);
@@ -308,13 +308,13 @@ h2#slogan {
 }
 
 p {
-	color: #BDB199;
+	color: #efe1c6;
 	line-height: 30px;
 	margin: 50px 0 50px 0;
 }
 
 p.miniPara {
-	color: #F8EED1;
+	color: #efe1c6;
 	line-height: 30px;
 	margin: 0;
 }
@@ -352,7 +352,7 @@ p.miniPara {
 
 .imgContent .card p:first-of-type {
 	font-size: 1.3rem;
-	color: #F8EED1;
+	color: #efe1c6;
 }
 
 .imgContent .card::before {
@@ -393,13 +393,13 @@ p.miniTitle {
 	line-height: 40px;
 	font-weight: 900;
 	text-align: center;
-	color: #F8EED1;
+	color: #efe1c6;
 	width: 100%;
 	margin: 0 0 20px;
 }
 
 p.pink {
-	color: #ff9760;
+	color: #BDB199;
 	text-transform: uppercase;
 	font-weight: 700;
 	letter-spacing: 1px;
@@ -439,7 +439,7 @@ p.pink:hover {
 }
 
 .date table td:first-of-type {
-	color: #F8EED1;
+	color: #efe1c6;
 }
 
 .date table td:nth-of-type(even) {
@@ -447,7 +447,7 @@ p.pink:hover {
 }
 
 .date table span {
-	color: #F8EED1;
+	color: #efe1c6;
 	font-size: 16px;
 	text-transform: uppercase;
 	letter-spacing: 1px;
@@ -477,7 +477,7 @@ footer {
 
 footer p {
 	margin: 10px 0 10px 0;
-	color: #F8EED1;
+	color: #efe1c6;
 	letter-spacing: 0.2rem;
 	font-weight: bolder;
 }
@@ -679,12 +679,12 @@ overflow-x: auto;
 scroll-snap-type: x mandatory;
 scroll-padding: 0 10px;
 -webkit-overflow-scrolling: touch;
-scrollbar-color: #AA5321 #323536;
+scrollbar-color: #BDB199 #323536;
 padding-bottom: 15px;
 }
 
 .video-scroller:focus-visible {
-outline: 2px solid #AA5321;
+outline: 2px solid #BDB199;
 outline-offset: 4px;
 }
 
@@ -729,7 +729,7 @@ cursor: pointer;
 }
 
 .video-play:focus-visible {
-outline: 3px solid #AA5321;
+outline: 3px solid #BDB199;
 outline-offset: -3px;
 }
 
@@ -753,7 +753,7 @@ width: 64px;
 height: 64px;
 margin: -32px 0 0 -32px;
 border-radius: 50%;
-background-color: #BDB199;
+background-color: #efe1c6;
 transition: transform ease-in-out 250ms;
 }
 
@@ -774,7 +774,7 @@ transform: scale(1.1);
 
 .video-title {
 margin: 12px 0 0 0;
-color: #F8EED1;
+color: #efe1c6;
 text-align: center;
 font-weight: 700;
 letter-spacing: 1px;
@@ -833,7 +833,7 @@ font-weight: 700;
 
 .past-shows summary {
 margin-top: 20px;
-color: #ff9760;
+color: #BDB199;
 font-weight: 700;
 letter-spacing: 1px;
 text-transform: uppercase;
@@ -857,7 +857,7 @@ outline-offset: 4px;
 
 .email-link:hover,
 .email-link:focus-visible {
-	color: #F8EED1;
+	color: #efe1c6;
 }
 
 /* Pull quote in the Amatic SC display font (the hero and section headings are styled above) */
@@ -866,7 +866,7 @@ outline-offset: 4px;
 	font-size: 5vh;
 	font-weight: 700;
 	line-height: 1.2;
-	color: #F8EED1;
+	color: #BDB199;
 }
 
 /* Band logo over the hero image: fills the width up to the h1's max-width, and never taller than 50% of the screen */
