@@ -2,14 +2,14 @@
 
 The official website for Hoss and the Hangmen, a modern Colorado country band.
 
-It is a static site hosted on GitHub Pages. The show schedule and the video gallery come from two Google Sheets. A GitHub Actions workflow reads the sheets every day and rebuilds the site's data, so updating the website normally means editing a spreadsheet.
+It is a static site hosted on GitHub Pages. The show schedule and the video gallery come from two Google Sheets. A GitHub Actions workflow reads the sheets every day and rebuilds the site's data, so updating the website normally means just editing a spreadsheet.
 
 - Live (default GitHub Pages address): <https://amart90-ui.github.io/hoss-website/>
 - Custom domain: not set up yet (see [Custom domain and SEO](#custom-domain-and-seo)).
 
 ## Credits
 
-This site is based on the [Free Rock Band Website Template](https://github.com/gtcore902/free-rock-band-website-template) by gtcore902, used with the author's permission. The visual design (layout, scroll animations, hamburger menu, section styling) comes from that template. The contact form, newsletter signup, PHP backend and server configuration were removed, and the schedule, video gallery and deployment pipeline were added.
+This site is based on the [Free Rock Band Website Template](https://github.com/gtcore902/free-rock-band-website-template) by Gaëtan Tremois, used with the author's permission. The visual design (layout, scroll animations, hamburger menu, section styling) comes from that template. The contact form, newsletter signup, PHP backend and server configuration were removed, and the schedule, video gallery and deployment pipeline were added.
 
 ## How it works
 
@@ -29,7 +29,7 @@ Google Sheet "videos"    ──┘   (daily / on push)     └─> data/videos.j
 
 ### Add, change or remove a show
 
-Open the schedule Google Sheet: **`<ADD LINK TO THE SCHEDULE SHEET HERE>`**
+Open the schedule Google Sheet: **`https://docs.google.com/spreadsheets/d/1ih3MdZYOtfmeyatmTyqaz-d8hEW30kbOoiewOpgOoSY/edit?gid=0#gid=0`**
 
 Use the tab named `schedule`. One row per show, with this header row (column order does not matter, and extra columns are ignored):
 
@@ -56,7 +56,7 @@ The change goes live the next time the workflow runs. That happens every night, 
 
 ### Add, change, reorder or remove a video
 
-Open the video Google Sheet: **`<ADD LINK TO THE VIDEO SHEET HERE>`**
+Open the video Google Sheet: **`https://docs.google.com/spreadsheets/d/1ih3MdZYOtfmeyatmTyqaz-d8hEW30kbOoiewOpgOoSY/edit?gid=89406050#gid=89406050`**
 
 | Column | Required | Notes |
 |---|---|---|
@@ -77,7 +77,7 @@ These live in `index.html`. Search for `PLACEHOLDER` to find text that still nee
 - **Social links:** the Facebook and Instagram links appear twice (top-left buttons and the footer).
 - **Booking email:** the `mailto:` link in the `contact` section.
 - **Hero image:** `img/hero-band.webp`, set in the `.mainView` rule in `css/style.css`. The logo over it is `img/hoss_logo_white.svg`.
-- **Colors and fonts:** `css/style.css`. The page uses Lato, Amatic SC and Faculty Glyphic from Google Fonts.
+- **Colors and fonts:** `css/style.css`. The page uses Amatic SC for headings and Faculty Glyphic for body text from Google Fonts.
 
 For images, use WebP, keep them small, and give each one a descriptive `alt` text. Keep the original large photos outside the repo (for example in Google Drive).
 
@@ -93,7 +93,7 @@ The workflow is `.github/workflows/deploy.yml`.
 
 **What it does, in order:**
 
-1. Checks out the `deploy` branch, whichever branch started the run.
+1. Checks out the `deploy` branch, regardless of whichever branch started the run.
 2. Runs the unit tests (`python3 -m unittest discover tests`). A failing test stops the run.
 3. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, and the favicon files and `site.webmanifest` from the repo root. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
 4. Runs `scripts/process_schedule.py`:
@@ -204,35 +204,54 @@ The tests cover date and time parsing, the Denver "today" rules, sorting, valida
 ## Repository layout
 
 ```
-index.html                  the whole page
-css/style.css               styles (compiled from the template, edited directly)
-js/mainFunctions.js         menu, parallax, scroll animations, lazy images, back-to-top
-js/shows.js                 renders shows and Event JSON-LD from data/*.json
-js/videos.js                renders the video gallery, click-to-load player
-js/vendor/rellax.min.js     parallax library (self-hosted)
-img/                        optimized images and icons
-data/videos.json            committed copy of the video list (see note below)
-data/shows.json             generated, not committed
-data/past-shows.json        generated, not committed
-scripts/process_schedule.py schedule sheet -> shows.json and past-shows.json
-scripts/process_videos.py   video sheet -> videos.json
-tests/                      unit tests for both scripts
+index.html                    the whole page, including SEO metadata and MusicGroup data
+sitemap.xml, robots.txt       for search engines (contain the domain placeholder)
+css/style.css                 styles (compiled from the template, edited directly)
+js/mainFunctions.js           menu, parallax, scroll animations, lazy images, back-to-top
+js/shows.js                   renders shows and Event JSON-LD from data/*.json
+js/videos.js                  renders the video gallery, click-to-load player
+js/vendor/rellax.min.js       parallax library (self-hosted)
+img/                          optimized images and icons (og-image.jpg is the link-preview image)
+data/videos.json              committed copy of the video list (see note below)
+data/shows.json               generated, not committed
+data/past-shows.json          generated, not committed
+scripts/process_schedule.py   schedule sheet -> shows.json and past-shows.json
+scripts/process_videos.py     video sheet -> videos.json
+tests/                        unit tests for both scripts
 .github/workflows/deploy.yml  tests, data build and deployment
-AGENTS.md                   project decisions and rules for AI coding assistants
+AGENTS.md                     project decisions and rules for AI coding assistants
 ```
 
 **About the committed `data/videos.json`:** the live site never uses it, because the workflow replaces it with the sheet's data. It exists for local previews and as the source of `channel_url`. Its video list can drift out of date without any effect on the site.
 
 ## Custom domain and SEO
 
-The domain (to be registered through Porkbun) is not set up yet. When it is:
+**What is in place:**
 
-1. Add the custom domain in **Settings, Pages** and create the DNS records GitHub shows you. HTTPS is provided by GitHub Pages.
-2. Replace the domain placeholder in the canonical URL, Open Graph tags, `sitemap.xml` and structured data (these are part of the planned SEO step).
+- Page title and meta description, and a canonical URL (`<link rel="canonical">`).
+- Open Graph and Twitter card tags for link previews, using `img/og-image.jpg` (1200x630, cropped from the hero photo).
+- `MusicGroup` structured data (JSON-LD) in `index.html`, with the band's Facebook, Instagram and YouTube links.
+- `MusicEvent` structured data for upcoming shows, generated in the browser by `js/shows.js` from `data/shows.json`.
+- A single `<h1>` (the logo, with the band name as its alt text) and `<h2>` section headings, and `alt` text on images.
+- `robots.txt` (allows all crawling, including CSS, JavaScript and images) and `sitemap.xml`.
 
-The default `amart90-ui.github.io/hoss-website/` address serves the site from a subfolder, so page assets must use relative paths (`css/style.css`, not `/css/style.css`).
+**The domain placeholder.** Several of these need the full web address, which isn't known yet. They use `https://YOUR-DOMAIN.example` until the domain exists. It appears in:
 
-SEO items not done yet: canonical URL, Open Graph tags, `MusicGroup` JSON-LD, `sitemap.xml`, and a corrected `robots.txt`. The schedule already produces `MusicEvent` JSON-LD.
+- `index.html` (canonical URL, Open Graph tags and the `MusicGroup` data, 6 places),
+- `sitemap.xml`,
+- `robots.txt`.
+
+When the domain is registered through Porkbun:
+
+1. In **Settings, Pages**, add the custom domain and create the DNS records GitHub shows you. Turn on **Enforce HTTPS** when GitHub offers it.
+2. Search the repo for `YOUR-DOMAIN.example` and replace it with the real address, including `https://` and no trailing slash (for example `https://www.example.com`).
+3. Deploy, then submit `https://<domain>/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) if you want faster indexing.
+
+The workflow prints a warning in the Actions log while the placeholder is still in the published files.
+
+**On the default `github.io` address:** the canonical URL points at the placeholder, and `robots.txt` and `sitemap.xml` are ignored there, because crawlers only read them at the root of a domain. The default address is for testing. Don't expect it to rank, and don't share it as the band's official link. Page assets use relative paths (`css/style.css`, not `/css/style.css`) so the site works from the `/hoss-website/` subfolder and from the custom domain.
+
+**Checking the result.** After the domain is live, test the page with Google's [Rich Results Test](https://search.google.com/test/rich-results) (Event and MusicGroup data) and the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) (link preview). The Event data only exists while at least one upcoming show is in the sheet.
 
 ## Troubleshooting
 
