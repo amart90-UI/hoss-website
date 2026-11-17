@@ -326,6 +326,7 @@ p.miniPara {
 	text-align: center;
 	width: 70%;
 	margin: 70px auto 70px auto;
+	color: #BDB199
 }
 
 .imgContent {
@@ -453,6 +454,10 @@ p.pink:hover {
 	letter-spacing: 1px;
 }
 
+#next-show {
+	color: #BDB199;
+}
+
 .ss-nextShow {
 	display: flex;
 	flex-direction: column;
@@ -477,7 +482,7 @@ footer {
 
 footer p {
 	margin: 10px 0 10px 0;
-	color: #efe1c6;
+	color: #BDB199;
 	letter-spacing: 0.2rem;
 	font-weight: bolder;
 }
