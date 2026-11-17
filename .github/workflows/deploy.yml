@@ -38,10 +38,11 @@ jobs:
         run: python3 -m unittest discover tests -v
 
       # Publish only the files the website needs (not AGENTS.md, README, scripts, workflows, etc.).
+      # Any new top-level file the site uses (such as another icon) must be added to this list.
       - name: Assemble site
         run: |
           mkdir _site
-          for item in index.html css js img data robots.txt sitemap.xml; do
+          for item in index.html css js img data robots.txt sitemap.xml favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
             if [ -e "$item" ]; then cp -r "$item" _site/; fi
           done
 
