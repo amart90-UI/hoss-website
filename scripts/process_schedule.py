@@ -47,15 +47,17 @@ class ScheduleError(Exception):
 
 # --------------------------------------------------------------------------- fetching
 
-def fetch_csv(url):
-    """Download the published CSV. The URL is a secret, so it is never included in error messages."""
+def fetch_csv(url, secret_name=URL_ENV_VAR):
+    """Download the published CSV. The URL is a secret, so it is never included in error messages.
+
+    secret_name is only used in error messages, so other scripts can reuse this function."""
     last_error = "unknown error"
     for attempt in range(1, FETCH_ATTEMPTS + 1):
         try:
             request = urllib.request.Request(url, headers={"User-Agent": "hoss-website-schedule/1.0"})
             with urllib.request.urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
                 body = response.read()
-            return decode_csv_bytes(body)
+            return decode_csv_bytes(body, secret_name)
         except urllib.error.HTTPError as error:
             last_error = f"HTTP {error.code}"
             if error.code in (400, 401, 403, 404):
@@ -65,20 +67,20 @@ def fetch_csv(url):
         if attempt < FETCH_ATTEMPTS:
             time.sleep(2 * attempt)
     raise ScheduleError(
-        f"Could not download the schedule CSV ({last_error}). Check the SCHEDULE_CSV_URL secret and that the "
+        f"Could not download the CSV ({last_error}). Check the {secret_name} secret and that the "
         "sheet tab is published to the web as CSV."
     )
 
 
-def decode_csv_bytes(body):
+def decode_csv_bytes(body, secret_name=URL_ENV_VAR):
     try:
         text = body.decode("utf-8-sig")
     except UnicodeDecodeError as error:
-        raise ScheduleError(f"The schedule file is not valid UTF-8: {error}") from error
+        raise ScheduleError(f"The CSV is not valid UTF-8: {error}") from error
     head = text.lstrip()[:200].lower()
     if head.startswith("<!doctype") or head.startswith("<html") or "<html" in head:
         raise ScheduleError(
-            "The download returned a web page, not CSV. The SCHEDULE_CSV_URL secret probably points at the "
+            f"The download returned a web page, not CSV. The {secret_name} secret probably points at the "
             "sheet itself instead of its 'Publish to web' CSV link, or the sheet is not shared/published."
         )
     return text
