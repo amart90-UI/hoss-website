@@ -45,6 +45,10 @@ jobs:
           for item in index.html css js img data robots.txt sitemap.xml favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
             if [ -e "$item" ]; then cp -r "$item" _site/; fi
           done
+          # Reminder only; this does not fail the run.
+          if grep -rlq "YOUR-DOMAIN.example" _site; then
+            echo "::warning title=Domain placeholder::YOUR-DOMAIN.example is still in the published files (canonical URL, sitemap, robots.txt). Replace it once the custom domain is set up."
+          fi
 
       # Fails (and so skips the deployment) if the sheet cannot be downloaded or any row is invalid.
       # The site that is already live is left untouched in that case.

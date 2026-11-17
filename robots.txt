@@ -1,3 +1,7 @@
+# Allow all crawlers to read everything, including CSS, JavaScript and images.
 User-agent: *
-User-agent: Googlebot-Image
-Disallow: /images/*.svg$
+Allow: /
+
+# PLACEHOLDER: replace YOUR-DOMAIN.example with the real domain once it is set up.
+# This line only works when this file is served from the root of the domain.
+Sitemap: https://YOUR-DOMAIN.example/sitemap.xml
