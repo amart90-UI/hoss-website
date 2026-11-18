@@ -102,7 +102,8 @@ function revealOnScroll() {
 window.addEventListener('scroll', revealOnScroll);
 window.addEventListener('load', revealOnScroll);
 
-// Back-to-top arrow: appears when scrolling up after the first 600px.
+// Back-to-top arrow: appears when scrolling up after the first 600px. It's a plain link to #top,
+// so it works with a mouse or the keyboard; it also appears whenever it has keyboard focus (see CSS).
 document.addEventListener('DOMContentLoaded', function () {
 	const upArrow = document.getElementById('upArrow');
 	if (!upArrow) {
@@ -111,10 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	let lastScrollTop = 0;
 	window.addEventListener('scroll', function () {
 		const currentScroll = window.scrollY;
-		upArrow.style.display = currentScroll > 600 && currentScroll < lastScrollTop ? 'block' : 'none';
+		upArrow.classList.toggle('shown', currentScroll > 600 && currentScroll < lastScrollTop);
 		lastScrollTop = currentScroll;
-	});
-	upArrow.addEventListener('click', function () {
-		window.scrollTo({top: 0, behavior: 'smooth'});
 	});
 });
