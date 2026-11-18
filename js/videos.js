@@ -103,7 +103,7 @@
 		container.replaceChildren(wrapper);
 
 		if (typeof data.channel_url === 'string' && /^https:\/\//.test(data.channel_url)) {
-			const more = el('p', 'pink');
+			const more = el('p', 'more-link');
 			const link = el('a', '', 'Watch more on YouTube \u279E');
 			link.href = data.channel_url;
 			link.target = '_blank';
