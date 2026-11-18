@@ -1,7 +1,6 @@
-// Show schedule.
-// Reads data/shows.json (upcoming) and data/past-shows.json (past). Both files are generated from the Google Sheet
-// by scripts/process_schedule.py; the order in each file is already correct (upcoming soonest first, past newest first).
-// This script renders the next-show banner, both lists, and Event structured data (JSON-LD) for upcoming shows.
+// Show schedule: the "Next show" line, the upcoming and past show tables, and Event structured data.
+// Reads data/shows.json (upcoming, soonest first) and data/past-shows.json (past, most recent first).
+// Both files are generated from the Google Sheet by scripts/process_schedule.py, already sorted.
 (function () {
 	const BAND_NAME = 'Hoss and the Hangmen';
 	const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -10,6 +9,9 @@
 	const nextShowEl = document.getElementById('next-show');
 	const upcomingEl = document.getElementById('shows-upcoming');
 	const pastEl = document.getElementById('shows-past');
+	if (!nextShowEl || !upcomingEl || !pastEl) {
+		return;
+	}
 
 	function el(tag, className, text) {
 		const node = document.createElement(tag);
@@ -22,12 +24,21 @@
 		return node;
 	}
 
-	// Only http(s) URLs become links. The data is validated at build time; this is a second check.
+	// Only http(s) links are used. The build already checks this; this is a second check.
 	function safeUrl(url) {
 		return typeof url === 'string' && /^https?:\/\//i.test(url) ? url : null;
 	}
 
-	// "2026-07-18" -> "Sat, Jul 18, 2026" (no Date/timezone conversion, so it never shifts a day)
+	// A link that opens in a new tab.
+	function externalLink(text, href, className) {
+		const link = el('a', className, text);
+		link.href = href;
+		link.target = '_blank';
+		link.rel = 'noopener';
+		return link;
+	}
+
+	// "2026-07-18" -> "Sat, Jul 18, 2026". Calculated without time zones, so the date can't shift by a day.
 	function formatDate(isoDate, withYear) {
 		const [year, month, day] = isoDate.split('-').map(Number);
 		const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
@@ -46,33 +57,26 @@
 		return show.end_time ? start + ' \u2013 ' + formatTime(show.end_time) : start;
 	}
 
+	// One table row: date | venue, city and notes | time
 	function buildRow(show) {
 		const row = el('tr', 'animatableY');
 		row.append(el('td', '', formatDate(show.date, true)));
 
 		const details = el('td');
-		const venue = el('span', 'white');
+		const venue = el('span');
 		const venueUrl = safeUrl(show.venue_url);
 		if (venueUrl) {
-			const link = el('a', '', show.venue);
-			link.href = venueUrl;
-			link.target = '_blank';
-			link.rel = 'noopener';
-			venue.append(link);
+			venue.append(externalLink(show.venue, venueUrl));
 		} else {
 			venue.textContent = show.venue;
 		}
-		details.append(venue, document.createElement('br'), document.createTextNode(show.city + ', ' + show.state));
+		details.append(venue, el('br'), document.createTextNode(show.city + ', ' + show.state));
 		if (show.notes) {
-			details.append(document.createElement('br'), el('small', 'show-extra', show.notes));
+			details.append(el('br'), el('small', 'show-extra', show.notes));
 		}
 		const eventUrl = safeUrl(show.event_url);
 		if (eventUrl) {
-			const link = el('a', 'show-extra show-event-link', 'Event details');
-			link.href = eventUrl;
-			link.target = '_blank';
-			link.rel = 'noopener';
-			details.append(document.createElement('br'), link);
+			details.append(el('br'), externalLink('Event details', eventUrl, 'show-extra show-event-link'));
 		}
 		row.append(details, el('td', '', formatTimeRange(show)));
 		return row;
@@ -98,7 +102,7 @@
 		upcomingEl.replaceChildren(buildTable(shows, 'Upcoming shows'));
 	}
 
-	// Past shows sit in a <details> element that is collapsed until the visitor opens it.
+	// Past shows go in a <details> element, which stays collapsed until the visitor opens it.
 	function renderPast(shows) {
 		if (shows.length === 0) {
 			pastEl.replaceChildren();
@@ -109,12 +113,9 @@
 		pastEl.replaceChildren(details);
 	}
 
-	// Event structured data for upcoming shows, built from the same JSON.
+	// Event structured data (JSON-LD) for search engines, one MusicEvent per upcoming show.
 	function renderJsonLd(shows) {
-		const old = document.getElementById('events-jsonld');
-		if (old) {
-			old.remove();
-		}
+		document.getElementById('events-jsonld')?.remove();
 		if (shows.length === 0) {
 			return;
 		}
@@ -152,7 +153,7 @@
 			}
 			return event;
 		});
-		const script = document.createElement('script');
+		const script = el('script');
 		script.type = 'application/ld+json';
 		script.id = 'events-jsonld';
 		script.textContent = JSON.stringify({'@context': 'https://schema.org', '@graph': events});
@@ -168,14 +169,11 @@
 		});
 	}
 
+	// New rows start hidden (animatableY), so run the fade-in check from js/mainFunctions.js.
 	function afterRender() {
 		if (typeof revealOnScroll === 'function') {
 			revealOnScroll();
 		}
-	}
-
-	if (!nextShowEl || !upcomingEl || !pastEl) {
-		return;
 	}
 
 	load('data/shows.json')

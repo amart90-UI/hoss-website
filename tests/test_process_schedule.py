@@ -3,13 +3,14 @@
 import contextlib
 import io
 import json
+import os
 import sys
 import tempfile
 import unittest
 import urllib.error
-from unittest import mock
 from datetime import date, datetime, timezone
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import process_schedule as ps  # noqa: E402
@@ -300,21 +301,15 @@ class OutputTests(unittest.TestCase):
     def test_missing_env_and_bad_today(self):
         with tempfile.TemporaryDirectory() as out:
             err = io.StringIO()
-            with contextlib.redirect_stderr(err):
-                import os
-                saved = os.environ.pop("SCHEDULE_CSV_URL", None)
-                try:
-                    code = ps.main(["--output-dir", out])
-                finally:
-                    if saved is not None:
-                        os.environ["SCHEDULE_CSV_URL"] = saved
+            with mock.patch.dict(os.environ), contextlib.redirect_stderr(err):
+                os.environ.pop("SCHEDULE_CSV_URL", None)
+                code = ps.main(["--output-dir", out])
             self.assertEqual(code, 1)
             self.assertIn("SCHEDULE_CSV_URL", err.getvalue())
             code, _ = self.run_main(csv_text(GOOD), out, today="tomorrow")
             self.assertEqual(code, 1)
 
     def test_non_https_env_url_rejected(self):
-        import os
         with tempfile.TemporaryDirectory() as out, mock.patch.dict(os.environ, {"SCHEDULE_CSV_URL": "http://example.com/x"}):
             err = io.StringIO()
             with contextlib.redirect_stderr(err):

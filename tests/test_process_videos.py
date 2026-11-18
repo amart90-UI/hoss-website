@@ -12,7 +12,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import process_videos as pv  # noqa: E402
-from process_schedule import ScheduleError  # noqa: E402
+from process_schedule import ScheduleError, decode_csv_bytes  # noqa: E402
 
 HEADER = "title,url,id\n"
 GOOD = "House Fire,https://www.youtube.com/watch?v=WvEge0fWXK0,WvEge0fWXK0"
@@ -40,7 +40,7 @@ class ParsingTests(unittest.TestCase):
 
     def test_whitespace_bom_blank_rows_and_case(self):
         text = "\ufeffTitle,URL,ID\n  House Fire , x , WvEge0fWXK0 \n,,\n\n"
-        videos = pv.parse_csv(pv.decode_csv_bytes(text.encode("utf-8")))
+        videos = pv.parse_csv(decode_csv_bytes(text.encode("utf-8")))
         self.assertEqual(videos, [{"id": "WvEge0fWXK0", "title": "House Fire"}])
 
     def test_quoted_commas_and_unicode(self):
@@ -86,7 +86,7 @@ class ParsingTests(unittest.TestCase):
 
     def test_html_response_detected_and_names_the_right_secret(self):
         with self.assertRaises(ScheduleError) as ctx:
-            pv.decode_csv_bytes(b"<!DOCTYPE html><html>sign in</html>", pv.URL_ENV_VAR)
+            decode_csv_bytes(b"<!DOCTYPE html><html>sign in</html>", pv.URL_ENV_VAR)
         self.assertIn("VIDEO_CSV_URL", str(ctx.exception))
 
 
@@ -144,10 +144,12 @@ class OutputTests(unittest.TestCase):
 
     def test_missing_and_non_https_env_url(self):
         with tempfile.TemporaryDirectory() as out:
-            for env, expected in (({}, "VIDEO_CSV_URL"), ({"VIDEO_CSV_URL": "http://example.com/x"}, "https://")):
+            for value, expected in ((None, "VIDEO_CSV_URL"), ("http://example.com/x", "https://")):
                 err = io.StringIO()
-                with mock.patch.dict(os.environ, env, clear=False), contextlib.redirect_stderr(err):
-                    os.environ.pop("VIDEO_CSV_URL", None) if not env else None
+                with mock.patch.dict(os.environ), contextlib.redirect_stderr(err):
+                    os.environ.pop("VIDEO_CSV_URL", None)
+                    if value is not None:
+                        os.environ["VIDEO_CSV_URL"] = value
                     self.assertEqual(pv.main(["--output-dir", out]), 1)
                 self.assertIn(expected, err.getvalue())
 

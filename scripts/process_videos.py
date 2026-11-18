@@ -9,10 +9,10 @@ videos.json already in that directory (the one committed in the repo), so it is 
 Nothing is written unless every row is valid, so a failed run never replaces good data.
 
 Input, in order of precedence:
-  --csv FILE                 read a local CSV file (used for testing)
-  env VIDEO_CSV_URL          the full published-CSV link ("File > Share > Publish to web")
+  --csv FILE           read a local CSV file (for local testing)
+  env VIDEO_CSV_URL    the full published-CSV link ("File > Share > Publish to web")
 
-Standard library only. Reuses the download code from process_schedule.py.
+Standard library only. Reuses the download and error-reporting code in process_schedule.py.
 """
 
 import argparse
@@ -24,7 +24,7 @@ import re
 import sys
 from pathlib import Path
 
-from process_schedule import ScheduleError, decode_csv_bytes, fetch_csv
+from process_schedule import ScheduleError, read_csv_text, report_error
 
 URL_ENV_VAR = "VIDEO_CSV_URL"
 OUTPUT_NAME = "videos.json"
@@ -86,6 +86,7 @@ def existing_channel_url(output_dir):
 
 
 def build_document(videos, channel_url):
+    """The videos.json structure: {"channel_url": ..., "videos": [...]}."""
     document = {}
     if channel_url:
         document["channel_url"] = channel_url
@@ -117,24 +118,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     try:
-        if args.csv:
-            text = decode_csv_bytes(Path(args.csv).read_bytes(), URL_ENV_VAR)
-        else:
-            url = os.environ.get(URL_ENV_VAR, "").strip()
-            if not url:
-                raise ScheduleError(f"Environment variable {URL_ENV_VAR} is not set (and no --csv given).")
-            if not url.lower().startswith("https://"):
-                raise ScheduleError(f"{URL_ENV_VAR} must be a full https:// URL.")
-            text = fetch_csv(url, URL_ENV_VAR)
-        videos = parse_csv(text)
+        videos = parse_csv(read_csv_text(args.csv, URL_ENV_VAR))
         write_output(args.output_dir, build_document(videos, existing_channel_url(args.output_dir)))
     except ScheduleError as error:
-        message = str(error)
-        if os.environ.get("GITHUB_ACTIONS"):
-            message = "::error title=Video processing failed::" + message.replace("\n", "%0A")
-        else:
-            message = "error: " + message
-        print(message, file=sys.stderr)
+        report_error("Video processing failed", error)
         return 1
 
     print(f"Wrote {len(videos)} video(s) to {args.output_dir}/{OUTPUT_NAME}")

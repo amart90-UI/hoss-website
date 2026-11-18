@@ -8,10 +8,11 @@ Writes two files into the output directory:
 Nothing is written unless every row is valid, so a failed run never replaces good data.
 
 Input, in order of precedence:
-  --csv FILE                          read a local CSV file (used for testing)
-  env SCHEDULE_CSV_URL                the full published-CSV link ("File > Share > Publish to web")
+  --csv FILE              read a local CSV file (for local testing)
+  env SCHEDULE_CSV_URL    the full published-CSV link ("File > Share > Publish to web")
 
-Standard library only. See README.md for the sheet layout.
+Standard library only. See README.md for the sheet layout. process_videos.py reuses the
+download and error-reporting code in this file.
 """
 
 import argparse
@@ -42,15 +43,15 @@ STATE_RE = re.compile(r"^[A-Za-z]{2}$")
 
 
 class ScheduleError(Exception):
-    """Raised for any problem that must stop the run without writing output."""
+    """Any problem that must stop the run without writing output (also used by process_videos.py)."""
 
 
-# --------------------------------------------------------------------------- fetching
+# --------------------------------------------------------------------------- reading the CSV
 
 def fetch_csv(url, secret_name=URL_ENV_VAR):
-    """Download the published CSV. The URL is a secret, so it is never included in error messages.
+    """Download the published CSV, retrying network errors.
 
-    secret_name is only used in error messages, so other scripts can reuse this function."""
+    The URL is a secret, so error messages name the secret (secret_name) instead of showing the URL."""
     last_error = "unknown error"
     for attempt in range(1, FETCH_ATTEMPTS + 1):
         try:
@@ -73,6 +74,7 @@ def fetch_csv(url, secret_name=URL_ENV_VAR):
 
 
 def decode_csv_bytes(body, secret_name=URL_ENV_VAR):
+    """Decode the downloaded bytes, and reject a web page (what Google returns for a wrong link)."""
     try:
         text = body.decode("utf-8-sig")
     except UnicodeDecodeError as error:
@@ -84,6 +86,28 @@ def decode_csv_bytes(body, secret_name=URL_ENV_VAR):
             "sheet itself instead of its 'Publish to web' CSV link, or the sheet is not shared/published."
         )
     return text
+
+
+def read_csv_text(csv_path, env_var):
+    """Read the CSV from a local file (--csv), or else download it from the URL in env_var."""
+    if csv_path:
+        return decode_csv_bytes(Path(csv_path).read_bytes(), env_var)
+    url = os.environ.get(env_var, "").strip()
+    if not url:
+        raise ScheduleError(f"Environment variable {env_var} is not set (and no --csv given).")
+    if not url.lower().startswith("https://"):
+        raise ScheduleError(f"{env_var} must be a full https:// URL.")
+    return fetch_csv(url, env_var)
+
+
+def report_error(title, error):
+    """Print an error. In GitHub Actions it becomes an annotation, shown on the run's summary page."""
+    message = str(error)
+    if os.environ.get("GITHUB_ACTIONS"):
+        message = f"::error title={title}::" + message.replace("\n", "%0A")
+    else:
+        message = "error: " + message
+    print(message, file=sys.stderr)
 
 
 # --------------------------------------------------------------------------- parsing
@@ -116,11 +140,13 @@ def parse_time(value, column):
 
 
 def check_url(value, column):
+    """Require a full http(s) link with no spaces."""
     if re.search(r"\s", value) or not re.match(r"^https?://[^/\s]+", value, re.IGNORECASE):
         raise ValueError(f"{column} '{value}' must be a full URL starting with http:// or https://")
 
 
 def slugify(text):
+    """"The Old Mine" -> "the-old-mine". Used in show IDs."""
     slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
     return slug or "show"
 
@@ -131,7 +157,9 @@ def local_iso(day, hour, minute):
 
 
 def build_show(row):
-    """Validate one row (a dict of stripped strings) and return the output record."""
+    """Check one row (a dict of stripped strings) and return its JSON record.
+
+    Collects every problem in the row before failing, so one error message lists them all."""
     problems = []
     for column in REQUIRED_COLUMNS:
         if not row.get(column):
@@ -285,16 +313,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     try:
-        if args.csv:
-            text = decode_csv_bytes(Path(args.csv).read_bytes())
-        else:
-            url = os.environ.get(URL_ENV_VAR, "").strip()
-            if not url:
-                raise ScheduleError(f"Environment variable {URL_ENV_VAR} is not set (and no --csv given).")
-            if not url.lower().startswith("https://"):
-                raise ScheduleError(f"{URL_ENV_VAR} must be a full https:// URL.")
-            text = fetch_csv(url)
-        shows = parse_csv(text)
+        shows = parse_csv(read_csv_text(args.csv, URL_ENV_VAR))
         try:
             today = date.fromisoformat(args.today) if args.today else denver_today()
         except ValueError as error:
@@ -302,12 +321,7 @@ def main(argv=None):
         upcoming, past = split_shows(shows, today)
         write_outputs(args.output_dir, upcoming, past)
     except ScheduleError as error:
-        message = str(error)
-        if os.environ.get("GITHUB_ACTIONS"):
-            message = "::error title=Schedule processing failed::" + message.replace("\n", "%0A")
-        else:
-            message = "error: " + message
-        print(message, file=sys.stderr)
+        report_error("Schedule processing failed", error)
         return 1
 
     print(f"Today (America/Denver): {today.isoformat()}")

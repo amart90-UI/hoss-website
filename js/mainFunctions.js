@@ -1,4 +1,7 @@
-// Hamburger menu: a toggle button that reveals the section links.
+// Page behavior: hamburger menu, parallax logo, lazy-loaded member photos, fade-in on scroll,
+// and the back-to-top arrow.
+
+// Hamburger menu. The button opens and closes the five section links.
 // While closed, the links are "inert": they can't be focused or clicked and screen readers skip them.
 document.addEventListener('DOMContentLoaded', function () {
 	const nav = document.querySelector('.menu-nav');
@@ -10,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	const items = nav.querySelectorAll('.ss-menu');
 	const isOpen = () => toggle.classList.contains('active');
 
+	// The visible1...visible5 classes slide each link into place (see css/style.css).
 	function setOpen(open) {
 		toggle.classList.toggle('active', open);
 		toggle.setAttribute('aria-expanded', String(open));
@@ -22,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	toggle.addEventListener('click', () => setOpen(!isOpen()));
 	items.forEach(item => item.addEventListener('click', () => setOpen(false)));
 
-	// Escape closes the menu and returns focus to the toggle button.
+	// Escape closes the menu and returns focus to the menu button.
 	nav.addEventListener('keydown', function (event) {
 		if (event.key === 'Escape' && isOpen()) {
 			setOpen(false);
@@ -49,7 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		setOpen(false);
 	}, {passive: true});
 });
-// Parallax effect
+
+// Parallax: the hero logo scrolls at a different speed than the page (js/vendor/rellax.min.js).
 document.addEventListener('DOMContentLoaded', function () {
 	document.querySelectorAll('.rellax').forEach(el => {
 		el.style.transform = 'translateX(-50%)';
@@ -58,7 +63,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		new Rellax('.rellax');
 	}
 });
-// Lazy loading: swap the blurred image (src) for the full image (data-src) when it nears the viewport
+
+// Member photos: show the small blurred image (src) first, then swap in the full image (data-src)
+// shortly before it scrolls into view.
 document.addEventListener('DOMContentLoaded', function () {
 	const images = document.querySelectorAll('img.lazyload[data-src]');
 	const load = img => {
@@ -79,34 +86,35 @@ document.addEventListener('DOMContentLoaded', function () {
 	}, {rootMargin: '200px'});
 	images.forEach(img => observer.observe(img));
 });
-// Handle animations on scroll
+
+// Fade-in on scroll: elements with an "animatable" class get "showed" once they are 100px into the window.
+// js/shows.js calls this again after it adds the show rows.
 function revealOnScroll() {
-	const sizePage = window.innerHeight;
-	const trigger = 100;
+	const windowHeight = window.innerHeight;
+	const offset = 100;
 	document.querySelectorAll('.animatableY, .animatableX, .animatableOpacity').forEach(el => {
-		if (el.getBoundingClientRect().top + trigger <= sizePage) {
+		if (el.getBoundingClientRect().top + offset <= windowHeight) {
 			el.classList.add('showed');
 		}
 	});
 }
+
 window.addEventListener('scroll', revealOnScroll);
 window.addEventListener('load', revealOnScroll);
-// Scroll Up Button
+
+// Back-to-top arrow: appears when scrolling up after the first 600px.
 document.addEventListener('DOMContentLoaded', function () {
 	const upArrow = document.getElementById('upArrow');
-	if (upArrow) {
-		let lastScrollTop = 0;
-		window.addEventListener('scroll', function () {
-			const currentScroll = window.scrollY;
-			if (currentScroll > 600 && currentScroll < lastScrollTop) {
-				upArrow.style.display = 'block';
-			} else {
-				upArrow.style.display = 'none';
-			}
-			lastScrollTop = currentScroll;
-		});
-		upArrow.addEventListener('click', function () {
-			window.scrollTo({top: 0, behavior: 'smooth'});
-		});
+	if (!upArrow) {
+		return;
 	}
+	let lastScrollTop = 0;
+	window.addEventListener('scroll', function () {
+		const currentScroll = window.scrollY;
+		upArrow.style.display = currentScroll > 600 && currentScroll < lastScrollTop ? 'block' : 'none';
+		lastScrollTop = currentScroll;
+	});
+	upArrow.addEventListener('click', function () {
+		window.scrollTo({top: 0, behavior: 'smooth'});
+	});
 });

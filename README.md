@@ -70,7 +70,7 @@ The "Watch more on YouTube" link comes from `channel_url` in `data/videos.json` 
 
 ### Edit text, photos and links
 
-These live in `index.html`. Search for `PLACEHOLDER` to find text that still needs real content.
+These live in `index.html`.
 
 - **Band bio and quote:** the `band` section.
 - **Member names, roles and photos:** the three `card` blocks. Each photo has a small blurred version (`*-blur.webp`) that shows first and a full version that loads as the card scrolls into view. Add both files to `img/` and update the `src` and `data-src` paths.
@@ -163,7 +163,7 @@ The workflow file must exist on both `main` and `deploy`. GitHub only lists the 
 
 ### Run the pipeline manually
 
-1. Go to the **Actions** tab, choose **Build schedule and deploy site to GitHub Pages**, and click **Run workflow**.
+1. Go to the **Actions** tab, choose **Build and deploy site**, and click **Run workflow**.
 2. Wait for the run to finish. The log shows how many shows and videos were processed.
 3. Open the site. GitHub Pages can take a minute or two to show a new deployment, and your browser may need a hard refresh (Ctrl+F5).
 
@@ -219,7 +219,6 @@ scripts/process_schedule.py   schedule sheet -> shows.json and past-shows.json
 scripts/process_videos.py     video sheet -> videos.json
 tests/                        unit tests for both scripts
 .github/workflows/deploy.yml  tests, data build and deployment
-AGENTS.md                     project decisions and rules for AI coding assistants
 ```
 
 **About the committed `data/videos.json`:** the live site never uses it, because the workflow replaces it with the sheet's data. It exists for local previews and as the source of `channel_url`. Its video list can drift out of date without any effect on the site.

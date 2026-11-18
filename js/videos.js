@@ -1,6 +1,5 @@
-// YouTube video gallery.
-// Video list: data/videos.json (order in the file = order on the page).
-// The YouTube player is only created when a visitor clicks a video.
+// YouTube video gallery. Reads data/videos.json; the order in that file is the order on the page.
+// Each video shows only its thumbnail until clicked. The YouTube player loads on click and starts playing.
 (function () {
 	const DATA_URL = 'data/videos.json';
 	const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
@@ -9,7 +8,7 @@
 		return;
 	}
 
-	let playing = null; // {frame, button} of the video currently loaded in a player
+	let playing = null; // {frame, button} of the video whose player is currently loaded
 
 	function el(tag, className, text) {
 		const node = document.createElement(tag);
@@ -26,7 +25,7 @@
 		container.replaceChildren(el('p', 'hardLight', text));
 	}
 
-	// Put the thumbnail button back in place of a player that was loaded earlier.
+	// Only one player at a time: put the previous video's thumbnail back.
 	function resetPlaying() {
 		if (playing) {
 			playing.frame.replaceChildren(playing.button);
@@ -36,7 +35,7 @@
 
 	function loadPlayer(frame, button, video) {
 		resetPlaying();
-		const iframe = document.createElement('iframe');
+		const iframe = el('iframe');
 		iframe.src = 'https://www.youtube-nocookie.com/embed/' + video.id + '?autoplay=1&rel=0';
 		iframe.title = video.title;
 		iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
@@ -46,13 +45,14 @@
 		playing = {frame, button};
 	}
 
+	// One gallery card: thumbnail with a play button, and the title underneath.
 	function buildItem(video) {
 		const item = el('li', 'video-item');
 		const frame = el('div', 'video-frame');
 		const button = el('button', 'video-play');
 		button.type = 'button';
 		button.setAttribute('aria-label', 'Play video: ' + video.title);
-		const img = document.createElement('img');
+		const img = el('img');
 		img.src = 'https://i.ytimg.com/vi/' + video.id + '/hqdefault.jpg';
 		img.alt = '';
 		img.width = 480;
@@ -65,6 +65,7 @@
 		return item;
 	}
 
+	// Previous/next arrow buttons. Each click scrolls by most of the visible width.
 	function buildArrow(direction, scroller) {
 		const arrow = el('button', 'video-arrow video-arrow-' + direction, direction === 'prev' ? '\u2039' : '\u203A');
 		arrow.type = 'button';
