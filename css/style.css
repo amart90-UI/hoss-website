@@ -34,20 +34,23 @@ body {
 
 /* ------------------------------------------------------------------ social buttons (top left) */
 
+/* Lined up with the 50px menu button on the other side */
 .shareBtn {
 	position: absolute;
 	top: 5%;
 	left: 5%;
+	height: 50px;
 	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
-.elementBtn {
-	padding: 0 5px;
-}
-
-.elementBtn img {
-	position: relative;
-	width: 25px;
+/* Facebook and Instagram icons, here and in the footer. */
+.shareBtn img,
+.socialBanner img {
+	display: block;
+	width: 50px;
+	height: 50px;
 }
 
 /* ------------------------------------------------------------------ hamburger menu (top right) */
@@ -225,7 +228,7 @@ section {
 	min-height: 100vh;
 	max-height: 100vh;
 	color: #efe1c6;
-	background: transparent url("../img/hero-band.webp") center;
+	background: transparent url("../img/hero-band.webp") 60% center / cover no-repeat;
 }
 
 /* The logo over the hero image (see .hero-logo near the end of this file) */
@@ -433,23 +436,11 @@ footer p {
 	font-weight: bolder;
 }
 
-footer p.bolder {
-	font-size: 1.2rem;
-	letter-spacing: 0.2rem;
-	font-weight: bold;
-	text-transform: uppercase;
-}
-
 footer .socialBanner {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-}
-
-footer img {
-	max-width: 24px;
-	margin: 0 2px 0 2px;
-	cursor: pointer;
+	gap: 10px;
 }
 
 .footerBaner {
@@ -459,10 +450,9 @@ footer img {
 }
 
 .footerBaner .bandBanner {
-	margin-bottom: 10px;
+	margin-bottom: 15px;
 	width: 100%;
-	max-width: 75px;
-	cursor: default;
+	max-width: 100px;
 }
 
 /* ------------------------------------------------------------------ back-to-top arrow (shown by js/mainFunctions.js) */
