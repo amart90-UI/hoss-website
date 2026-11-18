@@ -4,8 +4,8 @@ The official website for Hoss and the Hangmen, a modern Colorado country band.
 
 It is a static site hosted on GitHub Pages. The show schedule and the video gallery come from two Google Sheets. A GitHub Actions workflow reads the sheets every day and rebuilds the site's data, so updating the website normally means just editing a spreadsheet.
 
-- Live (default GitHub Pages address): <https://amart90-ui.github.io/hoss-website/>
-- Custom domain: not set up yet (see [Custom domain and SEO](#custom-domain-and-seo)).
+- Live site: <https://hossandthehangmen.com/>
+- The default GitHub Pages address (<https://amart90-ui.github.io/hoss-website/>) redirects to the domain.
 
 ## Credits
 
@@ -205,7 +205,7 @@ The tests cover date and time parsing, the Denver "today" rules, sorting, valida
 
 ```
 index.html                    the whole page, including SEO metadata and MusicGroup data
-sitemap.xml, robots.txt       for search engines (contain the domain placeholder)
+sitemap.xml, robots.txt       for search engines (contain the domain)
 css/style.css                 styles (compiled from the template, edited directly)
 js/mainFunctions.js           menu, parallax, scroll animations, lazy images, back-to-top
 js/shows.js                   renders shows and Event JSON-LD from data/*.json
@@ -226,6 +226,8 @@ AGENTS.md                     project decisions and rules for AI coding assistan
 
 ## Custom domain and SEO
 
+The site is served at `https://hossandthehangmen.com`. The domain is registered through Porkbun, and its DNS points at GitHub Pages. The domain is set in **Settings, Pages, Custom domain**. A `CNAME` file isn't needed, because GitHub ignores that file for sites deployed by a workflow. `www.hossandthehangmen.com` redirects to the bare domain, which is the canonical address.
+
 **What is in place:**
 
 - Page title and meta description, and a canonical URL (`<link rel="canonical">`).
@@ -235,21 +237,17 @@ AGENTS.md                     project decisions and rules for AI coding assistan
 - A single `<h1>` (the logo, with the band name as its alt text) and `<h2>` section headings, and `alt` text on images.
 - `robots.txt` (allows all crawling, including CSS, JavaScript and images) and `sitemap.xml`.
 
-**The domain placeholder.** Several of these need the full web address, which isn't known yet. They use `https://YOUR-DOMAIN.example` until the domain exists. It appears in:
+**Where the domain is written.** The full address `https://hossandthehangmen.com` appears in:
 
 - `index.html` (canonical URL, Open Graph tags and the `MusicGroup` data, 6 places),
 - `sitemap.xml`,
 - `robots.txt`.
 
-When the domain is registered through Porkbun:
+If the domain ever changes, update all three, then update **Settings, Pages, Custom domain** and the DNS records at Porkbun. The DNS records GitHub expects are listed in [GitHub's custom domain docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
 
-1. In **Settings, Pages**, add the custom domain and create the DNS records GitHub shows you. Turn on **Enforce HTTPS** when GitHub offers it.
-2. Search the repo for `YOUR-DOMAIN.example` and replace it with the real address, including `https://` and no trailing slash (for example `https://www.example.com`).
-3. Deploy, then submit `https://<domain>/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) if you want faster indexing.
+Page assets use relative paths (`css/style.css`, not `/css/style.css`), so the site also works from a subfolder.
 
-The workflow prints a warning in the Actions log while the placeholder is still in the published files.
-
-**On the default `github.io` address:** the canonical URL points at the placeholder, and `robots.txt` and `sitemap.xml` are ignored there, because crawlers only read them at the root of a domain. The default address is for testing. Don't expect it to rank, and don't share it as the band's official link. Page assets use relative paths (`css/style.css`, not `/css/style.css`) so the site works from the `/hoss-website/` subfolder and from the custom domain.
+**Search engines.** Submit `https://hossandthehangmen.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) after verifying the domain there (the DNS method works with Porkbun). This is optional, but it speeds up indexing and shows any crawl problems.
 
 **Checking the result.** After the domain is live, test the page with Google's [Rich Results Test](https://search.google.com/test/rich-results) (Event and MusicGroup data) and the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) (link preview). The Event data only exists while at least one upcoming show is in the sheet.
 
