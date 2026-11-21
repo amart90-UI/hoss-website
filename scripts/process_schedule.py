@@ -35,7 +35,10 @@ FETCH_ATTEMPTS = 3
 FETCH_TIMEOUT_SECONDS = 30
 
 REQUIRED_COLUMNS = ["date", "start_time", "venue", "city", "state"]
-OPTIONAL_COLUMNS = ["end_time", "venue_url", "event_url", "notes"]
+OPTIONAL_COLUMNS = [
+    "end_time", "venue_url", "event_url", "notes", "address", "zip_code", "zip",
+    "performers", "description", "country", "timezone",
+]
 
 DATE_RE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")  # M/D/YYYY, day and month may be 1 or 2 digits
 TIME_RE = re.compile(r"^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])$")  # H:MM:SS AM/PM (seconds optional)
@@ -182,6 +185,8 @@ def build_show(row):
             end = parse_time(row["end_time"], "end_time")
         except ValueError as error:
             problems.append(str(error))
+    if start and end and end == start:
+        problems.append("end_time must occur after start_time")
     if row.get("state") and not STATE_RE.match(row["state"]):
         problems.append(f"state '{row['state']}' must be a two-letter code such as CO")
     for column in ("venue_url", "event_url"):
@@ -214,6 +219,12 @@ def build_show(row):
         "state": row["state"].upper(),
         "event_url": row.get("event_url") or None,
         "notes": row.get("notes") or None,
+        "address": row.get("address") or None,
+        "zip_code": row.get("zip_code") or row.get("zip") or None,
+        "performers": row.get("performers") or None,
+        "description": row.get("description") or None,
+        "country": (row.get("country") or "US").upper(),
+        "timezone": row.get("timezone") or "America/Denver",
     }
 
 
@@ -310,6 +321,8 @@ def main(argv=None):
     parser.add_argument("--csv", help="read this local CSV file instead of downloading the sheet")
     parser.add_argument("--output-dir", default="data", help="where to write shows.json and past-shows.json")
     parser.add_argument("--today", help="override today's date (YYYY-MM-DD); for testing")
+    parser.add_argument("--generate-events", action="store_true", help="generate static event pages and update the sitemap")
+    parser.add_argument("--site-root", default=".", help="website output root used with --generate-events")
     args = parser.parse_args(argv)
 
     try:
@@ -319,7 +332,24 @@ def main(argv=None):
         except ValueError as error:
             raise ScheduleError(f"--today must be YYYY-MM-DD: {error}") from error
         upcoming, past = split_shows(shows, today)
+        try:
+            from event_pages import assign_event_paths
+
+            linked_upcoming = assign_event_paths(upcoming)
+            upcoming_by_id = {show["id"]: show for show in linked_upcoming}
+            upcoming = [upcoming_by_id[show["id"]] for show in upcoming]
+        except ImportError:
+            pass
         write_outputs(args.output_dir, upcoming, past)
+        if args.generate_events:
+            from event_pages import generate_event_pages, update_sitemap
+
+            try:
+                generated_events = generate_event_pages(upcoming, args.site_root)
+                update_sitemap(args.site_root, generated_events)
+                print(f"Generated {len(generated_events)} individual event page(s)")
+            except Exception as error:
+                raise ScheduleError(str(error)) from error
     except ScheduleError as error:
         report_error("Schedule processing failed", error)
         return 1

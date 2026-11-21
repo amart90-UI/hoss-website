@@ -408,6 +408,67 @@ p.more-link:hover {
 	color: #BDB199;
 }
 
+/* ------------------------------------------------------------------ individual event pages */
+
+.event-page {
+	min-height: 100vh;
+}
+
+.event-header {
+	background: #323536;
+	padding: 20px 5%;
+	text-align: center;
+}
+
+.event-brand img {
+	width: 244px;
+	height: auto;
+}
+
+.event-content {
+	width: min(800px, 90%);
+	margin: 0 auto;
+	padding: 40px 0 20px;
+}
+
+.event-content h1 {
+	position: static;
+	width: 100%;
+	max-width: none;
+	margin: 0 0 30px;
+	transform: none;
+	opacity: 1;
+	animation: none;
+	font-family: "Amatic SC", cursive;
+	font-size: 3.5rem;
+	text-align: center;
+	color: #efe1c6;
+	line-height: 1;
+}
+
+.event-content p {
+	margin: 18px 0;
+}
+
+.event-image {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-height: 420px;
+	object-fit: cover;
+	border-radius: 15px;
+}
+
+.event-date,
+.event-time {
+	text-align: center;
+}
+
+.event-announcement {
+	color: #ff9760;
+	text-decoration: underline;
+}
+
 .ss-nextShow {
 	display: flex;
 	flex-direction: column;

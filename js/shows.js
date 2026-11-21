@@ -65,7 +65,10 @@
 		const details = el('td');
 		const venue = el('span');
 		const venueUrl = safeUrl(show.venue_url);
-		if (venueUrl) {
+		if (show.page_url) {
+			venue.append(el('a', '', show.venue));
+			venue.firstElementChild.href = show.page_url.replace(/^https:\/\/hossandthehangmen\.com/, '');
+		} else if (venueUrl) {
 			venue.append(externalLink(show.venue, venueUrl));
 		} else {
 			venue.textContent = show.venue;
@@ -130,26 +133,30 @@
 					addressCountry: 'US'
 				}
 			};
+			if (show.address) location.address.streetAddress = show.address;
+			if (show.zip_code) location.address.postalCode = show.zip_code;
 			if (safeUrl(show.venue_url)) {
 				location.url = show.venue_url;
 			}
 			const event = {
-				'@type': 'MusicEvent',
+				'@type': 'Event',
 				name: BAND_NAME + ' at ' + show.venue,
 				startDate: show.start,
 				eventStatus: 'https://schema.org/EventScheduled',
 				eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
 				location: location,
-				performer: {'@type': 'MusicGroup', name: BAND_NAME}
+				performer: {'@type': 'PerformingGroup', name: BAND_NAME, url: 'https://hossandthehangmen.com/'},
+				isAccessibleForFree: true,
+				image: 'https://hossandthehangmen.com/img/og-image.jpg'
 			};
 			if (show.end) {
 				event.endDate = show.end;
 			}
-			if (safeUrl(show.event_url)) {
-				event.url = show.event_url;
+			if (show.page_url) {
+				event.url = show.page_url;
 			}
-			if (show.notes) {
-				event.description = show.notes;
+			if (show.description) {
+				event.description = show.description;
 			}
 			return event;
 		});
