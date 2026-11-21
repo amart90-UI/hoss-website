@@ -95,6 +95,11 @@ def build_json_ld(event):
             "name": BAND_NAME,
             "url": BAND_URL,
         },
+        "organizer": {
+            "@type": "Organization",
+            "name": BAND_NAME,
+            "url": BAND_URL,
+        },
         "location": {
             "@type": "Place",
             "name": event["venue"],

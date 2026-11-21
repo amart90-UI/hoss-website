@@ -41,6 +41,12 @@ class EventPageTests(unittest.TestCase):
         self.assertEqual(ld["startDate"], "2026-07-18T19:00:00-06:00")
         self.assertTrue(ld["isAccessibleForFree"])
         self.assertEqual(ld["performer"]["@type"], "PerformingGroup")
+        self.assertEqual(ld["organizer"], {
+            "@type": "Organization",
+            "name": "Hoss and the Hangmen",
+            "url": "https://hossandthehangmen.com/",
+        })
+        self.assertEqual(ld["sameAs"], ["https://example.com/event"])
         self.assertEqual(ld["location"]["address"]["postalCode"], "80526")
         json.dumps(ld)
 
