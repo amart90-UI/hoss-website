@@ -51,14 +51,14 @@ jobs:
       # so the live site keeps its last good data.
       - name: Generate schedule data from Google Sheets
         env:
-          SCHEDULE_CSV_URL: ${{ secrets.SCHEDULE_CSV_URL }}
+          SCHEDULE_CSV_URL: ${{ vars.SCHEDULE_CSV_URL }}
         run: python3 scripts/process_schedule.py --output-dir _site/data
 
       # Replaces the copied data/videos.json with the list from the video sheet, keeping its channel_url.
       # Fails the same way as the schedule step.
       - name: Generate video list from Google Sheets
         env:
-          VIDEO_CSV_URL: ${{ secrets.VIDEO_CSV_URL }}
+          VIDEO_CSV_URL: ${{ vars.VIDEO_CSV_URL }}
         run: python3 scripts/process_videos.py --output-dir _site/data
 
       - id: pages
