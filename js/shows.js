@@ -29,6 +29,20 @@
 		return typeof url === 'string' && /^https?:\/\//i.test(url) ? url : null;
 	}
 
+	function internalPagePath(url) {
+		if (!safeUrl(url)) {
+			return null;
+		}
+		try {
+			const page = new URL(url);
+			return page.origin === 'https://hossandthehangmen.com' && page.pathname.startsWith('/events/')
+				? page.pathname
+				: null;
+		} catch {
+			return null;
+		}
+	}
+
 	// A link that opens in a new tab.
 	function externalLink(text, href, className) {
 		const link = el('a', className, text);
@@ -36,6 +50,66 @@
 		link.target = '_blank';
 		link.rel = 'noopener';
 		return link;
+	}
+
+	function addressText(show) {
+		return [show.address, show.city, show.state, show.zip_code]
+			.filter(part => typeof part === 'string' && part.trim())
+			.join(', ');
+	}
+
+	function directionsUrl(show) {
+		const address = addressText(show);
+		if (!show.address || !address) {
+			return null;
+		}
+		const query = [show.venue, address].filter(Boolean).join(', ');
+		return 'https://www.google.com/maps/search/?' + new URLSearchParams({api: '1', query});
+	}
+
+	function calendarDate(value) {
+		if (typeof value !== 'string') {
+			return null;
+		}
+		const date = new Date(value);
+		return Number.isNaN(date.getTime())
+			? null
+			: date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+	}
+
+	function calendarUrl(show) {
+		const start = calendarDate(show.start);
+		const end = calendarDate(show.end);
+		if (!start || !end) {
+			return null;
+		}
+		const details = [show.description, show.page_url ? 'Event details: ' + show.page_url : '']
+			.filter(Boolean)
+			.join('\n\n');
+		const params = new URLSearchParams({
+			action: 'TEMPLATE',
+			text: BAND_NAME + ' at ' + show.venue,
+			dates: start + '/' + end,
+			ctz: show.timezone || 'America/Denver',
+			location: [show.venue, addressText(show)].filter(Boolean).join(', ')
+		});
+		if (details) {
+			params.set('details', details);
+		}
+		return 'https://calendar.google.com/calendar/render?' + params;
+	}
+
+	function buildShowActions(show, className) {
+		const actions = el('span', className || 'show-actions');
+		const directions = directionsUrl(show);
+		const calendar = calendarUrl(show);
+		if (directions) {
+			actions.append(externalLink('Directions', directions, 'show-action-link'));
+		}
+		if (calendar) {
+			actions.append(externalLink('Add to calendar', calendar, 'show-action-link'));
+		}
+		return actions.childElementCount ? actions : null;
 	}
 
 	// "2026-07-18" -> "Sat, Jul 18, 2026". Calculated without time zones, so the date can't shift by a day.
@@ -65,9 +139,10 @@
 		const details = el('td');
 		const venue = el('span');
 		const venueUrl = safeUrl(show.venue_url);
-		if (show.page_url) {
+		const pagePath = internalPagePath(show.page_url);
+		if (pagePath) {
 			venue.append(el('a', '', show.venue));
-			venue.firstElementChild.href = show.page_url.replace(/^https:\/\/hossandthehangmen\.com/, '');
+			venue.firstElementChild.href = pagePath;
 		} else if (venueUrl) {
 			venue.append(externalLink(show.venue, venueUrl));
 		} else {
@@ -80,6 +155,10 @@
 		const eventUrl = safeUrl(show.event_url);
 		if (eventUrl) {
 			details.append(el('br'), externalLink('Event details', eventUrl, 'show-extra show-event-link'));
+		}
+		const actions = buildShowActions(show);
+		if (actions) {
+			details.append(el('br'), actions);
 		}
 		row.append(details, el('td', '', formatTimeRange(show)));
 		return row;
@@ -101,7 +180,20 @@
 			return;
 		}
 		const next = shows[0];
-		nextShowEl.textContent = formatDate(next.date, false) + ' | ' + next.venue + ' - ' + next.city;
+		nextShowEl.replaceChildren(document.createTextNode(formatDate(next.date, false) + ' | '));
+		const venueLabel = next.venue + ' - ' + next.city;
+		const pagePath = internalPagePath(next.page_url);
+		if (pagePath) {
+			const link = el('a', 'next-show-event-link', venueLabel);
+			link.href = pagePath;
+			nextShowEl.append(link);
+		} else {
+			nextShowEl.append(document.createTextNode(venueLabel));
+		}
+		const actions = buildShowActions(next, 'next-show-actions');
+		if (actions) {
+			nextShowEl.append(el('br'), actions);
+		}
 		upcomingEl.replaceChildren(buildTable(shows, 'Upcoming shows'));
 	}
 

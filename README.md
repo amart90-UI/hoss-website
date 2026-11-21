@@ -105,8 +105,9 @@ The workflow is `.github/workflows/deploy.yml`.
    - downloads the video CSV (URL from the `VIDEO_CSV_URL` secret),
    - checks every row (title present, valid 11-character YouTube ID, no duplicates),
    - writes `videos.json` in sheet order, keeping `channel_url` from the repo's copy.
-6. On scheduled runs only, compares the new JSON files with the ones on the live site. If nothing changed, it skips the deployment. Pushes and manual runs always deploy.
-7. Uploads `_site` and deploys it to GitHub Pages.
+6. Runs `scripts/event_pages.py` to generate pages for upcoming shows and update the sitemap.
+7. On scheduled runs only, compares the new JSON files with the ones on the live site. If nothing changed, it skips the deployment. Pushes and manual runs always deploy.
+8. Uploads `_site` and deploys it to GitHub Pages.
 
 **Safety rules:**
 
@@ -118,6 +119,8 @@ The workflow is `.github/workflows/deploy.yml`.
 **What the page does with the data:**
 
 - `js/shows.js` fills the "Next show" line, the upcoming table and the collapsed past-shows list. It also adds `MusicEvent` structured data (JSON-LD) for the upcoming shows, built from the same data.
+- The next-show link opens that show's event page. Upcoming show listings and event pages include Google Maps directions when an address is available, and a Google Calendar link when both start and end times are available.
+- A static event page is generated only when that show's row includes an address and ZIP code; shows without those fields remain listed but do not get an event-page link.
 - `js/videos.js` draws the horizontally scrolling gallery. It shows YouTube thumbnails only. The YouTube player (`youtube-nocookie.com`) loads when a visitor clicks a video, and the video starts playing right away.
 
 ## One-time setup

@@ -386,6 +386,50 @@ p.more-link:hover {
 	transition: all 250ms cubic-bezier(0, 0.69, 0.46, 0.95);
 }
 
+.next-show-event-link {
+	text-decoration: underline;
+	text-decoration-color: #BDB199;
+	text-underline-offset: 0.15em;
+}
+
+.show-actions,
+.next-show-actions,
+.event-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.next-show-actions,
+.event-actions {
+	justify-content: center;
+	margin-top: 16px;
+}
+
+.show-action-link {
+	display: inline-block;
+	padding: 4px 10px;
+	border: 1px solid #BDB199;
+	border-radius: 20px;
+	color: #efe1c6;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.show-action-link:hover,
+.show-action-link:focus-visible {
+	background-color: #AA5321;
+	border-color: #AA5321;
+	transform: none;
+}
+
+.date table td .show-action-link:hover {
+	transform: none;
+}
+
 /* Date column */
 .date table td:first-of-type {
 	color: #efe1c6;
