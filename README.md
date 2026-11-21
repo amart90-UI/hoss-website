@@ -184,6 +184,16 @@ python scripts/process_schedule.py --csv "path/to/schedule.csv"
 ```
 
 You can also run the scripts against the real sheet by setting the secret as an environment variable first (`$env:SCHEDULE_CSV_URL = "..."` in PowerShell) and leaving off `--csv`. Do not save the link in a file in the repo.
+After processing the schedule, generate the individual pages from `data/shows.json`:
+
+```
+python scripts/event_pages.py
+```
+
+By default this writes pages into `events/` under the repository root and updates
+`sitemap.xml`, which lets `python -m http.server 8000` serve the event URLs locally.
+To build in a separate site directory instead, pass `--site-root _site` and serve that
+directory with `python -m http.server 8000 --directory _site`.
 
 To rebuild the video list from a downloaded copy of the video sheet:
 
@@ -201,6 +211,38 @@ python -m unittest discover tests -v
 
 The tests cover date and time parsing, the Denver "today" rules, sorting, validation errors, deterministic output, the download failure paths (with the network mocked), and the video list. They use inline sample data and need no network access or secrets.
 
+## Individual event pages
+
+The schedule pipeline generates a static HTML page for every upcoming show at
+`/events/YYYY-MM-DD-venue-slug/`. Pages include visible event details and Schema.org
+`Event` JSON-LD. The custom-domain canonical URL is centralized in
+`scripts/event_pages.py` along with the band name, band URL, timezone and event image
+path.
+
+The schedule CSV may include these event fields:
+
+| Column | Notes |
+|---|---|
+| `address` | Required for an individual event page |
+| `zip_code` | Required; accepts a 5-digit US ZIP or ZIP+4 |
+| `country` | Optional; if present must be `US` |
+| `timezone` | Optional; if present must be `America/Denver` |
+| `performers` | Optional lineup description, such as `Ben + Anthony` |
+| `description` | Optional public-facing event description |
+
+`start_time` and `end_time` use Denver local time. Python's `zoneinfo` automatically
+uses MDT or MST. If `end_time` is earlier than `start_time`, it is interpreted as ending
+after midnight. Empty optional event fields are omitted from structured data.
+
+The event generator removes stale pages under `_site/events/` before rebuilding, and
+the sitemap contains the homepage plus only the currently generated event URLs.
+
+To test a deployed page, open its `/events/.../` URL and submit the URL to Google's
+[Rich Results Test](https://search.google.com/test/rich-results). Then submit
+`https://hossandthehangmen.com/sitemap.xml` in Google Search Console and monitor
+**Search appearance > Enhancements > Events** for indexing or structured-data issues.
+Google rich results are not guaranteed.
+
 ## Repository layout
 
 ```
@@ -217,6 +259,7 @@ data/shows.json               generated, not committed
 data/past-shows.json          generated, not committed
 scripts/process_schedule.py   schedule sheet -> shows.json and past-shows.json
 scripts/process_videos.py     video sheet -> videos.json
+scripts/event_pages.py        validated shows -> individual event pages and sitemap
 tests/                        unit tests for both scripts
 .github/workflows/deploy.yml  tests, data build and deployment
 ```
