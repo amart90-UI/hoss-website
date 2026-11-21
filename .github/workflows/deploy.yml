@@ -52,7 +52,7 @@ jobs:
       - name: Generate schedule data from Google Sheets
         env:
           SCHEDULE_CSV_URL: ${{ vars.SCHEDULE_CSV_URL }}
-        run: python3 scripts/process_schedule.py --output-dir _site/data
+        run: python3 scripts/process_schedule.py --output-dir _site/data --generate-events --site-root _site
 
       # Replaces the copied data/videos.json with the list from the video sheet, keeping its channel_url.
       # Fails the same way as the schedule step.
