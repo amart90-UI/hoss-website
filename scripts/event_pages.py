@@ -7,8 +7,9 @@ import json
 import re
 import shutil
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 from xml.etree import ElementTree as ET
 
 from process_schedule import check_url, slugify
@@ -32,10 +33,16 @@ def event_slug(venue):
 
 
 def assign_event_paths(events):
-    """Return copied events with deterministic unique date/venue page paths."""
+    """Assign deterministic page paths to shows with complete venue addresses."""
     assigned = []
     used = {}
     for event in sorted(events, key=lambda item: (item["date"], item["start"], item["id"])):
+        if not event.get("address") or not event.get("zip_code"):
+            copy = dict(event)
+            copy.pop("page_path", None)
+            copy.pop("page_url", None)
+            assigned.append(copy)
+            continue
         base = f"{event['date']}-{event_slug(event['venue'])}"
         suffix = used.get(base, 0)
         used[base] = suffix + 1
@@ -127,6 +134,29 @@ def format_time(time24):
     return f"{hour}:{minute:02d} {suffix}"
 
 
+def google_calendar_url(event):
+    if not event.get("start") or not event.get("end"):
+        return None
+    start = datetime.fromisoformat(event["start"]).astimezone(timezone.utc)
+    end = datetime.fromisoformat(event["end"]).astimezone(timezone.utc)
+    address = ", ".join(filter(None, (
+        event.get("venue"),
+        event.get("address"),
+        event.get("city"),
+        event.get("state"),
+        event.get("zip_code"),
+    )))
+    params = {
+        "action": "TEMPLATE",
+        "text": f"{BAND_NAME} at {event['venue']}",
+        "dates": start.strftime("%Y%m%dT%H%M%SZ") + "/" + end.strftime("%Y%m%dT%H%M%SZ"),
+        "ctz": event.get("timezone") or TIMEZONE,
+        "location": address,
+        "details": event.get("description") or "",
+    }
+    return "https://calendar.google.com/calendar/render?" + urlencode(params)
+
+
 def render_event_page(event):
     title = f"{BAND_NAME} at {event['venue']}"
     description = event.get("description") or f"{title} in {event['city']}, {event['state']}."
@@ -152,6 +182,24 @@ def render_event_page(event):
     if event.get("end_time"):
         time_range += " &ndash; " + format_time(event["end_time"])
     json_ld = json.dumps(build_json_ld(event), ensure_ascii=False, indent=2)
+    map_query = ", ".join(filter(None, (
+        event.get("venue"),
+        event.get("address"),
+        event.get("city"),
+        event.get("state"),
+        event.get("zip_code"),
+    )))
+    maps_url = "https://www.google.com/maps/search/?" + urlencode({"api": "1", "query": map_query})
+    calendar_url = google_calendar_url(event)
+    event_actions = (
+        '<div class="event-actions">'
+        f'<a class="show-action-link" href="{html.escape(maps_url, quote=True)}" target="_blank" rel="noopener">Directions</a>'
+        + (
+            f'<a class="show-action-link" href="{html.escape(calendar_url, quote=True)}" target="_blank" rel="noopener">Add to calendar</a>'
+            if calendar_url else ""
+        )
+        + '</div>'
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -184,6 +232,7 @@ def render_event_page(event):
   <p class="event-time"><strong>{time_range}</strong></p>
   <p><strong>Venue:</strong> {venue_link}</p>
   <p>{html.escape(event["address"])}<br>{html.escape(event["city"])}, {html.escape(event["state"])} {html.escape(event["zip_code"])}</p>
+  {event_actions}
   {performers}
   {description_html}
   {event_link}
@@ -200,7 +249,7 @@ def render_event_page(event):
 
 def generate_event_pages(events, site_root):
     site_root = Path(site_root)
-    assigned = assign_event_paths(events)
+    assigned = [event for event in assign_event_paths(events) if event.get("page_path")]
     errors = []
     for event in assigned:
         try:
@@ -213,7 +262,7 @@ def generate_event_pages(events, site_root):
     events_root = site_root / "events"
     if events_root.exists():
         shutil.rmtree(events_root)
-    if events:
+    if assigned:
         events_root.mkdir(parents=True)
 
     for event in assigned:
