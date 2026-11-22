@@ -224,12 +224,13 @@ def render_event_page(event):
 </script>
 </head>
 <body class="event-page">
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="event-header">
   <a class="event-brand" href="../../" aria-label="Hoss and the Hangmen home">
     <img src="../../img/hoss_logo_white.svg" alt="Hoss and the Hangmen" width="244" height="147">
   </a>
 </header>
-<main>
+<main id="main-content" tabindex="-1">
 <article class="event-content">
   <h1>{html.escape(title)}</h1>
   <img class="event-image" src="../../{EVENT_IMAGE_PATH}" alt="Hoss and the Hangmen promotional image" width="1200" height="630">

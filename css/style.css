@@ -32,6 +32,24 @@ body {
 	background-color: #323536;
 }
 
+.skip-link {
+	position: fixed;
+	top: 1rem;
+	left: 1rem;
+	z-index: 10;
+	padding: 0.75rem 1rem;
+	transform: translateY(calc(-100% - 1rem));
+	background-color: #323536;
+	color: #efe1c6;
+	font-family: "Faculty Glyphic", sans-serif;
+}
+
+.skip-link:focus {
+	transform: translateY(0);
+	outline: 3px solid #efe1c6;
+	outline-offset: 3px;
+}
+
 /* ------------------------------------------------------------------ social buttons (top left) */
 
 /* Lined up with the 50px menu button on the other side */
