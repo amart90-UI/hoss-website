@@ -14,15 +14,15 @@ This site is based on the [Free Rock Band Website Template](https://github.com/g
 ## How it works
 
 ```
-Google Sheet "schedule"  ──┐                         ┌─> data/shows.json
-(published as CSV)         ├─> GitHub Actions ──> Python scripts ─> data/past-shows.json ──> GitHub Pages
-Google Sheet "videos"    ──┘   (daily / on push)     └─> data/videos.json
+Google Sheet "schedule"  ──┐                            ┌─> data/shows.json / data/past-shows.json
+(published as CSV)         ├─> GitHub Actions ─> scripts ├─> img/upcomingshow.jpg / /showposter/
+Google Sheet "videos"    ──┘   (daily / on push)        └─> data/videos.json
 (published as CSV)
 ```
 
 - **Plain HTML, CSS and JavaScript.** There is no framework and no build tool. `index.html` is the single page.
 - **Show and video lists are not written in the HTML.** The browser loads `data/*.json` and `js/shows.js` and `js/videos.js` draw the lists.
-- **Python (standard library only)** turns the spreadsheets into those JSON files while the workflow runs. The generated show files are not committed to the repo.
+- **Python** turns the spreadsheets into JSON and generates the upcoming-show JPEG while the workflow runs. The generated files are not committed to the repo; Pillow is listed in `requirements.txt`.
 - **Cost:** GitHub Pages, GitHub Actions and Google Sheets are free. The only recurring cost is the domain name, once it is registered.
 
 ## Updating the website
@@ -53,6 +53,7 @@ Rules:
 - **Only put public information in the sheet.** Anyone who has the published CSV link can read the tab.
 
 The change goes live the next time the workflow runs. That happens every night, or immediately if you [run it by hand](#run-the-pipeline-manually).
+The pipeline also rebuilds `img/upcomingshow.jpg` and the `/showposter/` page from the upcoming shows. Add the poster background to `img/next-show-bg.png`; until then, it uses the site background color.
 
 ### Add, change, reorder or remove a video
 

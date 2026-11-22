@@ -35,6 +35,9 @@ jobs:
         with:
           ref: deploy
 
+      - name: Install image generation dependency
+        run: python3 -m pip install -r requirements.txt
+
       - name: Run tests
         run: python3 -m unittest discover tests -v
 
@@ -53,6 +56,9 @@ jobs:
         env:
           SCHEDULE_CSV_URL: ${{ vars.SCHEDULE_CSV_URL }}
         run: python3 scripts/process_schedule.py --output-dir _site/data
+
+      - name: Generate upcoming show poster
+        run: python3 scripts/generate_show_poster.py --shows-file _site/data/shows.json --background _site/img/next-show-bg.png --output _site/img/upcomingshow.jpg --page-output _site/showposter
 
       # Replaces the copied data/videos.json with the list from the video sheet, keeping its channel_url.
       # Fails the same way as the schedule step.
@@ -77,8 +83,8 @@ jobs:
           deploy=true
           if [ "${{ github.event_name }}" = "schedule" ]; then
             deploy=false
-            for file in shows.json past-shows.json videos.json; do
-              if ! curl -fsSL --retry 2 "$BASE_URL/data/$file" -o "live-$file" || ! cmp -s "live-$file" "_site/data/$file"; then
+            for file in data/shows.json data/past-shows.json data/videos.json img/upcomingshow.jpg; do
+              if ! curl -fsSL --retry 2 "$BASE_URL/$file" -o "live-$(basename "$file")" || ! cmp -s "live-$(basename "$file")" "_site/$file"; then
                 deploy=true
               fi
             done
