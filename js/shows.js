@@ -238,6 +238,7 @@
 				eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
 				location: location,
 				performer: {'@type': 'PerformingGroup', name: BAND_NAME, url: 'https://hossandthehangmen.com/'},
+				organizer: {'@type': 'Organization', name: BAND_NAME, url: 'https://hossandthehangmen.com/'},
 				isAccessibleForFree: true,
 				image: 'https://hossandthehangmen.com/img/og-image.jpg'
 			};
@@ -249,6 +250,9 @@
 			}
 			if (show.description) {
 				event.description = show.description;
+			}
+			if (safeUrl(show.event_url)) {
+				event.sameAs = [show.event_url];
 			}
 			return event;
 		});

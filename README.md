@@ -278,7 +278,7 @@ The site is served at `https://hossandthehangmen.com`. The domain is registered 
 - Page title and meta description, and a canonical URL (`<link rel="canonical">`).
 - Open Graph and Twitter card tags for link previews, using `img/og-image.jpg` (1200x630, cropped from the hero photo).
 - `MusicGroup` structured data (JSON-LD) in `index.html`, with the band's Facebook, Instagram and YouTube links.
-- `MusicEvent` structured data for upcoming shows, generated in the browser by `js/shows.js` from `data/shows.json`.
+- `MusicEvent` structured data for upcoming shows, generated in the browser by `js/shows.js` from `data/shows.json`. It includes the band as organizer and carries the same venue, event announcement, performer, and schedule details as the individual event pages.
 - A single `<h1>` (the logo, with the band name as its alt text) and `<h2>` section headings, and `alt` text on images.
 - `robots.txt` (allows all crawling, including CSS, JavaScript and images) and `sitemap.xml`.
 
