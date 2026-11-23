@@ -16,6 +16,8 @@ HEIGHT = 1350
 BACKGROUND_COLOR = "#323536"
 TEXT_COLOR = "#efe1c6"
 ACCENT_COLOR = "#BDB199"
+# Where the poster image is served on the site, regardless of where the file is written.
+IMAGE_URL = "/img/upcomingshow.jpg"
 FONT_DIRECTORY = Path(__file__).resolve().parent.parent / "fonts"
 
 
@@ -147,10 +149,9 @@ def render_poster(groups, output):
     os.replace(temporary, output)
 
 
-def write_poster_page(image_path, output):
+def write_poster_page(output):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    image_url = "/" + str(image_path).replace("\\", "/").lstrip("/")
     page = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -159,14 +160,14 @@ def write_poster_page(image_path, output):
   <meta name="robots" content="noindex">
   <meta name="description" content="Upcoming shows for Hoss and the Hangmen.">
   <meta property="og:title" content="Upcoming shows - Hoss and the Hangmen">
-  <meta property="og:image" content="https://hossandthehangmen.com{image_url}">
+  <meta property="og:image" content="https://hossandthehangmen.com{IMAGE_URL}">
   <title>Upcoming shows - Hoss and the Hangmen</title>
   <style>
     body {{ margin: 0; min-height: 100vh; display: grid; place-items: center; background: {BACKGROUND_COLOR}; }}
     img {{ display: block; width: min(100%, 810px); height: auto; }}
   </style>
 </head>
-<body><img src="{image_url}" alt="Upcoming shows for Hoss and the Hangmen"></body>
+<body><img src="{IMAGE_URL}" alt="Upcoming shows for Hoss and the Hangmen"></body>
 </html>
 """
     page_path = output / "index.html"
@@ -184,7 +185,7 @@ def generate_poster(shows_file, output, page_output):
         raise PosterError(f"{shows_file} must contain a JSON list of upcoming shows")
     groups = format_groups(shows)
     render_poster(groups, output)
-    write_poster_page(output, page_output)
+    write_poster_page(page_output)
     return sum(len(events) for _, events in groups)
 
 

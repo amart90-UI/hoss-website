@@ -62,7 +62,7 @@ class ShowPosterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             shows_file = root / "shows.json"
-            output = root / "img" / "upcomingshow.jpg"
+            output = root / "_site" / "img" / "upcomingshow.jpg"
             page_output = root / "showposter"
             shows_file.write_text(json.dumps(shows), encoding="utf-8")
 
@@ -72,7 +72,9 @@ class ShowPosterTests(unittest.TestCase):
             with Image.open(output) as image:
                 self.assertEqual(image.format, "JPEG")
                 self.assertEqual(image.size, (poster.WIDTH, poster.HEIGHT))
-            self.assertIn("/img/upcomingshow.jpg", (page_output / "index.html").read_text(encoding="utf-8"))
+            html = (page_output / "index.html").read_text(encoding="utf-8")
+            self.assertIn('<img src="/img/upcomingshow.jpg"', html)
+            self.assertIn('content="https://hossandthehangmen.com/img/upcomingshow.jpg"', html)
 
     def test_empty_schedule_is_rendered(self):
         with tempfile.TemporaryDirectory() as folder:
