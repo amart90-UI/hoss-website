@@ -95,21 +95,21 @@ The workflow is `.github/workflows/deploy.yml`.
 **What it does, in order:**
 
 1. Checks out the `deploy` branch, regardless of whichever branch started the run.
-2. Runs the unit tests (`python3 -m unittest discover tests`). A failing test stops the run.
-3. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, and the favicon files and `site.webmanifest` from the repo root. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
-4. Runs `scripts/process_schedule.py`:
+2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, and the favicon files and `site.webmanifest` from the repo root. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
+3. Runs `scripts/process_schedule.py` (with `--generate-events`):
    - downloads the schedule CSV (URL from the `SCHEDULE_CSV_URL` secret),
    - checks every row (required values, `M/D/YYYY` dates, times, two-letter state, `http(s)` links, duplicates),
    - splits shows into upcoming and past using today's date in `America/Denver`,
-   - writes `shows.json` (soonest first) and `past-shows.json` (most recent first).
-5. Runs `scripts/process_videos.py`:
+   - writes `shows.json` (soonest first) and `past-shows.json` (most recent first),
+   - generates the individual event pages for upcoming shows and updates the sitemap.
+4. Runs `scripts/process_videos.py`:
    - downloads the video CSV (URL from the `VIDEO_CSV_URL` secret),
    - checks every row (title present, valid 11-character YouTube ID, no duplicates),
    - writes `videos.json` in sheet order, keeping `channel_url` from the repo's copy.
-6. Runs `scripts/event_pages.py` to generate pages for upcoming shows and update the sitemap.
-7. On scheduled runs only, compares the new JSON files with the ones on the live site. If nothing changed, it skips the deployment. Pushes and manual runs always deploy.
+5. On scheduled runs only, compares the new JSON files with the ones on the live site. If nothing changed, the run ends here: it skips the remaining steps and the deployment. Pushes and manual runs always continue.
+6. Installs the image dependency (Pillow) and runs the unit tests (`python3 -m unittest discover tests`). A failing test stops the run.
+7. Generates the upcoming-show poster (`img/upcomingshow.jpg` and `/showposter/`) from `shows.json`.
 8. Uploads `_site` and deploys it to GitHub Pages.
-
 **Safety rules:**
 
 - The generated JSON is deterministic. The same spreadsheet always produces byte-identical files, whatever the row order.

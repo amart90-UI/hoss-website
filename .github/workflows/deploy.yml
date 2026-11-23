@@ -38,12 +38,6 @@ jobs:
         with:
           ref: deploy
 
-      - name: Install image generation dependency
-        run: python3 -m pip install -r requirements.txt
-
-      - name: Run tests
-        run: python3 -m unittest discover tests -v
-
       # Copy only the files the website needs (not the README, scripts, tests or workflows).
       # Any new top-level file the site uses (such as another icon) must be added to this list.
       - name: Assemble site
@@ -63,9 +57,6 @@ jobs:
           SCHEDULE_CSV_URL: ${{ vars.SCHEDULE_CSV_URL }}
         run: python3 scripts/process_schedule.py --output-dir _site/data --generate-events --site-root _site
 
-      - name: Generate upcoming show poster
-        run: python3 scripts/generate_show_poster.py --shows-file _site/data/shows.json --output _site/img/upcomingshow.jpg --page-output _site/showposter
-
       # Replaces the copied data/videos.json with the list from the video sheet, keeping its channel_url.
       # Fails the same way as the schedule step.
       - name: Generate video list from Google Sheets
@@ -73,14 +64,11 @@ jobs:
           VIDEO_CSV_URL: ${{ vars.VIDEO_CSV_URL }}
         run: python3 scripts/process_videos.py --output-dir _site/data
 
-      - name: Generate event pages
-        run: python3 scripts/event_pages.py --shows-file _site/data/shows.json --site-root _site
-
       - id: pages
         uses: actions/configure-pages@v6
 
       # Scheduled runs only deploy when the new data differs from what is live. Pushes and manual runs
-      # always deploy.
+      # always deploy. The poster is built only from shows.json, so it needs no comparison of its own.
       - name: Decide whether to deploy
         id: changed
         env:
@@ -89,7 +77,7 @@ jobs:
           deploy=true
           if [ "${{ github.event_name }}" = "schedule" ]; then
             deploy=false
-            for file in data/shows.json data/past-shows.json data/videos.json img/upcomingshow.jpg; do
+            for file in data/shows.json data/past-shows.json data/videos.json; do
               if ! curl -fsSL --retry 2 "$BASE_URL/$file" -o "live-$(basename "$file")" || ! cmp -s "live-$(basename "$file")" "_site/$file"; then
                 deploy=true
               fi
@@ -98,6 +86,19 @@ jobs:
           echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
           echo "Deploy: $deploy"
 
+      # Everything below runs only when deploying, so scheduled runs with no data change skip the
+      # install, tests and poster. Tests and poster generation run before upload; a failure stops the deploy.
+      - name: Install image generation dependency
+        if: steps.changed.outputs.deploy == 'true'
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Run tests
+        if: steps.changed.outputs.deploy == 'true'
+        run: python3 -m unittest discover tests -v
+
+      - name: Generate upcoming show poster
+        if: steps.changed.outputs.deploy == 'true'
+        run: python3 scripts/generate_show_poster.py --shows-file _site/data/shows.json --output _site/img/upcomingshow.jpg --page-output _site/showposter
       - uses: actions/upload-pages-artifact@v5
         if: steps.changed.outputs.deploy == 'true'
         with:
