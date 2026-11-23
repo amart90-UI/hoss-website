@@ -8,6 +8,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 import sys
+from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import event_pages as ep  # noqa: E402
@@ -40,6 +41,12 @@ class EventPageTests(unittest.TestCase):
         self.assertEqual(ld["startDate"], "2026-07-18T19:00:00-06:00")
         self.assertTrue(ld["isAccessibleForFree"])
         self.assertEqual(ld["performer"]["@type"], "PerformingGroup")
+        self.assertEqual(ld["organizer"], {
+            "@type": "Organization",
+            "name": "Hoss and the Hangmen",
+            "url": "https://hossandthehangmen.com/",
+        })
+        self.assertEqual(ld["sameAs"], ["https://example.com/event"])
         self.assertEqual(ld["location"]["address"]["postalCode"], "80526")
         json.dumps(ld)
 
@@ -76,12 +83,34 @@ class EventPageTests(unittest.TestCase):
         self.assertEqual(len(set(paths)), 2)
         self.assertEqual(paths, ["/events/2026-07-18-horsetooth-tavern/", "/events/2026-07-18-horsetooth-tavern-2/"])
 
+    def test_event_page_requires_address_and_postal_code(self):
+        event = self.valid_event()
+        event["address"] = None
+        event["zip_code"] = None
+        with tempfile.TemporaryDirectory() as folder:
+            generated = ep.generate_event_pages([event], folder)
+            self.assertEqual(generated, [])
+            self.assertFalse((Path(folder) / "events").exists())
+
     def test_description_special_characters_are_json_safe(self):
         event = self.valid_event()
         event["description"] = 'A "great" show & café\nBring friends'
         ld = ep.build_json_ld(event)
         parsed = json.loads(json.dumps(ld))
         self.assertEqual(parsed["description"], event["description"])
+
+    def test_calendar_link_uses_event_timezone_and_details(self):
+        event = self.valid_event()
+        url = ep.google_calendar_url(event)
+        params = parse_qs(urlparse(url).query)
+        self.assertEqual(params["dates"], ["20260719T010000Z/20260719T040000Z"])
+        self.assertEqual(params["ctz"], ["America/Denver"])
+        self.assertEqual(params["location"], ["Horsetooth Tavern, 4791 W County Rd 38 E, Fort Collins, CO, 80526"])
+
+    def test_calendar_link_omitted_when_end_time_is_unknown(self):
+        event = self.valid_event()
+        event["end"] = None
+        self.assertIsNone(ep.google_calendar_url(event))
 
     def test_generated_page_is_static_and_sitemap_is_valid(self):
         event = self.valid_event()
@@ -93,6 +122,11 @@ class EventPageTests(unittest.TestCase):
             self.assertIn("Horsetooth Tavern", text)
             self.assertIn("Ben + Anthony", text)
             self.assertIn("application/ld+json", text)
+            self.assertIn('<a class="skip-link" href="#main-content">Skip to main content</a>', text)
+            self.assertIn('<main id="main-content" tabindex="-1">', text)
+            self.assertIn("Directions", text)
+            self.assertIn("Add to calendar", text)
+            self.assertIn("google.com/maps/search/?api=1&amp;query=", text)
             ep.update_sitemap(root, generated)
             tree = ET.parse(root / "sitemap.xml")
             locs = [node.text for node in tree.getroot().iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]

@@ -14,15 +14,15 @@ This site is based on the [Free Rock Band Website Template](https://github.com/g
 ## How it works
 
 ```
-Google Sheet "schedule"  ──┐                         ┌─> data/shows.json
-(published as CSV)         ├─> GitHub Actions ──> Python scripts ─> data/past-shows.json ──> GitHub Pages
-Google Sheet "videos"    ──┘   (daily / on push)     └─> data/videos.json
+Google Sheet "schedule"  ──┐                            ┌─> data/shows.json / data/past-shows.json
+(published as CSV)         ├─> GitHub Actions ─> scripts ├─> img/upcomingshow.jpg / /showposter/
+Google Sheet "videos"    ──┘   (daily / on push)        └─> data/videos.json
 (published as CSV)
 ```
 
 - **Plain HTML, CSS and JavaScript.** There is no framework and no build tool. `index.html` is the single page.
 - **Show and video lists are not written in the HTML.** The browser loads `data/*.json` and `js/shows.js` and `js/videos.js` draw the lists.
-- **Python (standard library only)** turns the spreadsheets into those JSON files while the workflow runs. The generated show files are not committed to the repo.
+- **Python** turns the spreadsheets into JSON and generates the upcoming-show JPEG while the workflow runs. The generated files are not committed to the repo; Pillow is listed in `requirements.txt`.
 - **Cost:** GitHub Pages, GitHub Actions and Google Sheets are free. The only recurring cost is the domain name, once it is registered.
 
 ## Updating the website
@@ -53,6 +53,7 @@ Rules:
 - **Only put public information in the sheet.** Anyone who has the published CSV link can read the tab.
 
 The change goes live the next time the workflow runs. That happens every night, or immediately if you [run it by hand](#run-the-pipeline-manually).
+The pipeline also rebuilds `img/upcomingshow.jpg` and the `/showposter/` page from the upcoming shows.
 
 ### Add, change, reorder or remove a video
 
@@ -105,8 +106,9 @@ The workflow is `.github/workflows/deploy.yml`.
    - downloads the video CSV (URL from the `VIDEO_CSV_URL` secret),
    - checks every row (title present, valid 11-character YouTube ID, no duplicates),
    - writes `videos.json` in sheet order, keeping `channel_url` from the repo's copy.
-6. On scheduled runs only, compares the new JSON files with the ones on the live site. If nothing changed, it skips the deployment. Pushes and manual runs always deploy.
-7. Uploads `_site` and deploys it to GitHub Pages.
+6. Runs `scripts/event_pages.py` to generate pages for upcoming shows and update the sitemap.
+7. On scheduled runs only, compares the new JSON files with the ones on the live site. If nothing changed, it skips the deployment. Pushes and manual runs always deploy.
+8. Uploads `_site` and deploys it to GitHub Pages.
 
 **Safety rules:**
 
@@ -118,6 +120,8 @@ The workflow is `.github/workflows/deploy.yml`.
 **What the page does with the data:**
 
 - `js/shows.js` fills the "Next show" line, the upcoming table and the collapsed past-shows list. It also adds `MusicEvent` structured data (JSON-LD) for the upcoming shows, built from the same data.
+- The next-show link opens that show's event page. Upcoming show listings and event pages include Google Maps directions when an address is available, and a Google Calendar link when both start and end times are available.
+- A static event page is generated only when that show's row includes an address and ZIP code; shows without those fields remain listed but do not get an event-page link.
 - `js/videos.js` draws the horizontally scrolling gallery. It shows YouTube thumbnails only. The YouTube player (`youtube-nocookie.com`) loads when a visitor clicks a video, and the video starts playing right away.
 
 ## One-time setup
@@ -275,7 +279,7 @@ The site is served at `https://hossandthehangmen.com`. The domain is registered 
 - Page title and meta description, and a canonical URL (`<link rel="canonical">`).
 - Open Graph and Twitter card tags for link previews, using `img/og-image.jpg` (1200x630, cropped from the hero photo).
 - `MusicGroup` structured data (JSON-LD) in `index.html`, with the band's Facebook, Instagram and YouTube links.
-- `MusicEvent` structured data for upcoming shows, generated in the browser by `js/shows.js` from `data/shows.json`.
+- `MusicEvent` structured data for upcoming shows, generated in the browser by `js/shows.js` from `data/shows.json`. It includes the band as organizer and carries the same venue, event announcement, performer, and schedule details as the individual event pages.
 - A single `<h1>` (the logo, with the band name as its alt text) and `<h2>` section headings, and `alt` text on images.
 - `robots.txt` (allows all crawling, including CSS, JavaScript and images) and `sitemap.xml`.
 
