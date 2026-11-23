@@ -95,7 +95,7 @@ The workflow is `.github/workflows/deploy.yml`.
 **What it does, in order:**
 
 1. Checks out the `deploy` branch, regardless of whichever branch started the run.
-2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, `CNAME`, and the favicon files and `site.webmanifest` from the repo root, and adds an empty `.nojekyll` file. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
+2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, `CNAME`, `404.html`, and the favicon files and `site.webmanifest` from the repo root, and adds an empty `.nojekyll` file. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
 3. Runs `scripts/process_schedule.py` (with `--generate-events`):
    - downloads the schedule CSV (URL from the `SCHEDULE_CSV_URL` secret),
    - checks every row (required values, `M/D/YYYY` dates, times, two-letter state, `http(s)` links, duplicates),
@@ -262,7 +262,7 @@ Google rich results are not guaranteed.
 
 ## Event posters
 
-Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank-poster.webp` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, date, time range, and a QR code in the bottom-left corner. The QR code links to the show's `event_url`, or to its event page when there is no `event_url`. Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
+Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank-poster.webp` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, date, time range, and a QR code in the bottom-left corner. The QR code encodes a short address such as `https://hossandthehangmen.com/e/5gakgx/` (keeps the code simple to scan), which redirects to the show's event page. Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
 
 **Moving things around.** Everything to adjust is in the `LAYOUT` section at the top of `scripts/generate_event_posters.py` (positions, sizes, colors, QR placement), with each value explained in a comment. To preview changes locally with colored guide lines showing each area:
 
@@ -272,6 +272,8 @@ python scripts/generate_event_posters.py --guides --only horsetooth
 ```
 
 The poster is written to `events/<page>/poster.jpg`. Drop `--guides` for the final look. The QR code comes from `scripts/qr_code.py`, a small built-in encoder, so there are no new dependencies.
+
+**Short links.** `scripts/event_pages.py` writes a small redirect page at `/e/<code>/` for every event page. The 6-character code is derived from the event page path (date and venue), so the same event gets the same code on every build and a printed poster keeps working. Editing a show's start or end time keeps its code; changing its date or venue changes the event page address and so the code. After a show has passed, its pages are removed, and `404.html` sends any unknown `/e/...` address to the schedule. The redirect pages are marked `noindex` and are not in the sitemap.
 
 ## Repository layout
 
@@ -289,7 +291,8 @@ data/shows.json               generated, not committed
 data/past-shows.json          generated, not committed
 scripts/process_schedule.py   schedule sheet -> shows.json and past-shows.json
 scripts/process_videos.py     video sheet -> videos.json
-scripts/event_pages.py        validated shows -> individual event pages and sitemap
+scripts/event_pages.py        validated shows -> individual event pages, short /e/<code>/ redirects and sitemap
+404.html                      not-found page; sends expired poster short links to the schedule
 scripts/generate_event_posters.py  shows.json + img/blank-poster.webp -> events/<page>/poster.jpg
 scripts/qr_code.py            small QR code encoder used by the poster script
 tests/                        unit tests for both scripts

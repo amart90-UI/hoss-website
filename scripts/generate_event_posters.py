@@ -21,6 +21,7 @@ from typing import NamedTuple
 
 from PIL import Image, ImageDraw, ImageFont
 
+from event_pages import short_url
 from qr_code import QRError, make_qr
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -62,7 +63,7 @@ CITY = Text(x=1500, y=3880, size=170, max_width=1260, color=TAN, tracking=8)
 DATE = Text(x=2583, y=3650, size=260, max_width=580, color=NAVY)
 TIME = Text(x=2583, y=3880, size=260, max_width=580, color=NAVY)
 
-# QR code (links to the show's event_url, or to its event page if it has no event_url).
+# QR code (a short /e/<code>/ address that redirects to the show's event page).
 # left/top/size are the outer edge of the light tile, which includes the quiet margin that
 # scanners need around the code. The tile is rounded down to a whole number of pixels per module.
 QR_LEFT = 144
@@ -160,9 +161,7 @@ def render_poster(background, show, output, guides=False):
     draw_text(draw, f"{show['city']}, {show['state']}".upper(), CITY)
     draw_text(draw, format_date(show["date"]), DATE)
     draw_text(draw, format_time_range(show["start_time"], show.get("end_time")), TIME)
-    qr_url = show.get("event_url") or show.get("page_url")
-    if qr_url:
-        draw_qr(draw, qr_url)
+    draw_qr(draw, short_url(show["page_path"]))
     if guides:
         draw_guides(draw)
 
