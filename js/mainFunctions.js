@@ -116,3 +116,24 @@ document.addEventListener('DOMContentLoaded', function () {
 		lastScrollTop = currentScroll;
 	});
 });
+
+// Build timestamp. The deploy workflow writes the UTC build time into the <time> element's datetime
+// attribute; show it in the visitor's own date, time and time zone. Hidden if there is no valid time
+// (for example when running locally, where the placeholder is never replaced).
+document.addEventListener('DOMContentLoaded', function () {
+	const el = document.getElementById('buildTime');
+	if (!el) {
+		return;
+	}
+	const date = new Date(el.getAttribute('datetime'));
+	if (isNaN(date)) {
+		el.parentElement.hidden = true;
+		return;
+	}
+	el.textContent = date.toLocaleString(undefined, {
+		dateStyle: 'medium',
+		timeStyle: 'short',
+		timeZoneName: 'short'
+	}).replace(' at ', ', ');
+	el.title = date.toISOString();
+});
