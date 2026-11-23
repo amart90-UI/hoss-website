@@ -3,7 +3,6 @@
 !/data/videos.json
 events/*/index.html
 showposter/index.html
-fonts/*
 img/upcomingshow.jpg
 
 __pycache__/
