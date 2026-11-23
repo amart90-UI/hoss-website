@@ -953,3 +953,21 @@ footer .socialBanner {
 	outline: 3px solid #AA5321;
 	outline-offset: 3px;
 }
+
+/* Build timestamp in the bottom-right corner of the footer (filled in by js/mainFunctions.js). */
+footer {
+	position: relative;
+}
+footer p.buildInfo {
+	position: absolute;
+	right: 12px;
+	bottom: 6px;
+	margin: 0;
+	font-size: 0.7rem;
+	letter-spacing: normal;
+	font-weight: normal;
+	opacity: 0.6;
+}
+footer p.buildInfo[hidden] {
+	display: none;
+}

@@ -161,7 +161,7 @@
             <div class="separator animatableOpacity"></div>
 
             <p class="hardLight quote animatableY">
-                “&nbsp;Good country music, a little cowboy spirit, and a damn good time&nbsp;”
+                â€œ&nbsp;Good country music, a little cowboy spirit, and a damn good time&nbsp;â€
             </p>
 
             <p class="animatableY">
@@ -308,6 +308,8 @@
 	</div>
 
 	<p>&copy; 2026 Hoss and the Hangmen</p>
+	<!-- The deploy workflow replaces __BUILD_TIME__ with the UTC build time; js/mainFunctions.js shows it in the visitor's local time. -->
+	<p class="buildInfo">Updated <time id="buildTime" datetime="__BUILD_TIME__"></time></p>
 </footer>
 
         <a id="upArrow" href="#top" aria-label="Back to top">

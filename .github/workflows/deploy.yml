@@ -50,6 +50,9 @@ jobs:
             if [ -e "$item" ]; then cp -r "$item" _site/; fi
           done
 
+      # Stamp the build time (UTC) into the page. The browser converts it to the visitor's local time.
+      - name: Stamp build time
+        run: sed -i "s/__BUILD_TIME__/$(date -u +%Y-%m-%dT%H:%M:%SZ)/" _site/index.html
       # If the sheet can't be downloaded or any row is invalid, this step fails and nothing is deployed,
       # so the live site keeps its last good data.
       - name: Generate schedule data from Google Sheets
