@@ -135,7 +135,7 @@ def render_poster(groups, output):
             venue_font = _fit_font(draw, venue, venue_size, max_width, family="faculty")
             location_font = _fit_font(draw, location, location_size, max_width, family="faculty")
             draw.text((center_x, y), venue, fill=TEXT_COLOR, font=venue_font, anchor="ma")
-            y += venue_size + 3
+            y += venue_size + 13
             draw.text((center_x, y), location, fill=ACCENT_COLOR, font=location_font, anchor="ma")
             y += location_size + 17
         y += 36
