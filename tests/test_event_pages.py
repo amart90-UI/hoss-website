@@ -122,6 +122,8 @@ class EventPageTests(unittest.TestCase):
             self.assertIn("Horsetooth Tavern", text)
             self.assertIn("Ben + Anthony", text)
             self.assertIn("application/ld+json", text)
+            self.assertIn('<a class="skip-link" href="#main-content">Skip to main content</a>', text)
+            self.assertIn('<main id="main-content" tabindex="-1">', text)
             self.assertIn("Directions", text)
             self.assertIn("Add to calendar", text)
             self.assertIn("google.com/maps/search/?api=1&amp;query=", text)
