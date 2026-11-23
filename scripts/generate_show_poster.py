@@ -9,14 +9,13 @@ from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont
 
 WIDTH = 1080
 HEIGHT = 1350
-INK = "#323536"
-PAPER = "#efe1c6"
-ACCENT = "#BDB199"
-BACKGROUND = Path("img/next-show-bg.png")
+BACKGROUND_COLOR = "#323536"
+TEXT_COLOR = "#efe1c6"
+ACCENT_COLOR = "#BDB199"
 FONT_DIRECTORY = Path(__file__).resolve().parent.parent / "fonts"
 
 
@@ -105,31 +104,16 @@ def _fit_font(draw, text, size, max_width, bold=False, family="sans"):
     return font
 
 
-def _background_image(background):
-    if background.is_file():
-        try:
-            image = ImageOps.fit(Image.open(background).convert("RGB"), (WIDTH, HEIGHT))
-        except (OSError, ValueError) as error:
-            raise PosterError(f"could not read background image {background}: {error}") from error
-    else:
-        print(f"warning: {background} not found; using a solid background", file=sys.stderr)
-        image = Image.new("RGB", (WIDTH, HEIGHT), INK)
-
-    image = image.convert("RGBA")
-    image.alpha_composite(Image.new("RGBA", image.size, (50, 53, 54, 95)))
-    return image
-
-
-def render_poster(groups, background, output):
-    image = _background_image(Path(background))
+def render_poster(groups, output):
+    image = Image.new("RGB", (WIDTH, HEIGHT), BACKGROUND_COLOR)
     draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((36, 36, WIDTH - 36, HEIGHT - 36), radius=28, fill=(50, 53, 54, 218), outline=ACCENT, width=6)
+    draw.rounded_rectangle((36, 36, WIDTH - 36, HEIGHT - 36), radius=28, outline=ACCENT_COLOR, width=6)
 
     center_x = WIDTH / 2
     title = "Upcoming shows"
     title_font = _fit_font(draw, title, 88, WIDTH - 160, family="rye")
-    draw.text((center_x, 88), title, fill=PAPER, font=title_font, anchor="ma")
-    draw.rounded_rectangle((150, 210, WIDTH - 150, 216), radius=3, fill=ACCENT)
+    draw.text((center_x, 88), title, fill=TEXT_COLOR, font=title_font, anchor="ma")
+    draw.rounded_rectangle((150, 210, WIDTH - 150, 216), radius=3, fill=ACCENT_COLOR)
 
     event_count = sum(len(events) for _, events in groups)
     required_height = len(groups) * 110 + event_count * 112
@@ -142,24 +126,24 @@ def render_poster(groups, background, output):
     if not groups:
         message = "No upcoming shows scheduled"
         message_font = _fit_font(draw, message, 44, max_width, family="faculty")
-        draw.text((center_x, y), message, fill=PAPER, font=message_font, anchor="ma")
+        draw.text((center_x, y), message, fill=TEXT_COLOR, font=message_font, anchor="ma")
     for date_label, events in groups:
         date_font = _fit_font(draw, date_label, date_size, max_width, family="rye")
-        draw.text((center_x, y), date_label, fill=PAPER, font=date_font, anchor="ma")
+        draw.text((center_x, y), date_label, fill=TEXT_COLOR, font=date_font, anchor="ma")
         y += date_size + 9
         for venue, location in events:
             venue_font = _fit_font(draw, venue, venue_size, max_width, family="faculty")
             location_font = _fit_font(draw, location, location_size, max_width, family="faculty")
-            draw.text((center_x, y), venue, fill=PAPER, font=venue_font, anchor="ma")
+            draw.text((center_x, y), venue, fill=TEXT_COLOR, font=venue_font, anchor="ma")
             y += venue_size + 3
-            draw.text((center_x, y), location, fill=ACCENT, font=location_font, anchor="ma")
+            draw.text((center_x, y), location, fill=ACCENT_COLOR, font=location_font, anchor="ma")
             y += location_size + 17
         y += 36
 
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_name(output.name + ".tmp")
-    image.convert("RGB").save(temporary, format="JPEG", quality=92, optimize=True)
+    image.save(temporary, format="JPEG", quality=92, optimize=True)
     os.replace(temporary, output)
 
 
@@ -177,7 +161,7 @@ def write_poster_page(image_path, output):
   <meta property="og:image" content="https://hossandthehangmen.com{image_url}">
   <title>Upcoming shows - Hoss and the Hangmen</title>
   <style>
-    body {{ margin: 0; min-height: 100vh; display: grid; place-items: center; background: {INK}; }}
+    body {{ margin: 0; min-height: 100vh; display: grid; place-items: center; background: {BACKGROUND_COLOR}; }}
     img {{ display: block; width: min(100%, 810px); height: auto; }}
   </style>
 </head>
@@ -190,7 +174,7 @@ def write_poster_page(image_path, output):
     os.replace(temporary, page_path)
 
 
-def generate_poster(shows_file, background, output, page_output):
+def generate_poster(shows_file, output, page_output):
     try:
         shows = json.loads(Path(shows_file).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -198,7 +182,7 @@ def generate_poster(shows_file, background, output, page_output):
     if not isinstance(shows, list):
         raise PosterError(f"{shows_file} must contain a JSON list of upcoming shows")
     groups = format_groups(shows)
-    render_poster(groups, background, output)
+    render_poster(groups, output)
     write_poster_page(output, page_output)
     return sum(len(events) for _, events in groups)
 
@@ -206,12 +190,11 @@ def generate_poster(shows_file, background, output, page_output):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--shows-file", default="data/shows.json")
-    parser.add_argument("--background", default=str(BACKGROUND))
     parser.add_argument("--output", default="img/upcomingshow.jpg")
     parser.add_argument("--page-output", default="showposter")
     args = parser.parse_args(argv)
     try:
-        count = generate_poster(args.shows_file, args.background, args.output, args.page_output)
+        count = generate_poster(args.shows_file, args.output, args.page_output)
     except PosterError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
