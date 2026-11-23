@@ -10,7 +10,10 @@ on:
     branches: [deploy]
   schedule:
     # 07:05 UTC = 00:05 Mountain Standard Time / 01:05 Mountain Daylight Time, just after Denver midnight.
-    - cron: "5 7 * * *"
+    #- cron: "5 7 * * *"
+    # Run every 5 minutes between 6 am and 11 pm mountain time
+    - cron: '*/5 6-22 * * *'
+      timezone: 'America/Denver'
   workflow_dispatch:
 
 permissions:
