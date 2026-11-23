@@ -107,8 +107,8 @@ jobs:
         if: steps.changed.outputs.deploy == 'true'
         run: python3 scripts/generate_show_poster.py --shows-file _site/data/shows.json --output _site/img/upcomingshow.jpg --page-output _site/showposter
 
-      # One poster per upcoming show (events/<slug>/poster.jpg), built from shows.json, the poster
-      # template and the venue logos in img/. The event pages already link to it.
+      # One poster per upcoming show (events/<slug>/poster.jpg), built from shows.json and the poster
+      # template. The event pages already link to it.
       - name: Generate event posters
         if: steps.changed.outputs.deploy == 'true'
         run: python3 scripts/generate_event_posters.py --shows-file _site/data/shows.json --site-root _site

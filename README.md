@@ -262,9 +262,7 @@ Google rich results are not guaranteed.
 
 ## Event posters
 
-Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank_poster.png` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, venue logo, date, time range, and a QR code for `event_url` (left off when the show has no `event_url`). Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
-
-**Venue logos.** Add one image per venue as `img/logo-<venue-name>.png`, where the name is the venue in lowercase with runs of other characters replaced by a hyphen (the same slug used in event page URLs): `img/logo-horsetooth-tavern.png` for "Horsetooth Tavern". Use a PNG with a transparent background, at least 700 px on its longer side. PNG is used instead of SVG because turning an SVG into pixels needs an extra library (Cairo) that this project avoids. A show whose venue has no logo still gets a poster, with the logo area empty and a warning in the build log.
+Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank_poster.png` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, date, time range, and a QR code in the bottom-left corner. The QR code links to the show's `event_url`, or to its event page when there is no `event_url`. Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
 
 **Moving things around.** Everything to adjust is in the `LAYOUT` section at the top of `scripts/generate_event_posters.py` (positions, sizes, colors, QR placement), with each value explained in a comment. To preview changes locally with colored guide lines showing each area:
 

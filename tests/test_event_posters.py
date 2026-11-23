@@ -47,14 +47,11 @@ class QRTests(unittest.TestCase):
 
 class PosterTests(unittest.TestCase):
     def test_formats(self):
-        self.assertEqual(posters.format_date("2026-07-12"), "JULY 12, 2026")
-        self.assertEqual(posters.format_time_range("11:00", "14:00"), "11 a.m. - 2 p.m.")
-        self.assertEqual(posters.format_time_range("18:30", None), "6:30 p.m.")
-        self.assertEqual(posters.format_time_range("00:00", "01:15"), "12 a.m. - 1:15 a.m.")
-
-    def test_logo_path_uses_venue_slug(self):
-        self.assertEqual(posters.logo_path("Horsetooth Tavern").name, "logo-horsetooth-tavern.png")
-        self.assertEqual(posters.logo_path("Abbott & Wallace").name, "logo-abbott-wallace.png")
+        self.assertEqual(posters.format_date("2026-07-12"), "JUL 12, 2026")
+        self.assertEqual(posters.format_time_range("11:00", "14:00"), "11 am - 2 pm")
+        self.assertEqual(posters.format_time_range("21:00", "23:00"), "9 - 11 pm")
+        self.assertEqual(posters.format_time_range("18:30", None), "6:30 pm")
+        self.assertEqual(posters.format_time_range("00:00", "01:15"), "12 - 1:15 am")
 
     def test_generates_poster_beside_event_page_and_skips_pageless_shows(self):
         pageless = dict(SHOW, id="x", page_path=None)

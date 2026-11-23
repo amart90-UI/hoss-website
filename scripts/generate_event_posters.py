@@ -2,7 +2,7 @@
 """Generate a poster for each upcoming show and save it next to the show's event page.
 
 Reads the upcoming shows from data/shows.json (the same file the website uses) and draws
-the venue, city, state, date, time, venue logo and a QR code onto img/blank_poster.png.
+the venue, city, state, date, time and a QR code onto img/blank_poster.png.
 Each poster is written to <site-root>/events/<page-slug>/poster.jpg.
 
 To move something on the poster, edit the LAYOUT section below. Run with --guides to draw
@@ -21,12 +21,10 @@ from typing import NamedTuple
 
 from PIL import Image, ImageDraw, ImageFont
 
-from process_schedule import slugify
 from qr_code import QRError, make_qr
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "img" / "blank_poster.png"
-LOGO_DIRECTORY = ROOT / "img"
 FONT = ROOT / "fonts" / "AmaticSC-Bold.ttf"
 
 # =====================================================================================
@@ -38,7 +36,6 @@ FONT = ROOT / "fonts" / "AmaticSC-Bold.ttf"
 # Text:  x = horizontal center of the text, y = the baseline (the line the letters sit on).
 #        size = largest font size. The text shrinks (never grows) to fit within max_width.
 #        tracking = extra space between letters (0 = normal).
-# Boxes: (left, top, right, bottom).
 # =====================================================================================
 
 TAN = "#BDB199"   # venue, city and state text
@@ -65,17 +62,15 @@ CITY = Text(x=1500, y=3880, size=170, max_width=1260, color=TAN, tracking=8)
 DATE = Text(x=2583, y=3650, size=260, max_width=580, color=NAVY)
 TIME = Text(x=2583, y=3880, size=260, max_width=580, color=NAVY)
 
-# The venue logo is scaled to fit this box and centered in it.
-LOGO_BOX = (90, 3270, 740, 3980)
-
-# QR code (links to the show's event_url). left/top/size are the outer edge of the light
-# tile, which includes the quiet margin that scanners need around the code.
-QR_LEFT = 2540
-QR_TOP = 2860
-QR_SIZE = 400
+# QR code (links to the show's event_url, or to its event page if it has no event_url).
+# left/top/size are the outer edge of the light tile, which includes the quiet margin that
+# scanners need around the code. The tile is rounded down to a whole number of pixels per module.
+QR_LEFT = 144
+QR_TOP = 3350
+QR_SIZE = 560
 QR_MARGIN_MODULES = 3         # width of the margin, measured in QR modules
-QR_TILE_COLOR = "#EFE7D2"
-QR_DARK_COLOR = "#2B323F"
+QR_TILE_COLOR = TAN #"#EFE7D2"
+QR_DARK_COLOR = NAVY #"#2B323F"
 
 JPEG_QUALITY = 88
 
@@ -84,11 +79,6 @@ JPEG_QUALITY = 88
 
 class PosterError(Exception):
     """Invalid input that should stop the build."""
-
-
-def logo_path(venue):
-    """img/logo-<venue-name>.png, for example img/logo-horsetooth-tavern.png."""
-    return LOGO_DIRECTORY / f"logo-{slugify(venue)}.png"
 
 
 def format_date(iso_date):
@@ -109,6 +99,8 @@ def format_time_range(start, end):
     if not end:
         return f"{start_number} {start_suffix}"
     end_number, end_suffix = _clock(end)
+    if start_suffix == end_suffix:
+        return f"{start_number} - {end_number} {end_suffix}"  # "9 - 11 pm"
     return f"{start_number} {start_suffix} - {end_number} {end_suffix}"
 
 
@@ -133,18 +125,6 @@ def draw_text(draw, text, spot):
         draw.text((x, spot.y), char, fill=spot.color, font=font, anchor="ls")
         x += draw.textlength(char, font=font) + tracking
 
-def draw_logo(poster, venue):
-    path = logo_path(venue)
-    if not path.is_file():
-        print(f"warning: no logo for '{venue}' (expected {path.relative_to(ROOT)})", file=sys.stderr)
-        return
-    logo = Image.open(path).convert("RGBA")
-    left, top, right, bottom = LOGO_BOX
-    scale = min((right - left) / logo.width, (bottom - top) / logo.height)
-    logo = logo.resize((max(1, round(logo.width * scale)), max(1, round(logo.height * scale))), Image.LANCZOS)
-    poster.paste(logo, (left + (right - left - logo.width) // 2, top + (bottom - top - logo.height) // 2), logo)
-
-
 def draw_qr(draw, url):
     try:
         modules = make_qr(url)
@@ -168,7 +148,6 @@ def draw_guides(draw):
     for spot, color in ((HEADLINE, "red"), (VENUE, "red"), (CITY, "red"), (DATE, "blue"), (TIME, "blue")):
         draw.line((spot.x - spot.max_width // 2, spot.y, spot.x + spot.max_width // 2, spot.y), fill=color, width=4)
         draw.line((spot.x, spot.y - spot.size // 2, spot.x, spot.y), fill=color, width=4)
-    draw.rectangle(LOGO_BOX, outline="green", width=4)
     draw.rectangle((QR_LEFT, QR_TOP, QR_LEFT + QR_SIZE, QR_TOP + QR_SIZE), outline="magenta", width=4)
 
 
@@ -181,9 +160,9 @@ def render_poster(background, show, output, guides=False):
     draw_text(draw, f"{show['city']}, {show['state']}".upper(), CITY)
     draw_text(draw, format_date(show["date"]), DATE)
     draw_text(draw, format_time_range(show["start_time"], show.get("end_time")), TIME)
-    draw_logo(poster, venue)
-    if show.get("event_url"):
-        draw_qr(draw, show["event_url"])
+    qr_url = show.get("event_url") or show.get("page_url")
+    if qr_url:
+        draw_qr(draw, qr_url)
     if guides:
         draw_guides(draw)
 
