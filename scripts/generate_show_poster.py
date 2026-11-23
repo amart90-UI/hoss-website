@@ -72,8 +72,8 @@ def format_groups(shows):
 def _font_path(bold, family):
     if family == "faculty":
         return str(FONT_DIRECTORY / "FacultyGlyphic-Regular.ttf")
-    if family == "amatic":
-        return str(FONT_DIRECTORY / "AmaticSC-Bold.ttf")
+    if family == "rye":
+        return str(FONT_DIRECTORY / "Rye-Regular.ttf")
     candidates = (
         [
             "C:/Windows/Fonts/arialbd.ttf",
@@ -123,40 +123,38 @@ def _background_image(background):
 def render_poster(groups, background, output):
     image = _background_image(Path(background))
     draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((36, 36, WIDTH - 36, HEIGHT - 36), radius=28, fill=(50, 53, 54, 218), outline=ACCENT, width=3)
+    draw.rounded_rectangle((36, 36, WIDTH - 36, HEIGHT - 36), radius=28, fill=(50, 53, 54, 218), outline=ACCENT, width=6)
 
-    title_font = _load_font(82, bold=True)
+    center_x = WIDTH / 2
     title = "Upcoming shows"
-    title_bounds = draw.textbbox((0, 0), title, font=title_font)
-    title_width = title_bounds[2] - title_bounds[0]
-    draw.text(((WIDTH - title_width) / 2, 88), title, fill=PAPER, font=title_font)
+    title_font = _fit_font(draw, title, 88, WIDTH - 160, family="rye")
+    draw.text((center_x, 88), title, fill=PAPER, font=title_font, anchor="ma")
     draw.rounded_rectangle((150, 210, WIDTH - 150, 216), radius=3, fill=ACCENT)
 
     event_count = sum(len(events) for _, events in groups)
-    required_height = len(groups) * 62 + event_count * 88
+    required_height = len(groups) * 110 + event_count * 112
     scale = min(1.0, (HEIGHT - 330) / max(required_height, 1))
-    date_size = max(24, int(48 * scale))
-    venue_size = max(20, int(36 * scale))
-    location_size = max(16, int(29 * scale))
+    date_size = max(24, int(62 * scale))
+    venue_size = max(20, int(50 * scale))
+    location_size = max(16, int(40 * scale))
     y = 266
     max_width = WIDTH - 200
     if not groups:
         message = "No upcoming shows scheduled"
-        message_font = _fit_font(draw, message, 34, max_width, family="faculty")
-        message_width = draw.textbbox((0, 0), message, font=message_font)[2]
-        draw.text(((WIDTH - message_width) / 2, y), message, fill=PAPER, font=message_font)
+        message_font = _fit_font(draw, message, 44, max_width, family="faculty")
+        draw.text((center_x, y), message, fill=PAPER, font=message_font, anchor="ma")
     for date_label, events in groups:
-        date_font = _fit_font(draw, date_label, date_size, max_width, family="amatic")
-        draw.text((100, y), date_label, fill=ACCENT, font=date_font)
+        date_font = _fit_font(draw, date_label, date_size, max_width, family="rye")
+        draw.text((center_x, y), date_label, fill=PAPER, font=date_font, anchor="ma")
         y += date_size + 9
         for venue, location in events:
             venue_font = _fit_font(draw, venue, venue_size, max_width, family="faculty")
             location_font = _fit_font(draw, location, location_size, max_width, family="faculty")
-            draw.text((100, y), venue, fill=PAPER, font=venue_font)
+            draw.text((center_x, y), venue, fill=PAPER, font=venue_font, anchor="ma")
             y += venue_size + 3
-            draw.text((100, y), location, fill=PAPER, font=location_font)
+            draw.text((center_x, y), location, fill=ACCENT, font=location_font, anchor="ma")
             y += location_size + 17
-        y += 12
+        y += 36
 
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
