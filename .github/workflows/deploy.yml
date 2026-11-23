@@ -3,8 +3,13 @@ name: Build and deploy site
 # Builds the show and video data from the Google Sheets and publishes the site to GitHub Pages.
 # Runs when:
 #   - commits are pushed to the "deploy" branch
-#   - every day (GitHub only runs schedules from the default branch, so this file must also be on main)
-#   - someone starts it from the Actions tab ("Run workflow")
+#   - on the hourly schedule below (GitHub only runs schedules from the default branch, so this file must also be on main)
+#   - someone starts it from the Actions tab ("Run workflow") or the spreadsheet's "Rebuild website now" menu
+#
+# Publishing: the built site is committed as a single fresh commit to the "gh-pages" branch, and
+# GitHub Pages serves that branch (Settings > Pages > Deploy from a branch). Each build gets a new
+# commit, which avoids an actions/deploy-pages bug where redeploying an already-deployed commit
+# reports success but keeps serving the old files (https://github.com/actions/deploy-pages/issues/383).
 on:
   push:
     branches: [deploy]
@@ -16,10 +21,10 @@ on:
     #  timezone: 'America/Denver'
   workflow_dispatch:
 
+# The push to gh-pages uses the PAGES_DEPLOY_TOKEN secret, not GITHUB_TOKEN, because GitHub Pages
+# does not build commits pushed with GITHUB_TOKEN.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # One deployment at a time; a newer run waits for a running deploy but never interrupts it.
 concurrency:
@@ -29,27 +34,30 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       # Always publish the deploy branch, even if the run was started from another branch.
+      # The token is kept in the checkout's git config and used by the publish step's push.
       - uses: actions/checkout@v7
         with:
           ref: deploy
+          token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
 
       # Copy only the files the website needs (not the README, scripts, tests or workflows).
       # Any new top-level file the site uses (such as another icon) must be added to this list.
+      # CNAME keeps the custom domain set when the gh-pages branch is replaced.
       - name: Assemble site
         run: |
           mkdir _site
-          for item in index.html css js img data robots.txt sitemap.xml favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
+          for item in index.html css js img data robots.txt sitemap.xml CNAME favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
             if [ -e "$item" ]; then cp -r "$item" _site/; fi
           done
+          # The site is already built, so tell GitHub Pages not to run Jekyll on it.
+          touch _site/.nojekyll
 
       # Stamp the build time (UTC) into the page. The browser converts it to the visitor's local time.
       - name: Stamp build time
         run: sed -i "s/__BUILD_TIME__/$(date -u +%Y-%m-%dT%H:%M:%SZ)/" _site/index.html
+
       # If the sheet can't be downloaded or any row is invalid, this step fails and nothing is deployed,
       # so the live site keeps its last good data.
       - name: Generate schedule data from Google Sheets
@@ -64,30 +72,27 @@ jobs:
           VIDEO_CSV_URL: ${{ vars.VIDEO_CSV_URL }}
         run: python3 scripts/process_videos.py --output-dir _site/data
 
-      - id: pages
-        uses: actions/configure-pages@v6
-
-      # Scheduled runs only deploy when the new data differs from what is live. Pushes and manual runs
-      # always deploy. The poster is built only from shows.json, so it needs no comparison of its own.
+      # Scheduled runs only deploy when the new data differs from what is on the gh-pages branch.
+      # Pushes and manual runs always deploy. The poster is built only from shows.json, so it needs
+      # no comparison of its own.
       - name: Decide whether to deploy
         id: changed
-        env:
-          BASE_URL: ${{ steps.pages.outputs.base_url }}
         run: |
           deploy=true
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ] && git fetch --quiet --depth=1 origin gh-pages; then
             deploy=false
             for file in data/shows.json data/past-shows.json data/videos.json; do
-              if ! curl -fsSL --retry 2 "$BASE_URL/$file" -o "live-$(basename "$file")" || ! cmp -s "live-$(basename "$file")" "_site/$file"; then
+              if ! git show "FETCH_HEAD:$file" > live.tmp 2>/dev/null || ! cmp -s live.tmp "_site/$file"; then
                 deploy=true
               fi
             done
+            rm -f live.tmp
           fi
           echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
           echo "Deploy: $deploy"
 
       # Everything below runs only when deploying, so scheduled runs with no data change skip the
-      # install, tests and poster. Tests and poster generation run before upload; a failure stops the deploy.
+      # install, tests and poster. Tests and poster generation run before publishing; a failure stops the deploy.
       - name: Install image generation dependency
         if: steps.changed.outputs.deploy == 'true'
         run: python3 -m pip install -r requirements.txt
@@ -99,11 +104,22 @@ jobs:
       - name: Generate upcoming show poster
         if: steps.changed.outputs.deploy == 'true'
         run: python3 scripts/generate_show_poster.py --shows-file _site/data/shows.json --output _site/img/upcomingshow.jpg --page-output _site/showposter
-      - uses: actions/upload-pages-artifact@v5
-        if: steps.changed.outputs.deploy == 'true'
-        with:
-          path: _site
 
-      - id: deployment
+      # Commits the contents of _site as a new commit with no parent and force-pushes it to gh-pages,
+      # so the branch always holds exactly one commit: the current site. GitHub Pages then publishes it
+      # (see the "pages build and deployment" runs in the Actions tab).
+      - name: Publish to gh-pages branch
         if: steps.changed.outputs.deploy == 'true'
-        uses: actions/deploy-pages@v5
+        working-directory: _site
+        env:
+          GIT_INDEX_FILE: ${{ runner.temp }}/gh-pages-index
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898283+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898283+github-actions[bot]@users.noreply.github.com
+        run: |
+          git --git-dir=../.git --work-tree=. add --all --force .
+          tree=$(git --git-dir=../.git write-tree)
+          commit=$(git --git-dir=../.git commit-tree "$tree" -m "Publish site from ${GITHUB_SHA::7} (run ${GITHUB_RUN_NUMBER}, ${{ github.event_name }})")
+          git --git-dir=../.git push --force origin "$commit:refs/heads/gh-pages"
+          echo "Pushed $commit to gh-pages"

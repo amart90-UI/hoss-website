@@ -89,13 +89,13 @@ The workflow is `.github/workflows/deploy.yml`.
 **It runs when:**
 
 - commits are pushed to the `deploy` branch,
-- every day at 07:05 UTC, which is just after midnight in Denver (scheduled runs use the workflow file on the `main` branch, and GitHub pauses scheduled workflows in a repo that has had no activity for 60 days),
+- every hour at 5 past, from 6 am to 11 pm Mountain Standard Time (an hour later during daylight saving time; scheduled runs use the workflow file on the `main` branch, and GitHub pauses scheduled workflows in a repo that has had no activity for 60 days),
 - someone starts it manually from the Actions tab.
 
 **What it does, in order:**
 
 1. Checks out the `deploy` branch, regardless of whichever branch started the run.
-2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, and the favicon files and `site.webmanifest` from the repo root. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
+2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, `CNAME`, and the favicon files and `site.webmanifest` from the repo root, and adds an empty `.nojekyll` file. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
 3. Runs `scripts/process_schedule.py` (with `--generate-events`):
    - downloads the schedule CSV (URL from the `SCHEDULE_CSV_URL` secret),
    - checks every row (required values, `M/D/YYYY` dates, times, two-letter state, `http(s)` links, duplicates),
@@ -106,16 +106,18 @@ The workflow is `.github/workflows/deploy.yml`.
    - downloads the video CSV (URL from the `VIDEO_CSV_URL` secret),
    - checks every row (title present, valid 11-character YouTube ID, no duplicates),
    - writes `videos.json` in sheet order, keeping `channel_url` from the repo's copy.
-5. On scheduled runs only, compares the new JSON files with the ones on the live site. If nothing changed, the run ends here: it skips the remaining steps and the deployment. Pushes and manual runs always continue.
+5. On scheduled runs only, compares the new JSON files with the ones on the `gh-pages` branch. If nothing changed, the run ends here: it skips the remaining steps and the deployment. Pushes and manual runs always continue.
 6. Installs the image dependency (Pillow) and runs the unit tests (`python3 -m unittest discover tests`). A failing test stops the run.
 7. Generates the upcoming-show poster (`img/upcomingshow.jpg` and `/showposter/`) from `shows.json`.
-8. Uploads `_site` and deploys it to GitHub Pages.
+8. Commits `_site` as a single new commit and force-pushes it to the `gh-pages` branch, replacing what was there. GitHub Pages then publishes that branch in its own "pages build and deployment" run, which usually takes a minute.
+
+**Why a `gh-pages` branch:** `actions/deploy-pages` identifies each deployment by its commit. Manual and scheduled runs reuse the latest commit, and redeploying a commit that is already live can report success while the old files keep being served ([actions/deploy-pages#383](https://github.com/actions/deploy-pages/issues/383)). A fresh commit on `gh-pages` for every build avoids this. The branch holds only generated files. Never edit it by hand; every deploy overwrites it.
 **Safety rules:**
 
 - The generated JSON is deterministic. The same spreadsheet always produces byte-identical files, whatever the row order.
 - If a download fails, a sheet is empty, or any row is invalid, the run fails and nothing deploys. The live site keeps its last good data. The error message lists each bad row by row number. It never prints the secret URLs.
 - Nothing in the pipeline changes your spreadsheets.
-- No generated data is committed back to the repo, so the pipeline needs no write access to it.
+- Generated files are only ever pushed to `gh-pages`. Nothing is committed to `main` or `deploy`.
 
 **What the page does with the data:**
 
@@ -146,10 +148,21 @@ In GitHub, go to **Settings, Secrets and variables, Actions, New repository secr
 | `SCHEDULE_CSV_URL` | The full published CSV link for the schedule tab. |
 | `VIDEO_CSV_URL` | The full published CSV link for the video tab. |
 
-### 3. Turn on GitHub Pages
+### 3. Add the deploy token
 
-1. **Settings, Pages:** set **Source** to **GitHub Actions**.
-2. **Settings, Environments, `github-pages`:** under **Deployment branches and tags**, add a rule that allows the `deploy` branch. Without this, deployments fail with "Branch 'deploy' is not allowed to deploy to github-pages".
+GitHub Pages does not publish commits pushed with the workflow's built-in `GITHUB_TOKEN`, so the push to `gh-pages` uses a personal access token.
+
+1. **Your profile, Settings, Developer settings, Personal access tokens, Fine-grained tokens, Generate new token.** Limit it to the `hoss-website` repository and give it the repository permission **Contents: Read and write**. Note the expiry date.
+2. In the repo, add it under **Settings, Secrets and variables, Actions, Secrets** as `PAGES_DEPLOY_TOKEN`.
+
+When the token expires, runs fail at the checkout step. Generate a new one and replace the secret.
+
+### 4. Turn on GitHub Pages
+
+1. Run the workflow once (push to `deploy` or **Run workflow**). This creates the `gh-pages` branch.
+2. **Settings, Pages:** set **Source** to **Deploy from a branch**, choose `gh-pages` and `/ (root)`, and save.
+3. Check that **Custom domain** still shows `hossandthehangmen.com` and **Enforce HTTPS** is on.
+4. **Settings, Environments, `github-pages`:** if **Deployment branches and tags** is restricted, add `gh-pages` to the allowed branches. Otherwise the "pages build and deployment" run fails with "Branch 'gh-pages' is not allowed to deploy to github-pages".
 
 ## Everyday workflow
 
@@ -272,7 +285,7 @@ tests/                        unit tests for both scripts
 
 ## Custom domain and SEO
 
-The site is served at `https://hossandthehangmen.com`. The domain is registered through Porkbun, and its DNS points at GitHub Pages. The domain is set in **Settings, Pages, Custom domain**. A `CNAME` file isn't needed, because GitHub ignores that file for sites deployed by a workflow. `www.hossandthehangmen.com` redirects to the bare domain, which is the canonical address.
+The site is served at `https://hossandthehangmen.com`. The domain is registered through Porkbun, and its DNS points at GitHub Pages. The domain is set in **Settings, Pages, Custom domain**, and the `CNAME` file in the repo root holds the same domain. The workflow copies `CNAME` into every build so that replacing the `gh-pages` branch doesn't clear the custom domain. `www.hossandthehangmen.com` redirects to the bare domain, which is the canonical address.
 
 **What is in place:**
 
@@ -287,9 +300,10 @@ The site is served at `https://hossandthehangmen.com`. The domain is registered 
 
 - `index.html` (canonical URL, Open Graph tags and the `MusicGroup` data, 6 places),
 - `sitemap.xml`,
-- `robots.txt`.
+- `robots.txt`,
+- `CNAME` (domain only, no `https://`).
 
-If the domain ever changes, update all three, then update **Settings, Pages, Custom domain** and the DNS records at Porkbun. The DNS records GitHub expects are listed in [GitHub's custom domain docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
+If the domain ever changes, update all four, then update **Settings, Pages, Custom domain** and the DNS records at Porkbun. The DNS records GitHub expects are listed in [GitHub's custom domain docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
 
 Page assets use relative paths (`css/style.css`, not `/css/style.css`), so the site also works from a subfolder.
 
@@ -301,7 +315,9 @@ Page assets use relative paths (`css/style.css`, not `/css/style.css`), so the s
 
 | Symptom | Likely cause |
 |---|---|
-| Run fails: "Branch 'deploy' is not allowed to deploy to github-pages" | Add `deploy` to the allowed branches on the `github-pages` environment (setup step 3). |
+| "pages build and deployment" fails: "Branch 'gh-pages' is not allowed to deploy to github-pages" | Add `gh-pages` to the allowed branches on the `github-pages` environment (setup step 4). |
+| Run fails at checkout or at "Publish to gh-pages branch" with an authentication error | The `PAGES_DEPLOY_TOKEN` secret is missing, expired, or lacks **Contents: Read and write** (setup step 3). |
+| Run succeeds but the site does not change | Check that **Settings, Pages** publishes from `gh-pages`, and that a "pages build and deployment" run followed. |
 | Run fails at the schedule or video step with "invalid rows" | The message lists each bad row number and the problem. Fix those rows in the sheet and re-run. |
 | Run fails with "returned a web page, not CSV" | The secret is the normal sheet link, not the **Publish to web** CSV link. |
 | Run fails with "Environment variable ... is not set" or an HTTP 404 | The secret is missing, misspelled or out of date, or the tab is no longer published. |
