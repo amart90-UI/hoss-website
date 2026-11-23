@@ -196,6 +196,8 @@ def render_event_page(event):
     )))
     maps_url = "https://www.google.com/maps/search/?" + urlencode({"api": "1", "query": map_query})
     calendar_url = google_calendar_url(event)
+    # poster.jpg is written next to this page by scripts/generate_event_posters.py.
+    poster_name = f"hoss-and-the-hangmen-{event['date']}-{event_slug(event['venue'])}.jpg"
     event_actions = (
         '<div class="event-actions">'
         f'<a class="show-action-link" href="{html.escape(maps_url, quote=True)}" target="_blank" rel="noopener">Directions</a>'
@@ -203,6 +205,7 @@ def render_event_page(event):
             f'<a class="show-action-link" href="{html.escape(calendar_url, quote=True)}" target="_blank" rel="noopener">Add to calendar</a>'
             if calendar_url else ""
         )
+        + f'<a class="show-action-link" href="poster.jpg" download="{html.escape(poster_name, quote=True)}">Download poster</a>'
         + '</div>'
     )
 

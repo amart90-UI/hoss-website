@@ -6,3 +6,4 @@ showposter/index.html
 img/upcomingshow.jpg
 
 __pycache__/
+events/*/poster.jpg

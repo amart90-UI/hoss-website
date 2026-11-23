@@ -108,7 +108,7 @@ The workflow is `.github/workflows/deploy.yml`.
    - writes `videos.json` in sheet order, keeping `channel_url` from the repo's copy.
 5. On scheduled runs only, compares the new JSON files with the ones on the `gh-pages` branch. If nothing changed, the run ends here: it skips the remaining steps and the deployment. Pushes and manual runs always continue.
 6. Installs the image dependency (Pillow) and runs the unit tests (`python3 -m unittest discover tests`). A failing test stops the run.
-7. Generates the upcoming-show poster (`img/upcomingshow.jpg` and `/showposter/`) from `shows.json`.
+7. Generates the upcoming-show poster (`img/upcomingshow.jpg` and `/showposter/`) from `shows.json`, then a poster for each upcoming show (`events/<page>/poster.jpg`).
 8. Commits `_site` as a single new commit and force-pushes it to the `gh-pages` branch, replacing what was there. GitHub Pages then publishes that branch in its own "pages build and deployment" run, which usually takes a minute.
 
 **Why a `gh-pages` branch:** `actions/deploy-pages` identifies each deployment by its commit. Manual and scheduled runs reuse the latest commit, and redeploying a commit that is already live can report success while the old files keep being served ([actions/deploy-pages#383](https://github.com/actions/deploy-pages/issues/383)). A fresh commit on `gh-pages` for every build avoids this. The branch holds only generated files. Never edit it by hand; every deploy overwrites it.
@@ -260,6 +260,21 @@ To test a deployed page, open its `/events/.../` URL and submit the URL to Googl
 **Search appearance > Enhancements > Events** for indexing or structured-data issues.
 Google rich results are not guaranteed.
 
+## Event posters
+
+Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank_poster.png` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, venue logo, date, time range, and a QR code for `event_url` (left off when the show has no `event_url`). Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
+
+**Venue logos.** Add one image per venue as `img/logo-<venue-name>.png`, where the name is the venue in lowercase with runs of other characters replaced by a hyphen (the same slug used in event page URLs): `img/logo-horsetooth-tavern.png` for "Horsetooth Tavern". Use a PNG with a transparent background, at least 700 px on its longer side. PNG is used instead of SVG because turning an SVG into pixels needs an extra library (Cairo) that this project avoids. A show whose venue has no logo still gets a poster, with the logo area empty and a warning in the build log.
+
+**Moving things around.** Everything to adjust is in the `LAYOUT` section at the top of `scripts/generate_event_posters.py` (positions, sizes, colors, QR placement), with each value explained in a comment. To preview changes locally with colored guide lines showing each area:
+
+```
+python scripts/process_schedule.py --csv schedule.csv --generate-events
+python scripts/generate_event_posters.py --guides --only horsetooth
+```
+
+The poster is written to `events/<page>/poster.jpg`. Drop `--guides` for the final look. The QR code comes from `scripts/qr_code.py`, a small built-in encoder, so there are no new dependencies.
+
 ## Repository layout
 
 ```
@@ -277,6 +292,8 @@ data/past-shows.json          generated, not committed
 scripts/process_schedule.py   schedule sheet -> shows.json and past-shows.json
 scripts/process_videos.py     video sheet -> videos.json
 scripts/event_pages.py        validated shows -> individual event pages and sitemap
+scripts/generate_event_posters.py  shows.json + img/blank_poster.png -> events/<page>/poster.jpg
+scripts/qr_code.py            small QR code encoder used by the poster script
 tests/                        unit tests for both scripts
 .github/workflows/deploy.yml  tests, data build and deployment
 ```
