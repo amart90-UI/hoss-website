@@ -131,9 +131,12 @@ document.addEventListener('DOMContentLoaded', function () {
 		return;
 	}
 	el.textContent = date.toLocaleString(undefined, {
-		dateStyle: 'medium',
-		timeStyle: 'short',
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+		hour: 'numeric',
+		minute: '2-digit',
 		timeZoneName: 'short'
-	}).replace(' at ', ', ');
+	});
 	el.title = date.toISOString();
 });
