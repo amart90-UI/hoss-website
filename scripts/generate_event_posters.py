@@ -55,11 +55,11 @@ class Text(NamedTuple):
 
 
 # "LIVE MUSIC at <VENUE>" across the top.
-HEADLINE = Text(x=1500, y=190, size=190, max_width=2510, color=TAN, tracking=40)
+HEADLINE = Text(x=1500, y=190, size=190, max_width=2510, color=TAN, tracking=20)
 
 # Venue name above the underline, and "City, ST" below it.
 VENUE = Text(x=1500, y=3645, size=300, max_width=1260, color=TAN)
-CITY = Text(x=1500, y=3880, size=170, max_width=1260, color=TAN, tracking=14)
+CITY = Text(x=1500, y=3880, size=170, max_width=1260, color=TAN, tracking=8)
 
 # The two lines inside the tan box at the bottom right.
 DATE = Text(x=2583, y=3650, size=260, max_width=580, color=NAVY)
@@ -93,13 +93,13 @@ def logo_path(venue):
 
 def format_date(iso_date):
     day = date.fromisoformat(iso_date)
-    return f"{day.strftime('%B').upper()} {day.day}, {day.year}"
+    return f"{day.strftime('%b').upper()} {day.day}, {day.year}"
 
 
 def _clock(time24):
     hour, minute = (int(part) for part in time24.split(":"))
     # Amatic SC draws lowercase letters as small capitals, which is the look of "11 A.M.".
-    suffix = "a.m." if hour < 12 else "p.m."
+    suffix = "am" if hour < 12 else "pm"
     hour = hour % 12 or 12
     return f"{hour}" if minute == 0 else f"{hour}:{minute:02d}", suffix
 
