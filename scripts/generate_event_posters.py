@@ -2,7 +2,7 @@
 """Generate a poster for each upcoming show and save it next to the show's event page.
 
 Reads the upcoming shows from data/shows.json (the same file the website uses) and draws
-the venue, city, state, date, time and a QR code onto img/blank_poster.png.
+the venue, city, state, date, time and a QR code onto img/blank-poster.webp.
 Each poster is written to <site-root>/events/<page-slug>/poster.jpg.
 
 To move something on the poster, edit the LAYOUT section below. Run with --guides to draw
@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 from qr_code import QRError, make_qr
 
 ROOT = Path(__file__).resolve().parent.parent
-TEMPLATE = ROOT / "img" / "blank_poster.png"
+TEMPLATE = ROOT / "img" / "blank-poster.webp"
 FONT = ROOT / "fonts" / "AmaticSC-Bold.ttf"
 
 # =====================================================================================
@@ -207,7 +207,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--shows-file", default="data/shows.json")
     parser.add_argument("--site-root", default=".", help="directory containing events/ (posters go in events/<slug>/)")
-    parser.add_argument("--template", default=str(TEMPLATE), help="blank poster image")
+    parser.add_argument("--template", default=str(TEMPLATE), help="blank poster image (PNG, JPG or WebP)")
     parser.add_argument("--only", help="only make posters whose show id contains this text")
     parser.add_argument("--guides", action="store_true", help="draw outlines of the placement areas")
     args = parser.parse_args(argv)

@@ -54,7 +54,7 @@ jobs:
           # The site is already built, so tell GitHub Pages not to run Jekyll on it.
           touch _site/.nojekyll
           # The poster template and its design example are only inputs to the poster script.
-          rm -f _site/img/blank_poster.png _site/img/example_poster.png
+          rm -f _site/img/blank-poster.webp _site/img/example_poster.png
 
       # Stamp the build time (UTC) into the page. The browser converts it to the visitor's local time.
       - name: Stamp build time

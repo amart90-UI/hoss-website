@@ -262,7 +262,7 @@ Google rich results are not guaranteed.
 
 ## Event posters
 
-Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank_poster.png` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, date, time range, and a QR code in the bottom-left corner. The QR code links to the show's `event_url`, or to its event page when there is no `event_url`. Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
+Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank-poster.webp` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, date, time range, and a QR code in the bottom-left corner. The QR code links to the show's `event_url`, or to its event page when there is no `event_url`. Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
 
 **Moving things around.** Everything to adjust is in the `LAYOUT` section at the top of `scripts/generate_event_posters.py` (positions, sizes, colors, QR placement), with each value explained in a comment. To preview changes locally with colored guide lines showing each area:
 
@@ -290,7 +290,7 @@ data/past-shows.json          generated, not committed
 scripts/process_schedule.py   schedule sheet -> shows.json and past-shows.json
 scripts/process_videos.py     video sheet -> videos.json
 scripts/event_pages.py        validated shows -> individual event pages and sitemap
-scripts/generate_event_posters.py  shows.json + img/blank_poster.png -> events/<page>/poster.jpg
+scripts/generate_event_posters.py  shows.json + img/blank-poster.webp -> events/<page>/poster.jpg
 scripts/qr_code.py            small QR code encoder used by the poster script
 tests/                        unit tests for both scripts
 .github/workflows/deploy.yml  tests, data build and deployment
