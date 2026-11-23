@@ -156,6 +156,7 @@ def write_poster_page(image_path, output):
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
   <meta name="description" content="Upcoming shows for Hoss and the Hangmen.">
   <meta property="og:title" content="Upcoming shows - Hoss and the Hangmen">
   <meta property="og:image" content="https://hossandthehangmen.com{image_url}">

@@ -50,7 +50,7 @@ class ShowPosterTests(unittest.TestCase):
         ])
         self.assertEqual(poster.format_time_range("11:00", "13:00"), "11:00 AM - 1:00 PM")
 
-    def test_generates_jpeg_and_showposter_page_with_supplied_background(self):
+    def test_generates_jpeg_and_showposter_page_(self):
         shows = [{
             "date": "2026-11-25",
             "start_time": "18:00",
@@ -62,13 +62,11 @@ class ShowPosterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             shows_file = root / "shows.json"
-            background = root / "background.png"
             output = root / "img" / "upcomingshow.jpg"
             page_output = root / "showposter"
             shows_file.write_text(json.dumps(shows), encoding="utf-8")
-            Image.new("RGB", (400, 600), "#BDB199").save(background)
 
-            count = poster.generate_poster(shows_file, background, output, page_output)
+            count = poster.generate_poster(shows_file, output, page_output)
 
             self.assertEqual(count, 1)
             with Image.open(output) as image:
@@ -76,14 +74,14 @@ class ShowPosterTests(unittest.TestCase):
                 self.assertEqual(image.size, (poster.WIDTH, poster.HEIGHT))
             self.assertIn("/img/upcomingshow.jpg", (page_output / "index.html").read_text(encoding="utf-8"))
 
-    def test_missing_background_uses_fallback_and_empty_schedule_is_rendered(self):
+    def test_empty_schedule_is_rendered(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             shows_file = root / "shows.json"
             output = root / "upcomingshow.jpg"
             shows_file.write_text("[]", encoding="utf-8")
 
-            count = poster.generate_poster(shows_file, root / "missing.png", output, root / "showposter")
+            count = poster.generate_poster(shows_file, output, root / "showposter")
 
             self.assertEqual(count, 0)
             with Image.open(output) as image:

@@ -58,7 +58,7 @@ jobs:
         run: python3 scripts/process_schedule.py --output-dir _site/data
 
       - name: Generate upcoming show poster
-        run: python3 scripts/generate_show_poster.py --shows-file _site/data/shows.json --background _site/img/next-show-bg.png --output _site/img/upcomingshow.jpg --page-output _site/showposter
+        run: python3 scripts/generate_show_poster.py --shows-file _site/data/shows.json --output _site/img/upcomingshow.jpg --page-output _site/showposter
 
       # Replaces the copied data/videos.json with the list from the video sheet, keeping its channel_url.
       # Fails the same way as the schedule step.

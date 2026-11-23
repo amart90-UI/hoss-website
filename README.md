@@ -53,7 +53,7 @@ Rules:
 - **Only put public information in the sheet.** Anyone who has the published CSV link can read the tab.
 
 The change goes live the next time the workflow runs. That happens every night, or immediately if you [run it by hand](#run-the-pipeline-manually).
-The pipeline also rebuilds `img/upcomingshow.jpg` and the `/showposter/` page from the upcoming shows. Add the poster background to `img/next-show-bg.png`; until then, it uses the site background color.
+The pipeline also rebuilds `img/upcomingshow.jpg` and the `/showposter/` page from the upcoming shows.
 
 ### Add, change, reorder or remove a video
 
