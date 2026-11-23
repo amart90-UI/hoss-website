@@ -95,7 +95,7 @@ The workflow is `.github/workflows/deploy.yml`.
 **What it does, in order:**
 
 1. Checks out the `deploy` branch, regardless of whichever branch started the run.
-2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, `CNAME`, and the favicon files and `site.webmanifest` from the repo root, and adds an empty `.nojekyll` file. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
+2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, `CNAME`, `404.html`, and the favicon files and `site.webmanifest` from the repo root, and adds an empty `.nojekyll` file. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
 3. Runs `scripts/process_schedule.py` (with `--generate-events`):
    - downloads the schedule CSV (URL from the `SCHEDULE_CSV_URL` secret),
    - checks every row (required values, `M/D/YYYY` dates, times, two-letter state, `http(s)` links, duplicates),
@@ -108,7 +108,7 @@ The workflow is `.github/workflows/deploy.yml`.
    - writes `videos.json` in sheet order, keeping `channel_url` from the repo's copy.
 5. On scheduled runs only, compares the new JSON files with the ones on the `gh-pages` branch. If nothing changed, the run ends here: it skips the remaining steps and the deployment. Pushes and manual runs always continue.
 6. Installs the image dependency (Pillow) and runs the unit tests (`python3 -m unittest discover tests`). A failing test stops the run.
-7. Generates the upcoming-show poster (`img/upcomingshow.jpg` and `/showposter/`) from `shows.json`.
+7. Generates the upcoming-show poster (`img/upcomingshow.jpg` and `/showposter/`) from `shows.json`, then a poster for each upcoming show (`events/<page>/poster.jpg`).
 8. Commits `_site` as a single new commit and force-pushes it to the `gh-pages` branch, replacing what was there. GitHub Pages then publishes that branch in its own "pages build and deployment" run, which usually takes a minute.
 
 **Why a `gh-pages` branch:** `actions/deploy-pages` identifies each deployment by its commit. Manual and scheduled runs reuse the latest commit, and redeploying a commit that is already live can report success while the old files keep being served ([actions/deploy-pages#383](https://github.com/actions/deploy-pages/issues/383)). A fresh commit on `gh-pages` for every build avoids this. The branch holds only generated files. Never edit it by hand; every deploy overwrites it.
@@ -260,6 +260,21 @@ To test a deployed page, open its `/events/.../` URL and submit the URL to Googl
 **Search appearance > Enhancements > Events** for indexing or structured-data issues.
 Google rich results are not guaranteed.
 
+## Event posters
+
+Every upcoming show with an event page also gets a poster at `/events/<page>/poster.jpg`, linked from the page as "Download poster". `scripts/generate_event_posters.py` draws it on `img/blank-poster.webp` (3000 x 3996) using the show's data from `shows.json`: a "Live music at ..." headline, venue, city and state, date, time range, and a QR code in the bottom-left corner. The QR code encodes a short address such as `https://hossandthehangmen.com/e/5gakgx/` (keeps the code simple to scan), which redirects to the show's event page. Posters are generated during the deploy and are not committed. `img/example_poster.png` shows the intended design.
+
+**Moving things around.** Everything to adjust is in the `LAYOUT` section at the top of `scripts/generate_event_posters.py` (positions, sizes, colors, QR placement), with each value explained in a comment. To preview changes locally with colored guide lines showing each area:
+
+```
+python scripts/process_schedule.py --csv schedule.csv --generate-events
+python scripts/generate_event_posters.py --guides --only horsetooth
+```
+
+The poster is written to `events/<page>/poster.jpg`. Drop `--guides` for the final look. The QR code comes from `scripts/qr_code.py`, a small built-in encoder, so there are no new dependencies.
+
+**Short links.** `scripts/event_pages.py` writes a small redirect page at `/e/<code>/` for every event page. The 6-character code is derived from the event page path (date and venue), so the same event gets the same code on every build and a printed poster keeps working. Editing a show's start or end time keeps its code; changing its date or venue changes the event page address and so the code. After a show has passed, its pages are removed, and `404.html` sends any unknown `/e/...` address to the schedule. The redirect pages are marked `noindex` and are not in the sitemap.
+
 ## Repository layout
 
 ```
@@ -276,7 +291,10 @@ data/shows.json               generated, not committed
 data/past-shows.json          generated, not committed
 scripts/process_schedule.py   schedule sheet -> shows.json and past-shows.json
 scripts/process_videos.py     video sheet -> videos.json
-scripts/event_pages.py        validated shows -> individual event pages and sitemap
+scripts/event_pages.py        validated shows -> individual event pages, short /e/<code>/ redirects and sitemap
+404.html                      not-found page; sends expired poster short links to the schedule
+scripts/generate_event_posters.py  shows.json + img/blank-poster.webp -> events/<page>/poster.jpg
+scripts/qr_code.py            small QR code encoder used by the poster script
 tests/                        unit tests for both scripts
 .github/workflows/deploy.yml  tests, data build and deployment
 ```

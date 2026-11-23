@@ -2,7 +2,9 @@
 /data/*
 !/data/videos.json
 events/*/index.html
+e/*/index.html
 showposter/index.html
 img/upcomingshow.jpg
 
 __pycache__/
+events/*/poster.jpg

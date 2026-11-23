@@ -132,6 +132,48 @@ class EventPageTests(unittest.TestCase):
             locs = [node.text for node in tree.getroot().iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]
             self.assertIn(generated[0]["page_url"], locs)
 
+    def test_short_code_is_stable_short_and_url_safe(self):
+        path = "/events/2026-07-18-horsetooth-tavern/"
+        code = ep.short_code(path)
+        self.assertEqual(code, ep.short_code(path))
+        self.assertRegex(code, r"^[a-z2-7]{6}$")
+        self.assertNotEqual(code, ep.short_code("/events/2026-07-18-horsetooth-tavern-2/"))
+        self.assertEqual(ep.short_url(path), f"https://hossandthehangmen.com/e/{code}/")
+
+    def test_redirect_page_points_to_event_page(self):
+        event = self.valid_event()
+        with tempfile.TemporaryDirectory() as folder:
+            generated = ep.generate_event_pages([event], folder)
+            redirect = Path(folder) / "e" / ep.short_code(generated[0]["page_path"]) / "index.html"
+            text = redirect.read_text(encoding="utf-8")
+            self.assertIn(f'content="0; url={generated[0]["page_url"]}"', text)
+            self.assertIn('name="robots" content="noindex"', text)
+            ep.update_sitemap(folder, generated)
+            self.assertNotIn("/e/", (Path(folder) / "sitemap.xml").read_text(encoding="utf-8"))
+
+    def test_stale_redirect_pages_removed(self):
+        with tempfile.TemporaryDirectory() as folder:
+            stale = Path(folder) / "e" / "zzzzzz"
+            stale.mkdir(parents=True)
+            (stale / "index.html").write_text("old", encoding="utf-8")
+            ep.generate_event_pages([self.valid_event()], folder)
+            self.assertFalse(stale.exists())
+
+    def test_short_code_collision_fails_the_build(self):
+        events = []
+        for day in range(1, 29):
+            event = self.valid_event()
+            event["date"] = f"2026-08-{day:02d}"
+            events.append(event)
+        original = ep.SHORT_CODE_LENGTH
+        ep.SHORT_CODE_LENGTH = 1  # only 32 possible codes, so 28 shows plus more will collide
+        try:
+            events += [dict(events[0], date=f"2026-09-{day:02d}") for day in range(1, 20)]
+            with tempfile.TemporaryDirectory() as folder, self.assertRaises(ep.EventPageError):
+                ep.generate_event_pages(events, folder)
+        finally:
+            ep.SHORT_CODE_LENGTH = original
+
     def test_stale_event_pages_removed(self):
         event = self.valid_event()
         with tempfile.TemporaryDirectory() as folder:

@@ -2,6 +2,8 @@
 """Generate static event pages and sitemap entries for upcoming shows."""
 
 import argparse
+import base64
+import hashlib
 import html
 import json
 import re
@@ -18,6 +20,7 @@ BAND_NAME = "Hoss and the Hangmen"
 BAND_URL = "https://hossandthehangmen.com/"
 BASE_URL = "https://hossandthehangmen.com"
 EVENT_IMAGE_PATH = "img/og-image.jpg"
+SHORT_CODE_LENGTH = 6
 TIMEZONE = "America/Denver"
 
 STATE_RE = re.compile(r"^[A-Za-z]{2}$")
@@ -30,6 +33,25 @@ class EventPageError(Exception):
 
 def event_slug(venue):
     return slugify(venue)
+
+
+def short_code(page_path):
+    """Stable short code for an event, such as "k3x9qa".
+
+    Derived from the event page path (date, venue, and a suffix if two shows share both), so the
+    same event gets the same code on every build and a printed QR code keeps working.
+    """
+    digest = hashlib.sha256(page_path.encode("utf-8")).digest()
+    return base64.b32encode(digest).decode("ascii").lower()[:SHORT_CODE_LENGTH]
+
+
+def short_path(page_path):
+    return f"/e/{short_code(page_path)}/"
+
+
+def short_url(page_path):
+    """The short address printed on posters as a QR code. It redirects to the event page."""
+    return BASE_URL + short_path(page_path)
 
 
 def assign_event_paths(events):
@@ -196,6 +218,8 @@ def render_event_page(event):
     )))
     maps_url = "https://www.google.com/maps/search/?" + urlencode({"api": "1", "query": map_query})
     calendar_url = google_calendar_url(event)
+    # poster.jpg is written next to this page by scripts/generate_event_posters.py.
+    poster_name = f"hoss-and-the-hangmen-{event['date']}-{event_slug(event['venue'])}.jpg"
     event_actions = (
         '<div class="event-actions">'
         f'<a class="show-action-link" href="{html.escape(maps_url, quote=True)}" target="_blank" rel="noopener">Directions</a>'
@@ -203,6 +227,7 @@ def render_event_page(event):
             f'<a class="show-action-link" href="{html.escape(calendar_url, quote=True)}" target="_blank" rel="noopener">Add to calendar</a>'
             if calendar_url else ""
         )
+        + f'<a class="show-action-link" href="poster.jpg" download="{html.escape(poster_name, quote=True)}">Download poster</a>'
         + '</div>'
     )
 
@@ -253,6 +278,25 @@ def render_event_page(event):
 """
 
 
+def render_redirect_page(event):
+    target = html.escape(event["page_url"], quote=True)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{html.escape(BAND_NAME)} at {html.escape(event["venue"])}</title>
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url={target}">
+<link rel="canonical" href="{target}">
+</head>
+<body>
+<p><a href="{target}">Continue to the event page</a></p>
+</body>
+</html>
+"""
+
+
 def generate_event_pages(events, site_root):
     site_root = Path(site_root)
     assigned = [event for event in assign_event_paths(events) if event.get("page_path")]
@@ -265,16 +309,27 @@ def generate_event_pages(events, site_root):
     if errors:
         raise EventPageError("The schedule has invalid event page rows:\n  " + "\n  ".join(errors))
 
-    events_root = site_root / "events"
-    if events_root.exists():
-        shutil.rmtree(events_root)
+    codes = {}
+    for event in assigned:
+        code = short_code(event["page_path"])
+        if code in codes:
+            raise EventPageError(f"short code collision: {event['page_path']} and {codes[code]} both map to /e/{code}/")
+        codes[code] = event["page_path"]
+
+    for folder in ("events", "e"):
+        stale = site_root / folder
+        if stale.exists():
+            shutil.rmtree(stale)
     if assigned:
-        events_root.mkdir(parents=True)
+        (site_root / "events").mkdir(parents=True)
 
     for event in assigned:
         page_dir = site_root / event["page_path"].lstrip("/")
         page_dir.mkdir(parents=True, exist_ok=True)
         (page_dir / "index.html").write_text(render_event_page(event), encoding="utf-8")
+        redirect_dir = site_root / short_path(event["page_path"]).strip("/")
+        redirect_dir.mkdir(parents=True, exist_ok=True)
+        (redirect_dir / "index.html").write_text(render_redirect_page(event), encoding="utf-8")
     return assigned
 
 
