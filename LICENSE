@@ -1,0 +1,90 @@
+Source code license
+===================
+
+Copyright (c) 2026 Anthony Martinez
+
+This license covers the source code in this repository: HTML, CSS, JavaScript,
+Python scripts, tests, GitHub Actions workflows and configuration files.
+
+It does NOT cover the photographs, logos, artwork and other media listed in
+LICENSE-MEDIA.md, or the third-party material described under "Third-party and
+upstream material" below. Those items are governed by the terms stated there.
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+Third-party and upstream material
+=================================
+
+1. Free Rock Band Website Template (upstream)
+
+   Parts of the site's layout, styling and JavaScript are derived from the Free
+   Rock Band Website Template by Gaetan Tremois
+   (https://github.com/gtcore902/free-rock-band-website-template), used and
+   adapted with the author's permission. At the time of writing that repository
+   has no license; the author has said he will add one. The MIT grant above
+   applies only to the original contributions of this repository's authors. It
+   does not grant any rights in the upstream author's work. Anyone reusing
+   this repository should consult the upstream repository for its license
+   terms. This notice will be updated when the upstream license is published.
+
+2. Rellax (js/vendor/rellax.min.js)
+
+   The MIT License (MIT)
+   Copyright (c) 2016 Dixon & Moe
+   https://github.com/dixonandmoe/rellax
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to
+   deal in the Software without restriction, including without limitation the
+   rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+   sell copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+   IN THE SOFTWARE.
+
+3. Fonts (fonts/)
+
+   Amatic SC, Faculty Glyphic and Rye are licensed under the SIL Open Font
+   License, Version 1.1. Each font's copyright notice and license text is in
+   the matching *-OFL.txt file in the fonts/ directory. They are not covered
+   by the MIT license above.
+
+4. Third-party trademarks
+
+   The Facebook and Instagram icons in img/ are trademarks of their respective
+   owners and are used only to link to the band's profiles on those services.
+   They are not covered by this license.
+
+5. Python dependencies
+
+   Pillow (listed in requirements.txt) is installed at build time and is not
+   redistributed in this repository. It is licensed under the MIT-CMU (HPND)
+   license.

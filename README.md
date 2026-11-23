@@ -9,7 +9,7 @@ It is a static site hosted on GitHub Pages. The show schedule and the video gall
 
 ## Credits
 
-This site is based on the [Free Rock Band Website Template](https://github.com/gtcore902/free-rock-band-website-template) by Gaëtan Tremois, used with the author's permission. The visual design (layout, scroll animations, hamburger menu, section styling) comes from that template. The contact form, newsletter signup, PHP backend and server configuration were removed, and the schedule, video gallery and deployment pipeline were added.
+This site is based on the [Free Rock Band Website Template](https://github.com/gtcore902/free-rock-band-website-template) by Gaetan Tremois, used with the author's permission. The visual design (layout, scroll animations, hamburger menu, section styling) comes from that template. The contact form, newsletter signup, PHP backend and server configuration were removed, and the schedule, video gallery and deployment pipeline were added.
 
 ## How it works
 
