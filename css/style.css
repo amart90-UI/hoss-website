@@ -971,3 +971,205 @@ footer p.buildInfo {
 footer p.buildInfo[hidden] {
 	display: none;
 }
+
+/* ------------------------------------------------------------------ List / Calendar toggle and month calendar (js/calendar.js) */
+.view-tabs {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	margin-top: 30px;
+}
+.view-tab {
+	padding: 6px 18px;
+	border: 1px solid #BDB199;
+	border-radius: 20px;
+	background: none;
+	color: #efe1c6;
+	font: inherit;
+	font-size: 0.85rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+.view-tab[aria-selected="true"] {
+	background-color: #AA5321;
+	border-color: #AA5321;
+}
+.view-tab:hover {
+	border-color: #AA5321;
+}
+.view-tab:focus-visible {
+	outline: 2px solid #ff9760;
+	outline-offset: 3px;
+}
+.cal {
+	max-width: 520px;
+	margin: 40px auto 70px;
+}
+/* The month picker */
+.cal-widget {
+	padding: 20px 16px;
+	border: 1px solid #BDB199;
+	border-radius: 12px;
+	background-color: #3A3E3F;
+}
+.cal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+}
+.cal-title {
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	text-align: center;
+}
+.cal-arrow {
+	width: 36px;
+	height: 36px;
+	border: 0;
+	border-radius: 50%;
+	background: none;
+	color: #efe1c6;
+	font: inherit;
+	font-size: 2.2rem;
+	line-height: 1;
+	cursor: pointer;
+}
+/* Chevron drawn with borders */
+.cal-arrow::before {
+	content: "";
+	display: block;
+	width: 10px;
+	height: 10px;
+	margin: 0 auto;
+	border: solid currentColor;
+	border-width: 0 0 2px 2px;
+	transform: rotate(45deg);
+}
+.cal-arrow-next::before {
+	transform: rotate(-135deg);
+}
+.cal-arrow:hover {
+	color: #ff9760;
+}
+.cal-arrow:disabled {
+	visibility: hidden;
+}
+.cal-arrow:focus-visible,
+.cal-day:focus-visible {
+	outline: 2px solid #ff9760;
+	outline-offset: 2px;
+}
+.cal-weekdays,
+.cal-grid {
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.cal-weekdays div {
+	padding-bottom: 8px;
+	color: #BDB199;
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-align: center;
+	text-transform: uppercase;
+}
+.cal-day {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 36px;
+	margin: 2px;
+	border: 0;
+	border-radius: 8px;
+	background: none;
+	color: #8c8672;
+	font: inherit;
+	font-size: 0.85rem;
+}
+/* Days with a show are buttons */
+button.cal-day {
+	background-color: #AA5321;
+	color: #efe1c6;
+	font-weight: 700;
+	cursor: pointer;
+}
+button.cal-day:hover {
+	background-color: #c4622b;
+}
+button.cal-day[aria-pressed="true"] {
+	background-color: #efe1c6;
+	color: #323536;
+}
+.cal-day.is-today {
+	box-shadow: inset 0 0 0 1px #ff9760;
+}
+span.cal-day.is-today {
+	color: #ff9760;
+}
+/* The global p rule adds large margins */
+.cal p {
+	margin: 0;
+	line-height: 1.5;
+}
+.cal-details {
+	margin-top: 20px;
+	text-align: center;
+}
+.cal-hint,
+.cal-note {
+	color: #BDB199;
+	font-size: 0.85rem;
+}
+.cal .cal-note {
+	margin-top: 14px;
+	text-align: center;
+}
+.cal-details-date {
+	font-weight: 700;
+	font-size: 1rem;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: #BDB199;
+}
+.cal-card {
+	margin-top: 12px;
+	padding: 14px 16px;
+	border: 1px solid #BDB199;
+	border-left: 4px solid #AA5321;
+	border-radius: 8px;
+	text-align: left;
+}
+.cal-card-time {
+	color: #efe1c6;
+	font-weight: 700;
+}
+.cal-card-local {
+	display: block;
+	color: #BDB199;
+	font-size: 0.8rem;
+	font-weight: 400;
+}
+.cal-card-venue {
+	margin-top: 4px;
+	font-size: 1.1rem;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: #efe1c6;
+}
+.cal-card-venue a {
+	text-decoration: underline;
+	text-decoration-color: #BDB199;
+	text-underline-offset: 0.15em;
+}
+.cal-card-place {
+	color: #BDB199;
+	font-size: 0.9rem;
+}
+.cal-card .show-action-link {
+	margin-top: 10px;
+}

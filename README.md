@@ -122,6 +122,7 @@ The workflow is `.github/workflows/deploy.yml`.
 **What the page does with the data:**
 
 - `js/shows.js` fills the "Next show" line, the upcoming table and the collapsed past-shows list. It also adds `MusicEvent` structured data (JSON-LD) for the upcoming shows, built from the same data.
+- `js/calendar.js` adds a List / Calendar toggle above the show list and builds a monthly calendar from the same `data/shows.json` in plain JavaScript (no library). Highlighted days have a show; selecting one shows its time, venue and a link to the event page. It starts at the current month (in `America/Denver`) and runs to the later of three months ahead or the month of the last upcoming show. Dates and times are the band's Denver times; if the visitor's time zone shows a different time, their local time is added under the show. Each show links to its event page.
 - The next-show link opens that show's event page. Upcoming show listings and event pages include Google Maps directions when an address is available, and a Google Calendar link when both start and end times are available.
 - A static event page is generated only when that show's row includes an address and ZIP code; shows without those fields remain listed but do not get an event-page link.
 - `js/videos.js` draws the horizontally scrolling gallery. It shows YouTube thumbnails only. The YouTube player (`youtube-nocookie.com`) loads when a visitor clicks a video, and the video starts playing right away.
