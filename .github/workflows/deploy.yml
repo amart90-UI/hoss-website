@@ -56,10 +56,6 @@ jobs:
           # The poster template and its design example are only inputs to the poster script.
           rm -f _site/img/blank-poster.webp _site/img/example_poster.png
 
-      # Stamp the build time (UTC) into the page. The browser converts it to the visitor's local time.
-      - name: Stamp build time
-        run: sed -i "s/__BUILD_TIME__/$(date -u +%Y-%m-%dT%H:%M:%SZ)/" _site/index.html
-
       # If the sheet can't be downloaded or any row is invalid, this step fails and nothing is deployed,
       # so the live site keeps its last good data.
       - name: Generate schedule data from Google Sheets
@@ -73,6 +69,13 @@ jobs:
         env:
           VIDEO_CSV_URL: ${{ vars.VIDEO_CSV_URL }}
         run: python3 scripts/process_videos.py --output-dir _site/data
+
+      # Stamp the build time (UTC) into the footer of every page (home, booking and event pages), after the
+      # event pages have been generated. The browser converts it to the visitor's local time.
+      - name: Stamp build time
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          find _site -name index.html -exec sed -i "s/__BUILD_TIME__/$stamp/" {} +
 
       # Scheduled runs only deploy when the new data differs from what is on the gh-pages branch.
       # Pushes and manual runs always deploy. The poster is built only from shows.json, so it needs

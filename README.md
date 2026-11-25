@@ -75,7 +75,7 @@ These live in `index.html`.
 
 - **Band bio and quote:** the `band` section.
 - **Member names, roles and photos:** the three `card` blocks. Each photo has a small blurred version (`*-blur.webp`) that shows first and a full version that loads as the card scrolls into view. Add both files to `img/` and update the `src` and `data-src` paths.
-- **Social links:** the Facebook and Instagram links appear twice (top-left buttons and the footer).
+- **Social links:** the Facebook and Instagram links appear in the top-left buttons and in the shared footer (see [Site footer](#site-footer)).
 - **Booking email:** the `mailto:` link in the `contact` section.
 - **Hero image:** `img/hero-band.webp`, set in the `.mainView` rule in `css/style.css`. The logo over it is `img/hoss_logo_white.svg`.
 - **Colors and fonts:** `css/style.css`. The page uses Amatic SC for headings and Faculty Glyphic for body text from Google Fonts.
@@ -295,6 +295,12 @@ The poster is written to `events/<page>/poster.jpg`. Drop `--guides` for the fin
 The logos are committed: `img/hoss_logo_white.svg` and `.png` (cream, for dark backgrounds) and `img/hoss_logo_dark.svg` and `.png` (for light backgrounds). The PNGs are 1600 px wide with transparent backgrounds, rendered from the SVGs. To re-render, open the SVG in a browser at 1600 x 962 and save with a transparent background (headless Edge: `--default-background-color=00000000 --screenshot`). The social-share image is `img/og-image.jpg`.
 
 **Photo credit and permission.** All photographs are by Darrin Williams (<https://darrinwilliamsmedia.com>, see `LICENSE-MEDIA.md`). The page and the PDF credit him and link to his website. Offering the photos for download assumes he has agreed to venues and press using them to promote shows. Confirm that with him, and update `LICENSE-MEDIA.md` to say so.
+## Site footer
+
+The home page, the booking page and every event page use the same footer: logo, Facebook and Instagram icons, links (Home, Shows, Booking & press kit, Email us), the copyright line and the "Updated" build time. `render_footer()` in `scripts/event_pages.py` is the source of truth. Event pages call it when they are generated. `index.html` and `booking/index.html` hold a pasted copy (the only difference is the path to the site root: `""`, `"../"` and `"../../"`), and `tests/test_footer.py` fails if any of them drifts. To change the footer, edit `render_footer()`, then paste its output between `<footer>` and `</footer>` in the two pages (or ask for it to be regenerated).
+
+The "Updated" time works like this: each page's footer contains `__BUILD_TIME__`, the deploy workflow replaces it in every `index.html` (home, booking and event pages, after the event pages are generated), and `js/mainFunctions.js` shows it in the visitor's own time zone. Event pages load that script for this. In a local preview the placeholder stays and the line is hidden. The 404 page and the `/showposter/` page have their own minimal markup and no footer.
+
 ## Repository layout
 
 ```

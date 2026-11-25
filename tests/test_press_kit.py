@@ -132,7 +132,7 @@ class PdfTests(unittest.TestCase):
         self.assertTrue(b"/URI (mailto:hossandthehangmen@gmail.com?subject=Booking%20inquiry%20for%20Hoss%20and%20the%20Hangmen)" in pdf)
         for url in (pk.WEBSITE_URL, pk.INSTAGRAM_URL, pk.YOUTUBE_URL, pk.FACEBOOK_URL, pk.PHOTOGRAPHER_URL):
             self.assertTrue(b"/URI (" + url.encode() + b")" in pdf, url)
-        self.assertEqual(pdf.count(b"/Subtype /Link"), 7)
+        self.assertEqual(pdf.count(b"/Subtype /Link"), 6)
         self.assertTrue(b"3 Tr" in pdf)  # invisible text
         # Long text wraps over several runs, so look at the runs joined together.
         layer = " ".join(run[2] for run in self.page.runs)
@@ -149,14 +149,11 @@ class PdfTests(unittest.TestCase):
         self.assertLess(lines[ben], lines[others])
         self.assertFalse(any("Ben" in text and "Anthony" in text for text in lines), "Ben shares a line")
 
-    def test_second_bio_paragraph_and_watch_link(self):
+    def test_second_bio_paragraph_is_drawn(self):
         layer = " ".join(run[2] for run in self.page.runs)
         for word in pk.BIO_EXTRA.split()[:6]:
             self.assertIn(word, layer)
         self.assertIn("Johnny Cash", pk.BIO_EXTRA)
-        self.assertIn(pk.WATCH_LABEL, layer)
-        youtube_links = [link for link in self.page.links if link[4] == pk.YOUTUBE_URL]
-        self.assertEqual(len(youtube_links), 2)  # the watch line and the footer
 
     def test_embedded_page_picture_is_a_letter_size_jpeg(self):
         match = re.search(rb"/Filter /DCTDecode /Length (\d+) >>\nstream\n", self.pdf)
@@ -282,7 +279,7 @@ class BookingPageTests(unittest.TestCase):
 
     def test_homepage_hero_footer_and_contact_link_to_booking(self):
         self.assertIn('<div class="hero-cta">', INDEX_HTML)
-        self.assertRegex(INDEX_HTML, r'<p class="footer-links"><a href="booking/">')
+        self.assertIn('<a href="booking/">Booking &amp; press kit</a>', INDEX_HTML)
         self.assertGreaterEqual(INDEX_HTML.count('href="booking/"'), 4)  # menu, hero, contact, footer
 
     def test_one_h1_unique_ids_and_alt_text(self):
@@ -331,6 +328,13 @@ class BookingPageTests(unittest.TestCase):
             self.assertIn(detail, text)
         self.assertIn("mostly covers", text.lower())
         self.assertIn("Photos by Darrin Williams", text)
+
+    def test_bio_and_header_lines_match_the_pdf(self):
+        text = re.sub(r"\s+", " ", html.unescape(" ".join(self.page.text)))
+        for source in (pk.BIO, pk.BIO_EXTRA, pk.TAGLINE, pk.SUBTAGLINE):
+            self.assertIn(re.sub(r"\s+", " ", source), text)
+        for name, role in pk.MEMBERS:
+            self.assertIn(name, text)
 
     def test_what_to_expect_and_the_new_booking_details_are_on_the_page(self):
         text = re.sub(r"\s+", " ", html.unescape(" ".join(self.page.text)))

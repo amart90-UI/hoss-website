@@ -184,6 +184,39 @@ def google_calendar_url(event):
     return "https://calendar.google.com/calendar/render?" + urlencode(params)
 
 
+FACEBOOK_URL = "https://www.facebook.com/people/Hoss-and-the-Hangmen/61590706506140/"
+INSTAGRAM_URL = "https://www.instagram.com/hossandthehangmen"
+CONTACT_EMAIL = "hossandthehangmen@gmail.com"
+
+
+def render_footer(prefix=""):
+    """The footer shared by every page of the site.
+
+    `prefix` is the relative path to the site root: "" on the home page, "../" on /booking/ and "../../" on
+    event pages. index.html and booking/index.html hold a copy of this markup (tests/test_footer.py fails if
+    they drift), so change the footer here and then paste the output into them.
+
+    The deploy workflow replaces __BUILD_TIME__ with the UTC build time, and js/mainFunctions.js shows it in
+    the visitor's local time (hidden when the placeholder was not replaced, as in local previews).
+    """
+    return f"""<footer>
+	<div class="footerBaner">
+		<img class="bandBanner" src="{prefix}img/hoss_logo_white.svg" alt="Hoss and the Hangmen logo" width="75" height="60" />
+	</div>
+	<div class="socialBanner">
+		<a href="{FACEBOOK_URL}" target="_blank" rel="noopener">
+			<img src="{prefix}img/facebook-light.svg" alt="Hoss and the Hangmen on Facebook" />
+		</a>
+		<a href="{INSTAGRAM_URL}" target="_blank" rel="noopener">
+			<img src="{prefix}img/instagram-light.svg" alt="Hoss and the Hangmen on Instagram" />
+		</a>
+	</div>
+	<p class="footer-links"><a href="{prefix or "./"}">Home</a> &middot; <a href="{prefix}#shows">Shows</a> &middot; <a href="{prefix}booking/">Booking &amp; press kit</a> &middot; <a href="mailto:{CONTACT_EMAIL}">Email us</a></p>
+	<p>&copy; 2026 Hoss and the Hangmen</p>
+	<p class="buildInfo">Updated <time id="buildTime" datetime="__BUILD_TIME__"></time></p>
+</footer>"""
+
+
 def render_event_page(event):
     title = f"{BAND_NAME} at {event['venue']}"
     description = event.get("description") or f"{title} in {event['city']}, {event['state']}."
@@ -270,9 +303,8 @@ def render_event_page(event):
   <p class="more-link"><a href="../../#shows">&larr; Back to all shows</a></p>
 </article>
 </main>
-<footer>
-  <p>&copy; 2026 Hoss and the Hangmen</p>
-</footer>
+{render_footer("../../")}
+<script defer src="../../js/mainFunctions.js"></script>
 </body>
 </html>
 """
