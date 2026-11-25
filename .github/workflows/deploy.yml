@@ -48,7 +48,7 @@ jobs:
       - name: Assemble site
         run: |
           mkdir _site
-          for item in index.html css js img data robots.txt sitemap.xml CNAME 404.html favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
+          for item in index.html booking css js img data robots.txt sitemap.xml CNAME 404.html favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
             if [ -e "$item" ]; then cp -r "$item" _site/; fi
           done
           # The site is already built, so tell GitHub Pages not to run Jekyll on it.
@@ -112,6 +112,12 @@ jobs:
       - name: Generate event posters
         if: steps.changed.outputs.deploy == 'true'
         run: python3 scripts/generate_event_posters.py --shows-file _site/data/shows.json --site-root _site
+      # The booking page downloads: the one-page press kit PDF (with the past venues from past-shows.json)
+      # and JPG copies of the band photos, written to booking/press/.
+      - name: Generate press kit
+        if: steps.changed.outputs.deploy == 'true'
+        run: python3 scripts/generate_press_kit.py --site-root _site
+
       # Commits the contents of _site as a new commit with no parent and force-pushes it to gh-pages,
       # so the branch always holds exactly one commit: the current site. GitHub Pages then publishes it
       # (see the "pages build and deployment" runs in the Actions tab).

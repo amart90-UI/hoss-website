@@ -1173,3 +1173,472 @@ span.cal-day.is-today {
 .cal-card .show-action-link {
 	margin-top: 10px;
 }
+
+/* ------------------------------------------------------------------ booking page, hero buttons and menu item 6 */
+
+/* The sixth menu link (Book) slides into place after the other five. */
+.visible6 {
+	opacity: 1;
+	transition: all ease-in-out 250ms;
+	z-index: 1;
+	transform: translateY(450px);
+	transition-delay: 175ms;
+}
+
+/* Pill buttons, built from the show action links. Used on the booking page and the home hero. */
+.btn {
+	display: inline-block;
+	min-height: 44px;
+	padding: 10px 24px;
+	border: 1px solid #efe1c6;
+	border-radius: 999px;
+	color: #efe1c6;
+	font-size: 0.85rem;
+	font-weight: 700;
+	line-height: 1.4;
+	letter-spacing: 0.06em;
+	text-align: center;
+	text-transform: uppercase;
+	transition: background-color ease-in-out 150ms, color ease-in-out 150ms, border-color ease-in-out 150ms;
+}
+
+.btn:hover {
+	background-color: #AA5321;
+	border-color: #AA5321;
+}
+
+.btn:focus-visible {
+	outline: 3px solid #ff9760;
+	outline-offset: 3px;
+}
+
+.btn-primary {
+	background-color: #ff9760;
+	border-color: #ff9760;
+	color: #323536;
+}
+
+.btn-primary:hover {
+	background-color: #efe1c6;
+	border-color: #efe1c6;
+	color: #323536;
+}
+
+.btn-large {
+	padding: 14px 32px;
+	font-size: 1rem;
+}
+
+/* "Book the band" and "Next show" buttons at the bottom of the home page hero */
+.hero-cta {
+	position: absolute;
+	left: 50%;
+	bottom: 3vh;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 12px;
+	width: 90%;
+	transform: translateX(-50%);
+	opacity: 0;
+	animation: opacity 2s cubic-bezier(0.17, 0.67, 0.14, 0.97) both;
+	animation-delay: 1s;
+}
+
+.hero-cta .btn {
+	background-color: rgba(50, 53, 54, 0.75);
+}
+
+.hero-cta .btn-primary {
+	background-color: #ff9760;
+}
+
+.hero-cta .btn:hover {
+	background-color: #AA5321;
+}
+
+.hero-cta .btn-primary:hover {
+	background-color: #efe1c6;
+}
+
+/* Desktop and tablet: move the logo and tagline up to make room for the buttons.
+   On phones the existing positions already leave room. */
+@media screen and (min-width: 768px) {
+	h2#slogan {
+		bottom: calc(3vh + 60px);
+	}
+
+	.mainView h1 {
+		bottom: max(20%, calc(11.5vh + 75px));
+	}
+}
+
+/* Link line in the footer, and the booking pointer in the contact section */
+footer p.footer-links {
+	font-size: 0.9rem;
+}
+
+footer p.footer-links a:hover,
+footer p.footer-links a:focus-visible {
+	color: #efe1c6;
+	text-decoration: underline;
+}
+
+.contact p.contact-booking {
+	margin-top: 0;
+}
+
+/* The page */
+.booking-page main:focus {
+	outline: none;
+}
+
+.booking-hero {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 85vh;
+	padding: 110px 5% 60px;
+	text-align: center;
+	background: linear-gradient(rgba(50, 53, 54, 0.5), rgba(50, 53, 54, 0.88)),
+		url("../img/hero-band.webp") 60% center / cover no-repeat;
+}
+
+.booking-hero-inner {
+	width: min(720px, 100%);
+}
+
+.booking-hero-logo {
+	display: block;
+	width: min(340px, 65vw);
+	margin: 0 auto 20px;
+}
+
+.booking-hero-logo img {
+	display: block;
+	width: 100%;
+	height: auto;
+	filter: drop-shadow(0 2px 10px #323536);
+}
+
+/* The global h1 rule positions the home page logo; undo it here */
+.booking-hero h1 {
+	position: static;
+	width: auto;
+	max-width: none;
+	margin: 0;
+	transform: none;
+	opacity: 1;
+	animation: none;
+	font-family: "Amatic SC", cursive;
+	font-size: clamp(2.6rem, 8vw, 4.5rem);
+	line-height: 1.05;
+	color: #efe1c6;
+	text-shadow: 0 2px 10px #323536;
+}
+
+.booking-hero p.booking-hero-lead {
+	margin: 16px auto 28px;
+	max-width: 36em;
+	font-size: 1.1rem;
+	line-height: 1.5;
+	text-shadow: 0 2px 10px #323536;
+}
+
+.booking-cta {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 12px;
+}
+
+.booking-hero .btn:not(.btn-primary) {
+	background-color: rgba(50, 53, 54, 0.75);
+}
+
+.booking-hero .btn:not(.btn-primary):hover {
+	background-color: #AA5321;
+}
+
+.booking-section {
+	width: min(960px, 100%);
+	min-height: 0;
+	margin: 0 auto;
+	padding: 60px 5%;
+}
+
+.booking-section[hidden] {
+	display: none;
+}
+
+.booking-section p {
+	margin: 16px 0;
+}
+
+.booking-section h3 {
+	font-family: "Amatic SC", cursive;
+	font-size: 2.2rem;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #efe1c6;
+}
+
+p.booking-quote {
+	margin: 20px 0 30px;
+	font-family: "Amatic SC", cursive;
+	font-size: clamp(1.9rem, 5vw, 2.8rem);
+	font-weight: 700;
+	line-height: 1.2;
+	text-align: center;
+	color: #BDB199;
+}
+
+.booking-prose {
+	max-width: 42em;
+	margin: 0 auto;
+}
+
+.booking-note {
+	color: #BDB199;
+}
+
+.booking-note .email-link {
+	word-break: break-word;
+}
+
+.booking-members {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 24px;
+	margin: 40px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.booking-members li {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 180px;
+	text-align: center;
+	color: #BDB199;
+}
+
+.booking-members img {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin-bottom: 10px;
+	border-radius: 15px;
+}
+
+.booking-member-name {
+	font-family: "Amatic SC", cursive;
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #efe1c6;
+}
+
+.booking-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 20px;
+	margin: 30px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.booking-card {
+	padding: 20px;
+	border: 1px solid #BDB199;
+	border-left: 4px solid #AA5321;
+	border-radius: 12px;
+	background-color: #3A3E3F;
+}
+
+.booking-section .booking-card p {
+	margin: 8px 0 0;
+	line-height: 1.5;
+}
+
+.booking-section .booking-card p.booking-card-lead {
+	margin-top: 6px;
+	color: #BDB199;
+	font-size: 0.85rem;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+
+.booking-facts {
+	margin: 30px 0 0;
+}
+
+.booking-facts > div {
+	display: grid;
+	grid-template-columns: 11rem 1fr;
+	gap: 8px 24px;
+	padding: 14px 0;
+	border-bottom: 1px solid #BDB199;
+}
+
+.booking-facts dt {
+	color: #BDB199;
+	font-size: 0.85rem;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+
+.booking-facts dd {
+	margin: 0;
+	line-height: 1.5;
+}
+
+.booking-venues {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 14px 24px;
+	margin: 30px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.booking-venues li {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.4;
+}
+
+.booking-venue-name {
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+
+.booking-venues a.booking-venue-name {
+	color: #ff9760;
+	text-decoration: underline;
+	text-underline-offset: 4px;
+	text-decoration-thickness: 1px;
+}
+
+.booking-venues a.booking-venue-name:hover,
+.booking-venues a.booking-venue-name:focus-visible {
+	color: #efe1c6;
+}
+
+.booking-venue-city {
+	color: #BDB199;
+	font-size: 0.9rem;
+}
+
+.booking-checklist {
+	max-width: 24em;
+	margin: 16px auto 28px;
+	padding-left: 1.4em;
+	line-height: 1.8;
+}
+
+.booking-book {
+	text-align: center;
+}
+
+.booking-book .separator {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.booking-book .booking-checklist {
+	text-align: left;
+}
+
+.booking-section h3.booking-subheading {
+	margin-top: 50px;
+	color: #BDB199;
+}
+
+.booking-assets {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 24px 20px;
+	margin: 24px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.booking-assets li {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 12px;
+}
+
+.booking-assets > li > img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 3 / 2;
+	object-fit: cover;
+	border-radius: 12px;
+}
+
+.booking-logos {
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.booking-logo-tile {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	border: 1px solid #BDB199;
+	border-radius: 12px;
+}
+
+.booking-logo-tile img {
+	display: block;
+	width: min(220px, 100%);
+	height: auto;
+}
+
+.booking-logo-on-dark {
+	background-color: #323536;
+}
+
+.booking-logo-on-light {
+	background-color: #efe1c6;
+}
+
+.booking-asset-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.booking-asset-links .btn {
+	flex: 1 1 auto;
+}
+
+@media screen and (max-width: 767px) {
+	.booking-hero {
+		min-height: 0;
+		padding-top: 100px;
+	}
+
+	.booking-facts > div {
+		grid-template-columns: 1fr;
+		gap: 4px;
+	}
+
+	.booking-cta .btn {
+		flex: 1 1 auto;
+	}
+
+	.hero-cta .btn {
+		flex: 0 1 auto;
+	}
+}

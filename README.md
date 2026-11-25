@@ -95,7 +95,7 @@ The workflow is `.github/workflows/deploy.yml`.
 **What it does, in order:**
 
 1. Checks out the `deploy` branch, regardless of whichever branch started the run.
-2. Copies the website files into a `_site` folder: `index.html`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, `CNAME`, `404.html`, and the favicon files and `site.webmanifest` from the repo root, and adds an empty `.nojekyll` file. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
+2. Copies the website files into a `_site` folder: `index.html`, `booking/`, `css/`, `js/`, `img/`, `data/`, `robots.txt`, `sitemap.xml`, `CNAME`, `404.html`, and the favicon files and `site.webmanifest` from the repo root, and adds an empty `.nojekyll` file. Anything else in the repo (this README, scripts, tests, workflow files) is not published.
 3. Runs `scripts/process_schedule.py` (with `--generate-events`):
    - downloads the schedule CSV (URL from the `SCHEDULE_CSV_URL` secret),
    - checks every row (required values, `M/D/YYYY` dates, times, two-letter state, `http(s)` links, duplicates),
@@ -109,6 +109,7 @@ The workflow is `.github/workflows/deploy.yml`.
 5. On scheduled runs only, compares the new JSON files with the ones on the `gh-pages` branch. If nothing changed, the run ends here: it skips the remaining steps and the deployment. Pushes and manual runs always continue.
 6. Installs the image dependency (Pillow) and runs the unit tests (`python3 -m unittest discover tests`). A failing test stops the run.
 7. Generates the upcoming-show poster (`img/upcomingshow.jpg` and `/showposter/`) from `shows.json`, then a poster for each upcoming show (`events/<page>/poster.jpg`).
+   Then the booking page downloads (`scripts/generate_press_kit.py`): the one-page press kit PDF and JPG copies of the band photos in `booking/press/`.
 8. Commits `_site` as a single new commit and force-pushes it to the `gh-pages` branch, replacing what was there. GitHub Pages then publishes that branch in its own "pages build and deployment" run, which usually takes a minute.
 
 **Why a `gh-pages` branch:** `actions/deploy-pages` identifies each deployment by its commit. Manual and scheduled runs reuse the latest commit, and redeploying a commit that is already live can report success while the old files keep being served ([actions/deploy-pages#383](https://github.com/actions/deploy-pages/issues/383)). A fresh commit on `gh-pages` for every build avoids this. The branch holds only generated files. Never edit it by hand; every deploy overwrites it.
@@ -253,7 +254,7 @@ uses MDT or MST. If `end_time` is earlier than `start_time`, it is interpreted a
 after midnight. Empty optional event fields are omitted from structured data.
 
 The event generator removes stale pages under `_site/events/` before rebuilding, and
-the sitemap contains the homepage plus only the currently generated event URLs.
+the sitemap keeps its fixed pages (the homepage and /booking/) plus only the currently generated event URLs.
 
 To test a deployed page, open its `/events/.../` URL and submit the URL to Google's
 [Rich Results Test](https://search.google.com/test/rich-results). Then submit
@@ -276,10 +277,31 @@ The poster is written to `events/<page>/poster.jpg`. Drop `--guides` for the fin
 
 **Short links.** `scripts/event_pages.py` writes a small redirect page at `/e/<code>/` for every event page. The 6-character code is derived from the event page path (date and venue), so the same event gets the same code on every build and a printed poster keeps working. Editing a show's start or end time keeps its code; changing its date or venue changes the event page address and so the code. After a show has passed, its pages are removed, and `404.html` sends any unknown `/e/...` address to the schedule. The redirect pages are marked `noindex` and are not in the sitemap.
 
+## Booking page and press kit
+
+`/booking/` (`booking/index.html`) is the "online business card" for venues, breweries, festivals and private-event organizers: lineups (trio, duo, solo), booking details, past venues, a prefilled booking email, and a press kit with downloadable photos and logos. It is linked from the home page hero ("Book the band"), the menu (sixth icon), the contact section and the footer, and listed in `sitemap.xml`. It uses the same `css/style.css` and `js/mainFunctions.js` (menu) as the home page.
+
+**Editing the text.** Everything is plain HTML in `booking/index.html`. The booking facts (set length, load-in, service area, PA, power, lighting, content, rates), the "What to expect" cards and the lineups are also written in `scripts/generate_press_kit.py` for the PDF. Rates are deliberately not published; the page and PDF say to inquire. Change both together; a test fails if the page and the PDF script disagree.
+
+**Booking email.** The "Email a booking inquiry" button is a `mailto:` link with a subject and a body template (date, venue or location, event type, desired lineup, budget). The "Start the same email in Gmail" link carries the same text. If you change the template, change both links; a test checks that they match.
+
+**Where we've played.** `js/booking.js` reads `data/past-shows.json` (the same file as the home page's past shows), ranks venues by number of shows and then by most recent, and lists up to 12. The section stays hidden when there are no past shows. The PDF lists up to 10 the same way.
+
+**Press kit downloads.** `python scripts/generate_press_kit.py` writes these into `booking/press/` (generated during the deploy, git-ignored, so run it once for local previews):
+
+- `hoss-and-the-hangmen-press-kit.pdf`: one US Letter page drawn with Pillow in the site's fonts and colors, then wrapped in a small hand-written PDF. It has clickable links (email, website, social) and an invisible text layer so the text can be searched and read by screen readers. The layout constants are at the top of the script.
+- `hoss-and-the-hangmen-band-photo.jpg`, `-ben.jpg`, `-anthony.jpg`, `-alex.jpg`: JPG copies of the WebP photos in `img/`.
+
+The logos are committed: `img/hoss_logo_white.svg` and `.png` (cream, for dark backgrounds) and `img/hoss_logo_dark.svg` and `.png` (for light backgrounds). The PNGs are 1600 px wide with transparent backgrounds, rendered from the SVGs. To re-render, open the SVG in a browser at 1600 x 962 and save with a transparent background (headless Edge: `--default-background-color=00000000 --screenshot`). The social-share image is `img/og-image.jpg`.
+
+**Photo credit and permission.** All photographs are by Darrin Williams (<https://darrinwilliamsmedia.com>, see `LICENSE-MEDIA.md`). The page and the PDF credit him and link to his website. Offering the photos for download assumes he has agreed to venues and press using them to promote shows. Confirm that with him, and update `LICENSE-MEDIA.md` to say so.
 ## Repository layout
 
 ```
 index.html                    the whole page, including SEO metadata and MusicGroup data
+booking/index.html            booking and press kit page (downloads in booking/press/ are generated)
+js/booking.js                 "Where we've played" list on the booking page
+scripts/generate_press_kit.py press kit PDF and JPG photos for the booking page
 sitemap.xml, robots.txt       for search engines (contain the domain)
 css/style.css                 styles (compiled from the template, edited directly)
 js/mainFunctions.js           menu, parallax, scroll animations, lazy images, back-to-top
@@ -296,7 +318,7 @@ scripts/event_pages.py        validated shows -> individual event pages, short /
 404.html                      not-found page; sends expired poster short links to the schedule
 scripts/generate_event_posters.py  shows.json + img/blank-poster.webp -> events/<page>/poster.jpg
 scripts/qr_code.py            small QR code encoder used by the poster script
-tests/                        unit tests for both scripts
+tests/                        unit tests for the scripts and the booking page
 .github/workflows/deploy.yml  tests, data build and deployment
 ```
 
