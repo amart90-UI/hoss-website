@@ -52,16 +52,22 @@ BIO = (
     "traditional country, outlaw influences, and modern Americana. Fronted by Hoss, a guitar-slinging singing "
     "cowboy, the group pairs storytelling, rugged melodies, and an unpretentious approach to live performances. "
     "The Hangmen join Hoss for a duo or a full 3-man lineup allowing the band to move comfortably between "
-    "small, intimate solo performances to a energetic shows that fill the room. But in any case, the mission is "
+    "small, intimate solo performances to energetic shows that fill the room. But in any case, the mission is "
     "the same: good songs, engaging performances, and plenty of grit and personality."
 )
+# A second short paragraph under the bio, and the link line under it.
+BIO_EXTRA = (
+    "The set list is mostly covers, with a handful of original songs mixed in, drawing from artists like "
+    "Johnny Cash, Garth Brooks, Colter Wall, Zach Bryan, and Trampled by Turtles."
+)
+
 # Band members, as shown on the booking page (which writes "guitar + vocals", like the home page).
 MEMBERS = [("Ben (Hoss)", "guitar and vocals"), ("Anthony", "upright bass"), ("Alex", "drums")]
 # (name, short label, detail); the booking page shows the label and the detail separately.
 LINEUPS = [
     ("Trio", "The full band", "Acoustic guitar & vocals, upright bass, and drums."),
-    ("Duo", "Acoustic duo", "A stripped-down version of the band. Guitar & vocals with either upright bass or drums."),
-    ("Solo", "Solo act", "One performer (guitar & vocals), the most intimate setup."),
+    ("Duo", "Acoustic duo", "A stripped-down version of the band. Guitar & vocals with either bass or drums."),
+    ("Solo", "Solo act", "Guitar & vocals. The most intimate setup."),
 ]
 # Booking details shown in the PDF. The booking page shows all of these (plus a few more), worded the same.
 FACTS = [
@@ -79,9 +85,9 @@ FACTS = [
 ]
 # What to expect when booking the band: (title, text). Shown on the booking page and in the PDF.
 EXPECT = [
-    ("Responsive", "We're very responsive to communication, before and after you book."),
-    ("Professional and punctual", "We're very professional and punctual. Load-in and setup take us 30 minutes."),
-    ("Built around your venue", "We're excited to work with venues to understand and deliver what they need."),
+    ("Responsive", "We communicate clearly and promptly throughout the booking process, making it easy to coordinate details and stay on the same page."),
+    ("Professional and punctual", "We show up prepared, on time, and ready to deliver, respecting your schedule, your staff, and your customers."),
+    ("Built around your venue", "We adapt to your space, audience, and needs to make a great experience for your customers and your night a success."),
 ]
 INQUIRY_HINT = "Please include the date, venue, event type, desired lineup and budget."
 
@@ -98,13 +104,13 @@ MUTED = "#BDB199"
 ACCENT = "#ff9760"
 
 MARGIN = 0.6
-PHOTO_HEIGHT = 2.6          # the band photo across the top
+PHOTO_HEIGHT = 2.1          # the band photo across the top
 PHOTO_FADE = 0.6            # how much of the photo's bottom fades into the background
 PHOTO_TOP_OFFSET = 60       # pixels (at 300 dpi) cut from the top of the scaled photo
-LOGO_TOP = 2.1
+LOGO_TOP = 1.6
 LOGO_WIDTH = 2.6
 HEADER_TEXT_X = 3.7         # tagline column, right of the logo
-CONTENT_TOP = 3.9          # where the two columns start
+CONTENT_TOP = 3.4          # where the two columns start
 LEFT_X = MARGIN
 LEFT_WIDTH = 3.5
 RIGHT_X = 4.3
@@ -115,7 +121,7 @@ CONTENT_BOTTOM = 9.6        # the columns must end above this
 MAX_VENUES = 10
 
 BODY_PT = 9.5
-BODY_LEADING = 1.5
+BODY_LEADING = 1.42
 SMALL_PT = 7.5
 HEADING_PT = 24
 
@@ -261,20 +267,26 @@ def render_page(venues, photo):
     y = page.wrapped(px(HEADER_TEXT_X), px(LOGO_TOP + 0.3), header_width, TAGLINE, heading_font(32), 32, TEXT, 1.0)
     page.wrapped(px(HEADER_TEXT_X), y + px(0.1), header_width, SUBTAGLINE, body_font(10), 10, MUTED)
 
-    # Left column: about, members, lineups
+    # Left column: about, members, past venues
     y = page.heading(px(LEFT_X), px(CONTENT_TOP), "The band")
     y = page.wrapped(px(LEFT_X), y, px(LEFT_WIDTH), BIO, body_font(), BODY_PT, TEXT)
-    members = "  \u00b7  ".join(f"{name}, {role}" for name, role in MEMBERS)
-    y = page.wrapped(px(LEFT_X), y + px(0.04), px(LEFT_WIDTH), members, body_font(8.5), 8.5, MUTED)
-    y = page.heading(px(LEFT_X), y + px(0.1), "Lineups")
-    for name, label, detail in LINEUPS:
-        description = f"{label}. {detail}"
-        page.text(px(LEFT_X), y + points_to_px(15), name, heading_font(17), 17, TEXT)
-        y = page.wrapped(px(LEFT_X + 0.55), y, px(LEFT_WIDTH - 0.55), description, body_font(), BODY_PT, TEXT)
+    y = page.wrapped(px(LEFT_X), y + px(0.08), px(LEFT_WIDTH), BIO_EXTRA, body_font(), BODY_PT, TEXT)
+    # Members: the first one (Ben) on a line of his own, the others together on the next line
+    lead, *others = (f"{name}, {role}" for name, role in MEMBERS)
+    for line in (lead, "  \u00b7  ".join(others)):
+        if line:
+            y = page.wrapped(px(LEFT_X), y + px(0.03), px(LEFT_WIDTH), line, body_font(8.5), 8.5, MUTED, 1.3)
+    y += px(0.08)
+    y += round(points_to_px(BODY_PT) * BODY_LEADING)
+    if venues:
+        # A small label instead of a full heading, to save room
         y += px(0.06)
+        page.text(px(LEFT_X), y + points_to_px(SMALL_PT), "WHERE WE'VE PLAYED", body_font(SMALL_PT), SMALL_PT, MUTED)
+        names = [f"{v['name']} ({v['city']})" if v["city"] else v["name"] for v in venues]
+        y = page.wrapped(px(LEFT_X), y + px(0.17), px(LEFT_WIDTH), "  \u00b7  ".join(names), body_font(9), 9, TEXT, 1.35)
     left_bottom = y
 
-    # Right column: booking details
+    # Right column: booking details, lineups
     y = page.heading(px(RIGHT_X), px(CONTENT_TOP), "Booking details")
     label_font = body_font(SMALL_PT)
     value_x = px(RIGHT_X + FACT_LABEL_WIDTH)
@@ -282,12 +294,12 @@ def render_page(venues, photo):
     for label, value in FACTS:
         page.text(px(RIGHT_X), y + points_to_px(BODY_PT) - 2, label.upper(), label_font, SMALL_PT, MUTED)
         y = page.wrapped(value_x, y, value_width, value, body_font(), BODY_PT, TEXT) + px(0.05)
-
-    # Past venues: a flowing paragraph under the details, in the right column
-    if venues:
-        y = page.heading(px(RIGHT_X), y + px(0.1), "Where we've played")
-        names = [f"{v['name']} ({v['city']})" if v["city"] else v["name"] for v in venues]
-        y = page.wrapped(px(RIGHT_X), y, px(RIGHT_WIDTH), "  \u00b7  ".join(names), body_font(), BODY_PT, TEXT)
+    y = page.heading(px(RIGHT_X), y + px(0.1), "Lineups")
+    for name, label, detail in LINEUPS:
+        description = f"{label}. {detail}"
+        page.text(px(RIGHT_X), y + points_to_px(15), name, heading_font(17), 17, TEXT)
+        y = page.wrapped(px(RIGHT_X + 0.55), y, px(RIGHT_WIDTH - 0.55), description, body_font(), BODY_PT, TEXT)
+        y += px(0.06)
     columns_bottom = max(left_bottom, y)
 
     # What to expect: three short columns across the page, under a thin rule
@@ -344,7 +356,12 @@ def render_fitting_page(past_shows):
         if bottom <= px(CONTENT_BOTTOM):
             return page
         if not venues:
-            raise PressKitError("the press kit text does not fit on one page")
+            over = (bottom - px(CONTENT_BOTTOM)) / DPI
+            raise PressKitError(
+                f"the press kit text does not fit on one page: it runs {over:.2f} inches past the footer even "
+                "without the list of past venues. Shorten the bio, booking details or other text in "
+                "scripts/generate_press_kit.py, or adjust the LAYOUT values"
+            )
         venues = venues[:-1]
 
 

@@ -132,14 +132,31 @@ class PdfTests(unittest.TestCase):
         self.assertTrue(b"/URI (mailto:hossandthehangmen@gmail.com?subject=Booking%20inquiry%20for%20Hoss%20and%20the%20Hangmen)" in pdf)
         for url in (pk.WEBSITE_URL, pk.INSTAGRAM_URL, pk.YOUTUBE_URL, pk.FACEBOOK_URL, pk.PHOTOGRAPHER_URL):
             self.assertTrue(b"/URI (" + url.encode() + b")" in pdf, url)
-        self.assertEqual(pdf.count(b"/Subtype /Link"), 6)
+        self.assertEqual(pdf.count(b"/Subtype /Link"), 7)
         self.assertTrue(b"3 Tr" in pdf)  # invisible text
         # Long text wraps over several runs, so look at the runs joined together.
         layer = " ".join(run[2] for run in self.page.runs)
         for phrase in (pk.EMAIL, "up to 3 hours of music", "Venue 0 (City 0)", "30 minutes for load-in and setup",
                        "Please inquire for rates", "Ben (Hoss), guitar and vocals", "Anthony, upright bass",
-                       "Alex, drums", "We're very responsive to communication", "darrinwilliamsmedia.com"):
+                       "Alex, drums", pk.EXPECT[0][1], "darrinwilliamsmedia.com"):
             self.assertTrue(phrase in layer, phrase)
+
+    def test_members_ben_on_his_own_line_then_the_others_together(self):
+        lines = {run[2]: run[1] for run in self.page.runs}
+        ben, others = "Ben (Hoss), guitar and vocals", "Anthony, upright bass \u00b7 Alex, drums"  # wrapping collapses spaces
+        self.assertIn(ben, lines)
+        self.assertIn(others, lines)
+        self.assertLess(lines[ben], lines[others])
+        self.assertFalse(any("Ben" in text and "Anthony" in text for text in lines), "Ben shares a line")
+
+    def test_second_bio_paragraph_and_watch_link(self):
+        layer = " ".join(run[2] for run in self.page.runs)
+        for word in pk.BIO_EXTRA.split()[:6]:
+            self.assertIn(word, layer)
+        self.assertIn("Johnny Cash", pk.BIO_EXTRA)
+        self.assertIn(pk.WATCH_LABEL, layer)
+        youtube_links = [link for link in self.page.links if link[4] == pk.YOUTUBE_URL]
+        self.assertEqual(len(youtube_links), 2)  # the watch line and the footer
 
     def test_embedded_page_picture_is_a_letter_size_jpeg(self):
         match = re.search(rb"/Filter /DCTDecode /Length (\d+) >>\nstream\n", self.pdf)
@@ -167,9 +184,9 @@ class PdfTests(unittest.TestCase):
             self.assertEqual(page.image.size, (2550, 3300))
         self.assertEqual(drawn(pk.render_fitting_page([])), 0)
         self.assertTrue(drawn(pk.render_fitting_page(sample_shows(3))) >= 1)
-        # No more than MAX_VENUES are listed, however many shows there are.
+        # No more than MAX_VENUES are listed, however many shows there are (fewer if they would not fit).
         text = " ".join(run[2] for run in pk.render_fitting_page(sample_shows(200)).runs)
-        self.assertEqual(text.count("Venue "), pk.MAX_VENUES)
+        self.assertTrue(0 < text.count("Venue ") <= pk.MAX_VENUES)
 
     def test_a_long_venue_list_is_trimmed_until_it_fits(self):
         shows = [{"venue": f"Venue {n} " + "Brewing and Distilling Company " * 3, "city": "Fort Collins"} for n in range(30)]
@@ -196,6 +213,20 @@ class PdfTests(unittest.TestCase):
         shows = [{"venue": "The Extraordinarily Long Brewing and Distilling Company Taproom " * 3, "city": "Fort Collins"}]
         page = pk.render_fitting_page(shows)
         self.assertEqual(page.image.size, (2550, 3300))
+
+
+class ShippedTextFitsTests(unittest.TestCase):
+    def test_shipped_text_leaves_room_for_a_typical_venue_list(self):
+        venues = pk.highlight_venues([
+            {"venue": "Abbott and Wallace Distilling", "city": "Longmont"},
+            {"venue": "Horsetooth Tavern", "city": "Fort Collins"},
+            {"venue": "The Slab", "city": "Estes Park"},
+            {"venue": "Tavern at the Legion", "city": "Fort Collins"},
+            {"venue": "Velvet Lounge", "city": "Estes Park"},
+        ])
+        _, bottom = pk.render_page(venues, pk._hero_photo())
+        over = (bottom - pk.px(pk.CONTENT_BOTTOM)) / pk.DPI
+        self.assertLessEqual(over, 0, f"press kit text with five venues runs {over:.2f} in past the footer")
 
 
 class GenerateTests(unittest.TestCase):
