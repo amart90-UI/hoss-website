@@ -1284,10 +1284,6 @@ footer p.footer-links a:focus-visible {
 	text-decoration: underline;
 }
 
-.contact p.contact-booking {
-	margin-top: 0;
-}
-
 /* The page */
 .booking-page main:focus {
 	outline: none;
