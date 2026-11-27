@@ -1581,6 +1581,42 @@ a.booking-venue-logo:focus-visible {
 	margin: 28px 0 0;
 	text-align: center;
 }
+/* Expandable genre lists in "Artists in Our Repertoire" */
+.booking-repertoire {
+	display: grid;
+	gap: 12px;
+	max-width: 42em;
+	margin: 30px auto 0;
+}
+.booking-repertoire details {
+	border: 1px solid #BDB199;
+	border-left: 4px solid #AA5321;
+	border-radius: 12px;
+	background-color: #3A3E3F;
+}
+.booking-repertoire summary {
+	padding: 14px 20px;
+	color: #efe1c6;
+	font-weight: 700;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+.booking-repertoire summary:focus-visible {
+	outline: 2px solid #ff9760;
+	outline-offset: 2px;
+	border-radius: 8px;
+}
+.booking-repertoire ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 24px;
+	margin: 0;
+	padding: 0 20px 16px;
+	list-style: none;
+	color: #BDB199;
+	line-height: 1.5;
+}
 .booking-checklist {
 	max-width: 24em;
 	margin: 16px auto 28px;
