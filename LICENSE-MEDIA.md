@@ -12,7 +12,7 @@ the website.
 ## Covered files
 
 - **Photographs** in `img/`: `hero-band.webp`, `alex*.webp`, `anthony*.webp`,
-  `anthony.png`, `ben*.webp`, `upcomingshow.jpg`, and any other photograph
+  `ben*.webp`, `upcomingshow.jpg`, and any other photograph
   added to the repository.
 - **Band logos and artwork**: `img/hoss-logo-light.svg`, `img/hoss-logo-light.png`, `img/hoss-logo-dark.svg`,
   `img/hoss-logo-dark.png`, `img/favicon.svg`,
