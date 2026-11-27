@@ -201,7 +201,7 @@ def render_footer(prefix=""):
     """
     return f"""<footer>
 	<div class="footerBaner">
-		<img class="bandBanner" src="{prefix}img/hoss_logo_white.svg" alt="Hoss and the Hangmen logo" width="75" height="60" />
+		<img class="bandBanner" src="{prefix}img/hoss-logo-light.svg" alt="Hoss and the Hangmen logo" width="75" height="60" />
 	</div>
 	<div class="socialBanner">
 		<a href="{FACEBOOK_URL}" target="_blank" rel="noopener">
@@ -285,7 +285,7 @@ def render_event_page(event):
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="event-header">
   <a class="event-brand" href="../../" aria-label="Hoss and the Hangmen home">
-    <img src="../../img/hoss_logo_white.svg" alt="Hoss and the Hangmen" width="244" height="147">
+    <img src="../../img/hoss-logo-light.svg" alt="Hoss and the Hangmen" width="244" height="147">
   </a>
 </header>
 <main id="main-content" tabindex="-1">

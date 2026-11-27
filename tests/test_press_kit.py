@@ -364,9 +364,9 @@ class BookingPageTests(unittest.TestCase):
 
     def test_photo_credit_is_in_the_pdf_and_logo_files_exist(self):
         self.assertEqual(pk.PHOTO_CREDIT, "Photo: Darrin Williams")
-        for name in ("hoss_logo_white.svg", "hoss_logo_white.png", "hoss_logo_dark.svg", "hoss_logo_dark.png"):
+        for name in ("hoss-logo-light.svg", "hoss-logo-light.png", "hoss-logo-dark.svg", "hoss-logo-dark.png"):
             self.assertTrue((ROOT / "img" / name).exists(), name)
-        for name in ("hoss_logo_white.png", "hoss_logo_dark.png"):
+        for name in ("hoss-logo-light.png", "hoss-logo-dark.png"):
             with Image.open(ROOT / "img" / name) as logo:
                 self.assertEqual(logo.mode, "RGBA")
                 self.assertEqual(logo.getchannel("A").getextrema()[0], 0)

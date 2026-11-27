@@ -56,7 +56,7 @@ class FooterTests(unittest.TestCase):
     def test_footer_content(self):
         footer = ep.render_footer("../")
         for expected in (
-            'src="../img/hoss_logo_white.svg"',
+            'src="../img/hoss-logo-light.svg"',
             'href="../">Home</a>',
             'href="../#shows">Shows</a>',
             'href="../booking/">Booking &amp; press kit</a>',
