@@ -221,6 +221,42 @@ def render_footer(prefix=""):
 </footer>"""
 
 
+SHARE_IMAGE_NAME = "share.jpg"
+SHARE_IMAGE_SIZE = (1200, 630)
+
+
+def share_image_url(event):
+    """The link-preview image for an event page. scripts/generate_event_posters.py writes it beside the page."""
+    return event["page_url"] + SHARE_IMAGE_NAME
+
+
+def render_social_tags(event, title, description):
+    """Open Graph and Twitter card tags, so a shared event link previews with that show's poster."""
+    def attr(value):
+        return html.escape(value, quote=True)
+
+    image = share_image_url(event)
+    alt = f"Poster for {title} on {format_date(event['date'])}"
+    width, height = SHARE_IMAGE_SIZE
+    return "\n".join((
+        '<meta property="og:type" content="website">',
+        f'<meta property="og:site_name" content="{attr(BAND_NAME)}">',
+        f'<meta property="og:title" content="{attr(title)}">',
+        f'<meta property="og:description" content="{attr(description)}">',
+        f'<meta property="og:url" content="{attr(event["page_url"])}">',
+        f'<meta property="og:image" content="{attr(image)}">',
+        f'<meta property="og:image:width" content="{width}">',
+        f'<meta property="og:image:height" content="{height}">',
+        f'<meta property="og:image:alt" content="{attr(alt)}">',
+        '<meta property="og:locale" content="en_US">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:title" content="{attr(title)}">',
+        f'<meta name="twitter:description" content="{attr(description)}">',
+        f'<meta name="twitter:image" content="{attr(image)}">',
+        f'<meta name="twitter:image:alt" content="{attr(alt)}">',
+    ))
+
+
 def render_event_page(event):
     title = f"{BAND_NAME} at {event['venue']}"
     description = event.get("description") or f"{title} in {event['city']}, {event['state']}."
@@ -277,6 +313,7 @@ def render_event_page(event):
 <meta name="description" content="{html.escape(description, quote=True)}">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="{html.escape(event["page_url"], quote=True)}">
+{render_social_tags(event, title, description)}
 <link rel="preload" href="../../fonts/FacultyGlyphic-Regular-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../../fonts/AmaticSC-Bold-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../css/style.css">
@@ -394,7 +431,10 @@ def update_sitemap(site_root, events):
         node = ET.SubElement(root, f"{{{ns}}}url")
         loc = ET.SubElement(node, f"{{{ns}}}loc")
         loc.text = url
-    sitemap_path.write_bytes(ET.tostring(root, encoding="utf-8", xml_declaration=True))
+    ET.indent(root, space="\t")
+    # Written by hand so the XML declaration uses double quotes and the file ends with a newline.
+    text = '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="unicode") + "\n"
+    sitemap_path.write_text(text, encoding="utf-8", newline="\n")
 
 
 def main(argv=None):

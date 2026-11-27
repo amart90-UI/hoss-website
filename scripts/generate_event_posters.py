@@ -3,7 +3,7 @@
 
 Reads the upcoming shows from data/shows.json (the same file the website uses) and draws
 the venue, city, state, date, time and a QR code onto img/blank-poster.webp.
-Each poster is written to <site-root>/events/<page-slug>/poster.jpg.
+Each poster is written to <site-root>/events/<page-slug>/poster.jpg, next to a 1200 x 630 share.jpg\nthat the event page names in its Open Graph tags (the link preview on Facebook, iMessage and so on).
 
 To move something on the poster, edit the LAYOUT section below. Run with --guides to draw
 colored outlines of every placement area, and --only <text> to redraw just one show:
@@ -19,9 +19,9 @@ from datetime import date
 from pathlib import Path
 from typing import NamedTuple
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
-from event_pages import short_url
+from event_pages import SHARE_IMAGE_NAME, SHARE_IMAGE_SIZE, short_url
 from qr_code import QRError, make_qr
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -74,6 +74,9 @@ QR_TILE_COLOR = TAN #"#EFE7D2"
 QR_DARK_COLOR = NAVY #"#2B323F"
 
 JPEG_QUALITY = 88
+SHARE_PADDING = 24            # space above and below the poster in the share image
+SHARE_BLUR = 30               # blur radius of the poster-colored backdrop behind it
+SHARE_QUALITY = 85
 
 # ===================================== end of LAYOUT =================================
 
@@ -152,6 +155,23 @@ def draw_guides(draw):
     draw.rectangle((QR_LEFT, QR_TOP, QR_LEFT + QR_SIZE, QR_TOP + QR_SIZE), outline="magenta", width=4)
 
 
+def make_share_image(poster):
+    """A 1200 x 630 link preview: the whole portrait poster centered on a blurred copy of itself.
+
+    Facebook and other sites crop previews to a wide rectangle, which would cut a tall poster to a
+    horizontal slice. Fitting the full poster into a wide canvas keeps the date and venue visible.
+    """
+    width, height = SHARE_IMAGE_SIZE
+    backdrop = ImageOps.fit(poster, SHARE_IMAGE_SIZE, Image.LANCZOS)
+    backdrop = backdrop.filter(ImageFilter.GaussianBlur(SHARE_BLUR))
+    backdrop = Image.blend(backdrop, Image.new("RGB", SHARE_IMAGE_SIZE, "black"), 0.35)
+    inner_height = height - 2 * SHARE_PADDING
+    inner_width = round(poster.width * inner_height / poster.height)
+    small = poster.resize((inner_width, inner_height), Image.LANCZOS)
+    backdrop.paste(small, ((width - inner_width) // 2, SHARE_PADDING))
+    return backdrop
+
+
 def render_poster(background, show, output, guides=False):
     poster = background.copy()
     draw = ImageDraw.Draw(poster)
@@ -169,6 +189,10 @@ def render_poster(background, show, output, guides=False):
     temporary = output.with_name(output.name + ".tmp")
     poster.save(temporary, format="JPEG", quality=JPEG_QUALITY, subsampling=0, optimize=True)
     os.replace(temporary, output)
+    share = output.with_name(SHARE_IMAGE_NAME)
+    share_temporary = share.with_name(share.name + ".tmp")
+    make_share_image(poster).save(share_temporary, format="JPEG", quality=SHARE_QUALITY, optimize=True)
+    os.replace(share_temporary, share)
 
 
 def generate_posters(shows_file, site_root, template=TEMPLATE, only=None, guides=False):

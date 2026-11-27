@@ -67,6 +67,9 @@ class PosterTests(unittest.TestCase):
             with Image.open(first) as image:
                 self.assertEqual(image.size, (3000, 3996))
             self.assertTrue((site / "events" / "2026-08-01-no-url" / "poster.jpg").is_file())
+            with Image.open(first.with_name("share.jpg")) as share:
+                self.assertEqual(share.size, (1200, 630))
+            self.assertTrue((site / "events" / "2026-08-01-no-url" / "share.jpg").is_file())
 
     def test_only_filter(self):
         with tempfile.TemporaryDirectory() as folder:

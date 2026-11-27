@@ -1,8 +1,21 @@
 {
-	"channel_url": "https://youtube.com/@hossandthehangmen",
-	"videos": [
-		{"id": "WvEge0fWXK0", "title": "House Fire"},
-		{"id": "lrVk6F1Y7vA", "title": "Big River"},
-		{"id": "H-lEsXnYICU", "title": "Folsom Prison Blues"}
-	]
+  "channel_url": "https://youtube.com/@hossandthehangmen",
+  "videos": [
+    {
+      "id": "cXBqaeljam0",
+      "title": "Victory"
+    },
+    {
+      "id": "aHwbwsfySLE",
+      "title": "Motorcycle"
+    },
+    {
+      "id": "zIpjVf4LTWo",
+      "title": "Whiskey"
+    },
+    {
+      "id": "cFXrP0YfEhg",
+      "title": "Heading South"
+    }
+  ]
 }

@@ -132,6 +132,50 @@ class EventPageTests(unittest.TestCase):
             locs = [node.text for node in tree.getroot().iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]
             self.assertIn(generated[0]["page_url"], locs)
 
+    def test_sitemap_keeps_fixed_pages_drops_old_events_and_is_pretty_printed(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "sitemap.xml").write_text(
+                "<?xml version='1.0'?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">"
+                "<url><loc>https://hossandthehangmen.com/</loc></url>"
+                "<url><loc>https://hossandthehangmen.com/booking/</loc></url>"
+                "<url><loc>https://hossandthehangmen.com/events/old-show/</loc></url></urlset>",
+                encoding="utf-8",
+            )
+            generated = ep.generate_event_pages([self.valid_event()], root)
+            ep.update_sitemap(root, generated)
+            text = (root / "sitemap.xml").read_bytes().decode("utf-8")
+            self.assertTrue(text.startswith('<?xml version="1.0" encoding="UTF-8"?>\n<urlset'))
+            self.assertTrue(text.endswith("</urlset>\n"))
+            self.assertNotIn("\r", text)
+            self.assertIn("\n\t<url>\n\t\t<loc>https://hossandthehangmen.com/booking/</loc>\n\t</url>\n", text)
+            self.assertNotIn("old-show", text)
+            self.assertIn(generated[0]["page_url"], text)
+
+    def test_event_page_has_open_graph_tags_pointing_at_share_image(self):
+        event = self.valid_event()
+        with tempfile.TemporaryDirectory() as folder:
+            generated = ep.generate_event_pages([event], folder)
+            page = Path(folder) / generated[0]["page_path"].lstrip("/") / "index.html"
+            text = page.read_text(encoding="utf-8")
+            share = generated[0]["page_url"] + "share.jpg"
+            self.assertIn(f'<meta property="og:image" content="{share}">', text)
+            self.assertIn(f'<meta name="twitter:image" content="{share}">', text)
+            self.assertIn(f'<meta property="og:url" content="{generated[0]["page_url"]}">', text)
+            self.assertIn('<meta property="og:image:width" content="1200">', text)
+            self.assertIn('<meta name="twitter:card" content="summary_large_image">', text)
+
+    def test_open_graph_values_are_escaped(self):
+        event = self.valid_event()
+        event["venue"] = 'Bob\'s "Bar" & Grill'
+        event["description"] = 'Say "hi" <now>'
+        with tempfile.TemporaryDirectory() as folder:
+            generated = ep.generate_event_pages([event], folder)
+            page = Path(folder) / generated[0]["page_path"].lstrip("/") / "index.html"
+            text = page.read_text(encoding="utf-8")
+            self.assertIn('property="og:description" content="Say &quot;hi&quot; &lt;now&gt;"', text)
+            self.assertNotIn('content="Say "hi"', text)
+
     def test_short_code_is_stable_short_and_url_safe(self):
         path = "/events/2026-07-18-horsetooth-tavern/"
         code = ep.short_code(path)
