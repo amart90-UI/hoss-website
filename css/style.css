@@ -227,9 +227,10 @@ body {
 
 /* ------------------------------------------------------------------ sections and hero */
 
+/* Every section on every page uses the same gutters: 15% each side, and never wider than a 1000px column. */
 section {
 	min-height: 80vh;
-	padding: 50px 15% 50px 15%;
+	padding: 50px max(15%, calc((100% - 1000px) / 2)) 50px;
 	background-color: #323536;
 }
 
@@ -331,16 +332,18 @@ p {
 .imgContent {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-around;
+	justify-content: center;
 	align-items: center;
-	margin: auto;
-	width: 80%;
+	gap: 30px 20px;
+	margin: 0 auto;
+	width: 100%;
 }
 
 .imgContent .card {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	flex: 0 1 clamp(120px, 28%, 220px);
 }
 
 .imgContent .card p {
@@ -645,6 +648,16 @@ footer .socialBanner {
 	transition: all ease-in-out 1s;
 }
 
+/* Without JavaScript nothing adds .showed, so show the content instead of leaving it invisible. */
+@media (scripting: none) {
+	.animatableY,
+	.animatableX,
+	.animatableOpacity {
+		opacity: 1;
+		transform: none;
+	}
+}
+
 /* ------------------------------------------------------------------ tablets and phones */
 
 @media screen and (max-width: 1024px) {
@@ -674,7 +687,7 @@ footer .socialBanner {
 	}
 
 	section {
-		padding: 50px 2% 50px 2%;
+		padding: 50px 5% 50px 5%;
 	}
 
 	.hardLight {
@@ -922,6 +935,12 @@ footer .socialBanner {
 .email-link:hover,
 .email-link:focus-visible {
 	color: #efe1c6;
+}
+
+/* The large email address in the contact section must never be wider than a phone screen. */
+.hardLight .email-link {
+	font-size: min(1em, 5.2vw);
+	overflow-wrap: anywhere;
 }
 
 /* ------------------------------------------------------------------ quote and hero logo */
@@ -1284,8 +1303,8 @@ footer p.footer-links a:focus-visible {
 	text-decoration: underline;
 }
 
-/* The page */
-.booking-page main:focus {
+/* The skip link moves focus to <main>; no outline needed on the container itself. */
+main:focus {
 	outline: none;
 }
 
@@ -1301,8 +1320,11 @@ footer p.footer-links a:focus-visible {
 		url("../img/hero-band.webp") 60% center / cover no-repeat;
 }
 
+/* Fades in the way the home page hero does (same keyframes and easing). */
 .booking-hero-inner {
 	width: min(720px, 100%);
+	animation: opacity 1.5s cubic-bezier(0.17, 0.67, 0.14, 0.97) both;
+	animation-delay: 0.3s;
 }
 
 .booking-hero-logo {
@@ -1357,19 +1379,13 @@ footer p.footer-links a:focus-visible {
 	background-color: #AA5321;
 }
 
+/* Gutters, headings and separators come from the shared section rules; only the min-height differs. */
 .booking-section {
-	width: min(960px, 100%);
 	min-height: 0;
-	margin: 0 auto;
-	padding: 60px 5%;
 }
 
 .booking-section[hidden] {
 	display: none;
-}
-
-.booking-section p {
-	margin: 16px 0;
 }
 
 .booking-section h3 {
@@ -1380,62 +1396,13 @@ footer p.footer-links a:focus-visible {
 	color: #efe1c6;
 }
 
-p.booking-quote {
-	margin: 20px 0 30px;
-	font-family: "Amatic SC", cursive;
-	font-size: clamp(1.9rem, 5vw, 2.8rem);
-	font-weight: 700;
-	line-height: 1.2;
-	text-align: center;
-	color: #BDB199;
-}
-
-.booking-prose {
-	max-width: 42em;
-	margin: 0 auto;
-}
-
 .booking-note {
+	margin: 30px 0;
 	color: #BDB199;
 }
 
 .booking-note .email-link {
 	word-break: break-word;
-}
-
-.booking-members {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	gap: 24px;
-	margin: 40px 0 0;
-	padding: 0;
-	list-style: none;
-}
-
-.booking-members li {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 180px;
-	text-align: center;
-	color: #BDB199;
-}
-
-.booking-members img {
-	display: block;
-	width: 100%;
-	height: auto;
-	margin-bottom: 10px;
-	border-radius: 15px;
-}
-
-.booking-member-name {
-	font-family: "Amatic SC", cursive;
-	font-size: 2rem;
-	font-weight: 700;
-	line-height: 1.1;
-	color: #efe1c6;
 }
 
 .booking-cards {
@@ -1585,8 +1552,7 @@ a.booking-venue-logo:focus-visible {
 .booking-repertoire {
 	display: grid;
 	gap: 12px;
-	max-width: 42em;
-	margin: 30px auto 0;
+	margin: 30px 0 0;
 }
 .booking-repertoire details {
 	border: 1px solid #BDB199;
@@ -1624,13 +1590,10 @@ a.booking-venue-logo:focus-visible {
 	line-height: 1.8;
 }
 
-.booking-book {
+/* Like the home page's contact section: left-aligned heading, centered content under it. */
+.booking-book > p,
+.booking-book > .booking-cta {
 	text-align: center;
-}
-
-.booking-book .separator {
-	margin-left: auto;
-	margin-right: auto;
 }
 
 .booking-book .booking-checklist {
