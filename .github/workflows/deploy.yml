@@ -63,6 +63,9 @@ jobs:
           SCHEDULE_CSV_URL: ${{ vars.SCHEDULE_CSV_URL }}
         run: python3 scripts/process_schedule.py --output-dir _site/data --generate-events --site-root _site
 
+      - name: Generate venue history
+        run: python3 scripts/generate_venue_history.py --shows-file _site/data/past-shows.json --output _site/data/venue-history.json
+
       # Replaces the copied data/videos.json with the list from the video sheet, keeping its channel_url.
       # Fails the same way as the schedule step.
       - name: Generate video list from Google Sheets
@@ -86,7 +89,7 @@ jobs:
           deploy=true
           if [ "${{ github.event_name }}" = "schedule" ] && git fetch --quiet --depth=1 origin gh-pages; then
             deploy=false
-            for file in data/shows.json data/past-shows.json data/videos.json; do
+            for file in data/shows.json data/past-shows.json data/venue-history.json data/videos.json; do
               if ! git show "FETCH_HEAD:$file" > live.tmp 2>/dev/null || ! cmp -s live.tmp "_site/$file"; then
                 deploy=true
               fi
