@@ -1703,6 +1703,103 @@ a.booking-venue-logo:focus-visible {
 .booking-asset-links .btn {
 	flex: 1 1 auto;
 }
+/* Brand colors: one strip of swatches; each is a button that copies its hex code (js/booking.js). */
+.booking-swatches {
+	display: flex;
+	margin: 24px 0 0;
+	padding: 0;
+	list-style: none;
+	border: 1px solid #BDB199;
+	border-radius: 12px;
+	overflow: hidden;
+}
+.booking-swatches li {
+	flex: 1 1 0;
+	min-width: 0;
+}
+.booking-swatch {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 2px;
+	width: 100%;
+	height: 120px;
+	padding: 10px 4px;
+	border: 0;
+	color: #efe1c6;
+	font: inherit;
+	cursor: pointer;
+}
+.booking-swatch-light {
+	color: #323536;
+}
+.booking-swatch:hover .booking-swatch-hex,
+.booking-swatch:focus-visible .booking-swatch-hex {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.booking-swatch:focus-visible {
+	outline: 3px solid #ff9760;
+	outline-offset: -3px;
+}
+.booking-swatch-hex {
+	font-size: 0.9rem;
+	font-weight: 700;
+	letter-spacing: 1px;
+	user-select: all;
+}
+.booking-swatch-status {
+	min-height: 1.2em;
+	font-size: 0.75rem;
+}
+.booking-fonts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 20px;
+	margin: 24px 0 0;
+	padding: 0;
+	list-style: none;
+}
+.booking-fonts li {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	/* The two samples are different heights; push both to the bottom so the names and links line up. */
+	justify-content: flex-end;
+	gap: 6px;
+	padding: 20px;
+	border: 1px solid #BDB199;
+	border-left: 4px solid #AA5321;
+	border-radius: 12px;
+	background-color: #3A3E3F;
+	text-align: center;
+}
+.booking-font-sample {
+	color: #efe1c6;
+	line-height: 1.2;
+}
+.booking-font-amatic {
+	font-family: "Amatic SC", cursive;
+	font-size: 2.6rem;
+	font-weight: 700;
+}
+.booking-font-glyphic {
+	font-family: "Faculty Glyphic", sans-serif;
+	font-size: 2rem;
+}
+@media screen and (max-width: 600px) {
+	/* Six side-by-side swatches get too narrow for the hex codes, so wrap into two rows of three. */
+	.booking-swatches {
+		flex-wrap: wrap;
+	}
+	.booking-swatches li {
+		flex: 1 1 33%;
+	}
+	.booking-swatch {
+		height: 90px;
+	}
+}
 
 @media screen and (max-width: 767px) {
 	.booking-hero {
