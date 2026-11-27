@@ -278,7 +278,7 @@ class BookingPageTests(unittest.TestCase):
         for selector in (".ss-page", ".ss-section", ".ss-label", ".ss-icon", "#menu-items.open"):
             self.assertIn(selector, CSS)
         self.assertIn('href="booking/"', INDEX_HTML)
-        self.assertTrue((ROOT / "img" / "menu-book.svg").exists())
+        self.assertTrue((ROOT / "img" / "menu/book.svg").exists())
     def test_homepage_hero_footer_and_contact_link_to_booking(self):
         self.assertIn('<div class="hero-cta">', INDEX_HTML)
         self.assertIn('<a href="booking/">Booking &amp; press kit</a>', INDEX_HTML)
