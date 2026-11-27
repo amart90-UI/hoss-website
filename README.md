@@ -31,7 +31,7 @@ Google Sheet "videos"    ──┘   (daily / on push)        └─> data/video
 
 Open the schedule Google Sheet: **`https://docs.google.com/spreadsheets/d/1ih3MdZYOtfmeyatmTyqaz-d8hEW30kbOoiewOpgOoSY/edit?gid=0#gid=0`**
 
-Use the tab named `schedule`. One row per show, with these columns (order does not matter; unrelated extra columns are ignored):
+Use the tab named `schedule`. One row per show, with this header row (column order does not matter, and extra columns are ignored):
 
 | Column | Required | Format and notes |
 |---|---|---|
@@ -40,8 +40,6 @@ Use the tab named `schedule`. One row per show, with these columns (order does n
 | `end_time` | no | Same format. An end time earlier than the start time means the show ends after midnight. |
 | `venue` | yes | Venue name. |
 | `venue_url` | no | Full link starting with `http://` or `https://`. The venue name on the site links here. |
-| `venue_logo_url` | no | Full image URL for the venue's logo, used on the booking section's venue cards. |
-| `venue_video_url` | no | Full link to a video of the band at this venue; the logo on the venue card links here. |
 | `city` | yes | City name. |
 | `state` | yes | Two-letter code, such as `CO`. |
 | `event_url` | no | Full link to an event page. Adds an "Event details" link. |
@@ -53,7 +51,6 @@ Rules:
 - **Keep past shows in the sheet.** The pipeline moves them to the collapsed "Past shows" section by itself. A show dated today stays in "upcoming" until the day ends (Denver time).
 - **Two shows can't share the same date, start time and venue.** That counts as a duplicate and stops the build.
 - **Only put public information in the sheet.** Anyone who has the published CSV link can read the tab.
-- The booking section shows up to six past venues, ranked by performance count. Add the venue logo and video URLs to any past show row for that venue; the newest non-empty URL is used.
 
 The change goes live the next time the workflow runs. That happens every night, or immediately if you [run it by hand](#run-the-pipeline-manually).
 The pipeline also rebuilds `img/upcomingshow.jpg` and the `/showposter/` page from the upcoming shows.
@@ -105,7 +102,7 @@ The workflow is `.github/workflows/deploy.yml`.
    - splits shows into upcoming and past using today's date in `America/Denver`,
    - writes `shows.json` (soonest first) and `past-shows.json` (most recent first),
    - generates the individual event pages for upcoming shows and updates the sitemap.
-4. Runs `scripts/generate_venue_history.py` to count past performances and write `venue-history.json` (top six first).
+4. Runs `scripts/generate_venue_history.py` to count past shows per venue and write `venue-history.json` (the six most-played venues, with their logo files from `img/venues/`).
 5. Runs `scripts/process_videos.py`:
    - downloads the video CSV (URL from the `VIDEO_CSV_URL` secret),
    - checks every row (title present, valid 11-character YouTube ID, no duplicates),
@@ -290,7 +287,7 @@ The poster is written to `events/<page>/poster.jpg`. Drop `--guides` for the fin
 
 **Booking email.** The "Email a booking inquiry" button is a `mailto:` link with a subject and a body template (date, venue or location, event type, desired lineup, budget). The "Start the same email in Gmail" link carries the same text. If you change the template, change both links; a test checks that they match.
 
-**Where we've played.** `js/booking.js` reads `data/past-shows.json` (the same file as the home page's past shows), ranks venues by number of shows and then by most recent, and lists up to 12. The section stays hidden when there are no past shows. The PDF lists up to 10 the same way.
+**Where we've played.** `scripts/generate_venue_history.py` counts past shows per venue (from `past-shows.json`) and writes `data/venue-history.json` with the six most-played venues, most first (ties go to the most recent show). `js/booking.js` turns that into cards: logo (links to the venue's `venue_url` from the sheet), name, city and "Played N times", plus a link to the home page's `#past-shows` list (which opens automatically). **Logos** are committed files named after the venue: `img/venues/<slug>.svg` (or `.webp`, `.png`, `.jpg`), where the slug is the venue name in lowercase with other characters turned into hyphens ("The Old Mine" becomes `the-old-mine.svg`). The tile behind each logo is black or white, set per venue in the `LOGO_BACKGROUNDS` table at the top of `scripts/generate_venue_history.py` (keyed by the same slug; venues not listed get a cream tile). Running the script prints the exact file name for every venue that has no logo yet; those cards show the venue's first letter. The section stays hidden when there are no past shows. The PDF lists up to 10 venues with the same ranking.
 
 **Press kit downloads.** `python scripts/generate_press_kit.py` writes these into `booking/press/` (generated during the deploy, git-ignored, so run it once for local previews):
 
@@ -311,7 +308,8 @@ The "Updated" time works like this: each page's footer contains `__BUILD_TIME__`
 ```
 index.html                    the whole page, including SEO metadata and MusicGroup data
 booking/index.html            booking and press kit page (downloads in booking/press/ are generated)
-js/booking.js                 "Where we've played" list on the booking page
+js/booking.js                 "Where we've played" venue cards on the booking page
+img/venues/                   venue logos for those cards, named <venue-slug>.svg/.webp/.png/.jpg
 scripts/generate_press_kit.py press kit PDF and JPG photos for the booking page
 sitemap.xml, robots.txt       for search engines (contain the domain)
 css/style.css                 styles (compiled from the template, edited directly)

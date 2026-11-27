@@ -141,7 +141,7 @@ def points_to_px(points):
 # ------------------------------------------------------------------ past venues
 
 def highlight_venues(shows, limit=MAX_VENUES):
-    """Venues ranked by number of shows, then by most recent show (js/booking.js uses the same rule).
+    """Venues ranked by number of shows, then by most recent show (scripts/generate_venue_history.py uses the same rule).
 
     `shows` is the contents of past-shows.json, most recent first."""
     venues = {}

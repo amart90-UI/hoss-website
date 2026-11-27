@@ -273,11 +273,14 @@
 		</dl>
 	</section>
 
-	<!-- Filled in by js/booking.js from data/past-shows.json. Stays hidden if there are no past shows. -->
+	<!-- Cards filled in by js/booking.js from data/venue-history.json (built by scripts/generate_venue_history.py).
+		Stays hidden if there are no past shows. Logos: img/venues/<venue-name-slug>.<svg|webp|png|jpg>. -->
 	<section class="booking-section" id="played" aria-labelledby="played-heading" hidden>
 		<h2 id="played-heading">Where we've played</h2>
 		<div class="separator"></div>
+		<p class="booking-note">The venues we've played most, and how many times we've been on their stage.</p>
 		<ul class="booking-venues" id="booking-venues"></ul>
+		<p class="more-link booking-venues-more"><a href="../#past-shows">See all past shows &#10142;</a></p>
 	</section>
 
 	<section class="booking-section booking-book" id="book" aria-labelledby="book-heading">
