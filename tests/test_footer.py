@@ -63,6 +63,7 @@ class FooterTests(unittest.TestCase):
             f'href="mailto:{ep.CONTACT_EMAIL}"',
             ep.FACEBOOK_URL,
             ep.INSTAGRAM_URL,
+            ep.YOUTUBE_URL,
             "&copy; 2026 Hoss and the Hangmen",
             '<time id="buildTime" datetime="__BUILD_TIME__"></time>',
         ):

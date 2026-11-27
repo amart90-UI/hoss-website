@@ -288,7 +288,7 @@ class BookingPageTests(unittest.TestCase):
         self.assertEqual(self.page.h1_count, 1)
         self.assertEqual(len(self.page.ids), len(set(self.page.ids)))
         for image in self.page.images:
-            if "/menu-" in image.get("src", ""):
+            if "/menu/" in image.get("src", ""):
                 # Menu icons are decorative: the visible label next to each one names the link.
                 self.assertEqual(image.get("alt"), "", image)
             else:

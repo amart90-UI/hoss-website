@@ -186,6 +186,7 @@ def google_calendar_url(event):
 
 FACEBOOK_URL = "https://www.facebook.com/people/Hoss-and-the-Hangmen/61590706506140/"
 INSTAGRAM_URL = "https://www.instagram.com/hossandthehangmen"
+YOUTUBE_URL = "https://youtube.com/@hossandthehangmen"
 CONTACT_EMAIL = "hossandthehangmen@gmail.com"
 
 
@@ -201,14 +202,17 @@ def render_footer(prefix=""):
     """
     return f"""<footer>
 	<div class="footerBaner">
-		<img class="bandBanner" src="{prefix}img/hoss-logo-light.svg" alt="Hoss and the Hangmen logo" width="75" height="60" />
+		<img class="bandBanner" src="{prefix}img/hoss-logo-light.svg" alt="Hoss and the Hangmen logo" width="75" height="60" loading="lazy" decoding="async" />
 	</div>
 	<div class="socialBanner">
 		<a href="{FACEBOOK_URL}" target="_blank" rel="noopener">
-			<img src="{prefix}img/facebook-light.svg" alt="Hoss and the Hangmen on Facebook" />
+			<img src="{prefix}img/facebook-light.svg" alt="Hoss and the Hangmen on Facebook" width="50" height="50" loading="lazy" decoding="async" />
 		</a>
 		<a href="{INSTAGRAM_URL}" target="_blank" rel="noopener">
-			<img src="{prefix}img/instagram-light.svg" alt="Hoss and the Hangmen on Instagram" />
+			<img src="{prefix}img/instagram-light.svg" alt="Hoss and the Hangmen on Instagram" width="50" height="50" loading="lazy" decoding="async" />
+		</a>
+		<a href="{YOUTUBE_URL}" target="_blank" rel="noopener">
+			<img src="{prefix}img/youtube-light.svg" alt="Hoss and the Hangmen on YouTube" width="50" height="50" loading="lazy" decoding="async" />
 		</a>
 	</div>
 	<p class="footer-links"><a href="{prefix or "./"}">Home</a> &middot; <a href="{prefix}#shows">Shows</a> &middot; <a href="{prefix}booking/">Booking &amp; press kit</a> &middot; <a href="mailto:{CONTACT_EMAIL}">Email us</a></p>

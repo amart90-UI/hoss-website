@@ -121,14 +121,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Build timestamp. The deploy workflow writes the UTC build time into the <time> element's datetime
 // attribute; show it in the visitor's own date, time and time zone. Hidden if there is no valid time
-// (for example when running locally, where the placeholder is never replaced).
+// (for example when running locally, where the placeholder is never replaced) or if the build is more
+// than 3 days old, so a stale date never makes the site look abandoned.
 document.addEventListener('DOMContentLoaded', function () {
 	const el = document.getElementById('buildTime');
 	if (!el) {
 		return;
 	}
+	const MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 	const date = new Date(el.getAttribute('datetime'));
-	if (isNaN(date)) {
+	if (isNaN(date) || Date.now() - date.getTime() > MAX_AGE_MS) {
 		el.parentElement.hidden = true;
 		return;
 	}
