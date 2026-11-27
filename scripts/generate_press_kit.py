@@ -255,7 +255,7 @@ def render_page(venues, photo):
     page = Page()
     page.image.paste(photo, (0, 0))
 
-    logo = Image.open(IMAGE_DIRECTORY / "hoss_logo_white.png").convert("RGBA")
+    logo = Image.open(IMAGE_DIRECTORY / "hoss-logo-light.png").convert("RGBA")
     logo_width = px(LOGO_WIDTH)
     logo = logo.resize((logo_width, round(logo.height * logo_width / logo.width)), Image.LANCZOS)
     page.image.paste(logo, (px(MARGIN), px(LOGO_TOP)), logo)

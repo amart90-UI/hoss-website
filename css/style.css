@@ -131,42 +131,134 @@ body {
 	transform: scaleX(1);
 }
 
-/* The five section links. They sit behind the menu button until opened. */
-.ss-menu {
+/* The menu links, in a panel under the menu button. js/mainFunctions.js adds .open to the panel.
+   Two kinds of link: .ss-page (larger circle; Home and Booking, on every page) and .ss-section
+   (smaller circle; the sections of the page you are on). Each link is a circle with a pill that
+   sticks out of its left side and holds the title. The panel scrolls if the screen is too short. */
+#menu-items {
 	position: fixed;
+	top: calc(5% + 50px);
+	right: calc(5% - 15px);
+	max-height: calc(100vh - 5% - 50px);
+	max-height: calc(100dvh - 5% - 50px);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 12px;
+	padding: 12px 15px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	scrollbar-width: none;
+	pointer-events: none;
+	z-index: 2;
+}
+
+#menu-items.open {
+	pointer-events: auto;
+}
+
+.ss-menu {
+	--size: 50px;
+	flex: none;
+	display: flex;
+	align-items: center;
+	border-radius: 999px;
+	opacity: 0;
+	transform: translateY(-24px);
+	transition: opacity ease-in-out 250ms, transform ease-in-out 250ms;
+}
+
+/* Larger circle, shifted so that its center lines up with the smaller circles and the menu button. */
+.ss-page {
+	--size: 64px;
+	margin-right: -7px;
+}
+
+.ss-page + .ss-section,
+.ss-section + .ss-page {
+	margin-top: 8px;
+}
+
+.ss-icon {
+	position: relative;
+	z-index: 1;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	top: 5%;
-	right: 5%;
-	width: 50px;
-	height: 50px;
+	flex: none;
+	width: var(--size);
+	height: var(--size);
 	background-color: #323536;
 	border: solid 2px #BDB199;
 	border-radius: 50%;
-	cursor: pointer;
-	transition: all ease-in-out 100ms;
-	opacity: 0;
-	z-index: -1;
+	transition: background-color ease-in-out 100ms;
 }
 
-.ss-menu img {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+.ss-icon img {
 	width: 20px;
 	height: 20px;
-	transition: all ease-in-out 100ms;
+	transition: transform ease-in-out 100ms;
 }
 
-.ss-menu:hover img {
-	transform: translate(-50%, -50%) scale(1.2);
+.ss-page .ss-icon img {
+	width: 28px;
+	height: 28px;
 }
 
-.ss-menu:hover {
+/* The pill slides under the circle, so only its left end shows. */
+.ss-label {
+	display: flex;
+	align-items: center;
+	height: calc(var(--size) * 0.64);
+	margin-right: calc(var(--size) / -2);
+	padding: 0 calc(var(--size) / 2 + 8px) 0 18px;
+	background-color: #323536;
+	border: solid 2px #BDB199;
+	border-radius: 999px;
+	color: #efe1c6;
+	font-size: 0.95rem;
+	line-height: 1;
+	white-space: nowrap;
+	transition: background-color ease-in-out 100ms;
+}
+
+.ss-menu:hover .ss-icon,
+.ss-menu:hover .ss-label,
+.ss-menu[aria-current="page"] .ss-icon,
+.ss-menu[aria-current="page"] .ss-label {
 	background-color: #AA5321;
-	transition: all ease-in-out 100ms;
+}
+
+.ss-menu[aria-current="page"] .ss-icon,
+.ss-menu[aria-current="page"] .ss-label {
+	border-color: #efe1c6;
+}
+
+.ss-menu:hover .ss-icon img {
+	transform: scale(1.2);
+}
+
+/* Menu open: the links slide down into place one after another */
+#menu-items.open .ss-menu {
+	opacity: 1;
+	transform: none;
+}
+
+#menu-items.open .ss-menu:nth-child(1) { transition-delay: 25ms; }
+#menu-items.open .ss-menu:nth-child(2) { transition-delay: 50ms; }
+#menu-items.open .ss-menu:nth-child(3) { transition-delay: 75ms; }
+#menu-items.open .ss-menu:nth-child(4) { transition-delay: 100ms; }
+#menu-items.open .ss-menu:nth-child(5) { transition-delay: 125ms; }
+#menu-items.open .ss-menu:nth-child(n+6) { transition-delay: 150ms; }
+
+@media (prefers-reduced-motion: reduce) {
+	.ss-menu {
+		transform: none;
+		transition: opacity linear 100ms;
+	}
+	#menu-items.open .ss-menu {
+		transition-delay: 0ms;
+	}
 }
 
 /* Menu open: the three lines collapse into one */
@@ -191,38 +283,6 @@ body {
 	transform: scaleX(1);
 	transition: all ease-in-out 250ms;
 	transition-delay: 25ms;
-}
-
-/* Menu open: the section links slide down one after another (classes added by js/mainFunctions.js) */
-.visible1, .visible2, .visible3, .visible4, .visible5 {
-	opacity: 1;
-	transition: all ease-in-out 250ms;
-	z-index: 1;
-}
-
-.visible1 {
-	transform: translateY(75px);
-	transition-delay: 25ms;
-}
-
-.visible2 {
-	transform: translateY(150px);
-	transition-delay: 50ms;
-}
-
-.visible3 {
-	transform: translateY(225px);
-	transition-delay: 100ms;
-}
-
-.visible4 {
-	transform: translateY(300px);
-	transition-delay: 125ms;
-}
-
-.visible5 {
-	transform: translateY(375px);
-	transition-delay: 150ms;
 }
 
 /* ------------------------------------------------------------------ sections and hero */
@@ -1193,16 +1253,7 @@ span.cal-day.is-today {
 	margin-top: 10px;
 }
 
-/* ------------------------------------------------------------------ booking page, hero buttons and menu item 6 */
-
-/* The sixth menu link (Book) slides into place after the other five. */
-.visible6 {
-	opacity: 1;
-	transition: all ease-in-out 250ms;
-	z-index: 1;
-	transform: translateY(450px);
-	transition-delay: 175ms;
-}
+/* ------------------------------------------------------------------ booking page and hero buttons */
 
 /* Pill buttons, built from the show action links. Used on the booking page and the home hero. */
 .btn {

@@ -99,30 +99,36 @@
 		</button>
 
 		<div id="menu-items" inert>
-			<a class="ss-menu ss-menu1" href="../#top">
-				<img src="../img/menu-home.svg" alt="Home" />
+			<a class="ss-menu ss-page" href="../">
+				<span class="ss-label">Home</span>
+				<span class="ss-icon"><img src="../img/menu/home.svg" alt="" /></span>
 			</a>
-			<a class="ss-menu ss-menu2" href="../#band">
-				<img src="../img/menu-band.svg" alt="The band" />
+			<a class="ss-menu ss-page" href="#top" aria-current="page">
+				<span class="ss-label">Booking</span>
+				<span class="ss-icon"><img src="../img/menu/book.svg" alt="" /></span>
 			</a>
-			<a class="ss-menu ss-menu3" href="../#shows">
-				<img src="../img/menu-stage.svg" alt="Shows" />
+			<a class="ss-menu ss-section" href="#lineups">
+				<span class="ss-label">Lineups</span>
+				<span class="ss-icon"><img src="../img/menu/lineups.svg" alt="" /></span>
 			</a>
-			<a class="ss-menu ss-menu4" href="../#music">
-				<img src="../img/menu-video.svg" alt="Videos" />
+			<a class="ss-menu ss-section" href="#details">
+				<span class="ss-label">Details</span>
+				<span class="ss-icon"><img src="../img/menu/details.svg" alt="" /></span>
 			</a>
-			<a class="ss-menu ss-menu5" href="#top" aria-current="page">
-				<img src="../img/menu-book.svg" alt="Booking and press kit" />
+			<a class="ss-menu ss-section" href="#book">
+				<span class="ss-label">Book</span>
+				<span class="ss-icon"><img src="../img/menu/calendar.svg" alt="" /></span>
 			</a>
-			<a class="ss-menu ss-menu6" href="../#contact">
-				<img src="../img/menu-email.svg" alt="Contact" />
+			<a class="ss-menu ss-section" href="#press">
+				<span class="ss-label">Press kit</span>
+				<span class="ss-icon"><img src="../img/menu/press.svg" alt="" /></span>
 			</a>
 		</div>
 	</nav>
 
 	<div class="booking-hero-inner">
 		<a class="booking-hero-logo" href="../" aria-label="Hoss and the Hangmen home">
-			<img src="../img/hoss_logo_white.svg" alt="Hoss and the Hangmen" width="2442" height="1468" />
+			<img src="../img/hoss-logo-light.svg" alt="Hoss and the Hangmen" width="2442" height="1468" />
 		</a>
 		<h1>Book Hoss and the Hangmen</h1>
 		<p class="booking-hero-lead">
@@ -198,25 +204,6 @@
 		<p class="booking-note animatableY">Not sure which fits? Tell us about the room and the crowd when you get in touch.</p>
 	</section>
 
-	<section class="booking-section" id="expect" aria-labelledby="expect-heading">
-		<h2 id="expect-heading" class="animatableX">What to expect</h2>
-		<div class="separator animatableOpacity"></div>
-		<ul class="booking-cards animatableY">
-			<li class="booking-card">
-				<h3>Responsive</h3>
-				<p>We communicate clearly and promptly throughout the booking process, making it easy to coordinate details and stay on the same page.</p>
-			</li>
-			<li class="booking-card">
-				<h3>Professional and punctual</h3>
-				<p>We show up prepared, on time, and ready to deliver, respecting your schedule, your staff, and your customers.</p>
-			</li>
-			<li class="booking-card">
-				<h3>Built around your venue</h3>
-				<p>We adapt to your space, audience, and needs to make a great experience for your customers and your night a success.</p>
-			</li>
-		</ul>
-	</section>
-
 	<section class="booking-section" id="repertoire" aria-labelledby="repertoire-heading">
 		<h2 id="repertoire-heading" class="animatableX">Artists in Our Repertoire</h2>
 		<div class="separator animatableOpacity"></div>
@@ -271,6 +258,15 @@
 			</details>
 		</div>
 	</section>
+
+	<section class="booking-section" id="played" aria-labelledby="played-heading" hidden>
+		<h2 id="played-heading" class="animatableX">Where we've played</h2>
+		<div class="separator animatableOpacity"></div>
+		<p class="booking-note animatableY">The venues we've played most, and how many times we've been on their stage.</p>
+		<ul class="booking-venues animatableY" id="booking-venues"></ul>
+		<p class="more-link booking-venues-more animatableY"><a href="../#past-shows">See all past shows &#10142;</a></p>
+	</section>
+
 	<section class="booking-section" id="details" aria-labelledby="details-heading">
 		<h2 id="details-heading" class="animatableX">Booking details</h2>
 		<div class="separator animatableOpacity"></div>
@@ -325,14 +321,23 @@
 		</dl>
 	</section>
 
-	<!-- Cards filled in by js/booking.js from data/venue-history.json (built by scripts/generate_venue_history.py).
-		Stays hidden if there are no past shows. Logos: img/venues/<venue-name-slug>.<svg|webp|png|jpg>. -->
-	<section class="booking-section" id="played" aria-labelledby="played-heading" hidden>
-		<h2 id="played-heading" class="animatableX">Where we've played</h2>
+	<section class="booking-section" id="expect" aria-labelledby="expect-heading">
+		<h2 id="expect-heading" class="animatableX">What to expect</h2>
 		<div class="separator animatableOpacity"></div>
-		<p class="booking-note animatableY">The venues we've played most, and how many times we've been on their stage.</p>
-		<ul class="booking-venues animatableY" id="booking-venues"></ul>
-		<p class="more-link booking-venues-more animatableY"><a href="../#past-shows">See all past shows &#10142;</a></p>
+		<ul class="booking-cards animatableY">
+			<li class="booking-card">
+				<h3>Responsive</h3>
+				<p>We communicate clearly and promptly throughout the booking process, making it easy to coordinate details and stay on the same page.</p>
+			</li>
+			<li class="booking-card">
+				<h3>Professional and punctual</h3>
+				<p>We show up prepared, on time, and ready to deliver, respecting your schedule, your staff, and your customers.</p>
+			</li>
+			<li class="booking-card">
+				<h3>Built around your venue</h3>
+				<p>We adapt to your space, audience, and needs to make a great experience for your customers and your night a success.</p>
+			</li>
+		</ul>
 	</section>
 
 	<section class="booking-section booking-book" id="book" aria-labelledby="book-heading">
@@ -416,20 +421,20 @@
 		<ul class="booking-assets booking-logos animatableY">
 			<li>
 				<span class="booking-logo-tile booking-logo-on-dark">
-					<img src="../img/hoss_logo_white.svg" width="2442" height="1468" loading="lazy" alt="Hoss and the Hangmen logo, cream lettering for dark backgrounds" />
+					<img src="../img/hoss-logo-light.svg" width="2442" height="1468" loading="lazy" alt="Hoss and the Hangmen logo, cream lettering for dark backgrounds" />
 				</span>
 				<span class="booking-asset-links">
-					<a class="btn" href="../img/hoss_logo_white.png" download>Light logo, PNG</a>
-					<a class="btn" href="../img/hoss_logo_white.svg" download>Light logo, SVG</a>
+					<a class="btn" href="../img/hoss-logo-light.png" download>Light logo, PNG</a>
+					<a class="btn" href="../img/hoss-logo-light.svg" download>Light logo, SVG</a>
 				</span>
 			</li>
 			<li>
 				<span class="booking-logo-tile booking-logo-on-light">
-					<img src="../img/hoss_logo_dark.svg" width="2442" height="1468" loading="lazy" alt="Hoss and the Hangmen logo, dark lettering for light backgrounds" />
+					<img src="../img/hoss-logo-dark.svg" width="2442" height="1468" loading="lazy" alt="Hoss and the Hangmen logo, dark lettering for light backgrounds" />
 				</span>
 				<span class="booking-asset-links">
-					<a class="btn" href="../img/hoss_logo_dark.png" download>Dark logo, PNG</a>
-					<a class="btn" href="../img/hoss_logo_dark.svg" download>Dark logo, SVG</a>
+					<a class="btn" href="../img/hoss-logo-dark.png" download>Dark logo, PNG</a>
+					<a class="btn" href="../img/hoss-logo-dark.svg" download>Dark logo, SVG</a>
 				</span>
 			</li>
 		</ul>
@@ -459,7 +464,7 @@
 
 <footer>
 	<div class="footerBaner">
-		<img class="bandBanner" src="../img/hoss_logo_white.svg" alt="Hoss and the Hangmen logo" width="75" height="60" />
+		<img class="bandBanner" src="../img/hoss-logo-light.svg" alt="Hoss and the Hangmen logo" width="75" height="60" />
 	</div>
 	<div class="socialBanner">
 		<a href="https://www.facebook.com/people/Hoss-and-the-Hangmen/61590706506140/" target="_blank" rel="noopener">

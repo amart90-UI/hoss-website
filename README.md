@@ -77,7 +77,7 @@ These live in `index.html`.
 - **Member names, roles and photos:** the three `card` blocks. Each photo has a small blurred version (`*-blur.webp`) that shows first and a full version that loads as the card scrolls into view. Add both files to `img/` and update the `src` and `data-src` paths.
 - **Social links:** the Facebook and Instagram links appear in the top-left buttons and in the shared footer (see [Site footer](#site-footer)).
 - **Booking email:** the `mailto:` link in the `contact` section.
-- **Hero image:** `img/hero-band.webp`, set in the `.mainView` rule in `css/style.css`. The logo over it is `img/hoss_logo_white.svg`.
+- **Hero image:** `img/hero-band.webp`, set in the `.mainView` rule in `css/style.css`. The logo over it is `img/hoss-logo-light.svg`.
 - **Colors and fonts:** `css/style.css`. The page uses Amatic SC for headings and Faculty Glyphic for body text from Google Fonts.
 
 For images, use WebP, keep them small, and give each one a descriptive `alt` text. Keep the original large photos outside the repo (for example in Google Drive).
@@ -296,7 +296,7 @@ The poster is written to `events/<page>/poster.jpg`. Drop `--guides` for the fin
 - `hoss-and-the-hangmen-press-kit.pdf`: one US Letter page drawn with Pillow in the site's fonts and colors, then wrapped in a small hand-written PDF. It has clickable links (email, website, social) and an invisible text layer so the text can be searched and read by screen readers. The layout constants are at the top of the script.
 - `hoss-and-the-hangmen-band-photo.jpg`, `-ben.jpg`, `-anthony.jpg`, `-alex.jpg`: JPG copies of the WebP photos in `img/`.
 
-The logos are committed: `img/hoss_logo_white.svg` and `.png` (cream, for dark backgrounds) and `img/hoss_logo_dark.svg` and `.png` (for light backgrounds). The PNGs are 1600 px wide with transparent backgrounds, rendered from the SVGs. To re-render, open the SVG in a browser at 1600 x 962 and save with a transparent background (headless Edge: `--default-background-color=00000000 --screenshot`). The social-share image is `img/og-image.jpg`.
+The logos are committed: `img/hoss-logo-light.svg` and `.png` (cream, for dark backgrounds) and `img/hoss-logo-dark.svg` and `.png` (for light backgrounds). The PNGs are 1600 px wide with transparent backgrounds, rendered from the SVGs. To re-render, open the SVG in a browser at 1600 x 962 and save with a transparent background (headless Edge: `--default-background-color=00000000 --screenshot`). The social-share image is `img/og-image.jpg`.
 
 **Photo credit and permission.** All photographs are by Darrin Williams (<https://darrinwilliamsmedia.com>, see `LICENSE-MEDIA.md`). The page and the PDF credit him and link to his website. Offering the photos for download assumes he has agreed to venues and press using them to promote shows. Confirm that with him, and update `LICENSE-MEDIA.md` to say so.
 ## Site footer

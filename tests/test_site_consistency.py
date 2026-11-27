@@ -71,14 +71,48 @@ class SharedStructureTests(unittest.TestCase):
             self.assertEqual(main[0].get("id"), "main-content", name)
             self.assertIn("tabindex", main[0], name)
 
-    def test_the_menu_is_the_same_on_both_pages(self):
+    def test_the_menu_has_the_same_page_links_and_its_own_section_links_on_each_page(self):
+        link = re.compile(
+            r'<a class="ss-menu ss-(page|section)" href="([^"]*)"([^>]*)>\s*'
+            r'<span class="ss-label">([^<]+)</span>\s*'
+            r'<span class="ss-icon"><img src="([^"]*)" alt="" /></span>\s*</a>'
+        )
+
         def menu(source):
             nav = re.search(r'<nav class="menu-nav" aria-label="([^"]*)">(.*?)</nav>', source, re.S)
-            links = re.findall(r'<a class="(ss-menu ss-menu\d)" href="([^"]*)"[^>]*>\s*<img src="[^"]*?([\w-]+\.svg)" alt="([^"]*)"', nav.group(2))
-            return nav.group(1), [(cls, icon, alt) for cls, _, icon, alt in links]
+            self.assertEqual(nav.group(1), "Site sections")
+            links = link.findall(nav.group(2))
+            self.assertEqual(len(links), nav.group(2).count('class="ss-menu '))
+            return links
 
-        self.assertEqual(menu(HOME), menu(BOOKING))
-        self.assertEqual(menu(HOME)[0], "Site sections")
+        pages = {name: menu(source) for name, source in PAGES.items()}
+        shared = {}
+        for name, links in pages.items():
+            page_links = [l for l in links if l[0] == "page"]
+            # The section links sit directly under the link for the page they belong to.
+            expected = []
+            for page in page_links:
+                expected.append(page)
+                if 'aria-current="page"' in page[2]:
+                    expected.extend(l for l in links if l[0] == "section")
+            self.assertEqual(links, expected, name)
+            self.assertEqual([l[3] for l in page_links], ["Home", "Booking"], name)
+            self.assertEqual([l[2] for l in page_links].count(' aria-current="page"'), 1, name)
+            shared[name] = [(l[3], l[4].rsplit("/", 1)[-1]) for l in page_links]
+            sections = [l for l in links if l[0] == "section"]
+            self.assertEqual(len(sections), 4, name)
+            ids = {attrs.get("id") for _, attrs in parse(PAGES[name]).tags}
+            for _, href, attrs, label, icon in sections:
+                self.assertRegex(href, r"^#[\w-]+$", f"{name}: {label}")
+                self.assertIn(href[1:], ids, f"{name}: {label}")
+                self.assertNotIn("aria-current", attrs, f"{name}: {label}")
+        self.assertEqual(shared["home"], shared["booking"])
+        self.assertEqual(
+            [l[3] for l in pages["booking"] if l[0] == "section"], ["Lineups", "Details", "Book", "Press kit"]
+        )
+        # The current page is the one whose link stays on the page.
+        self.assertIn(('page', '#top', ' aria-current="page"', 'Home'), [l[:4] for l in pages["home"]])
+        self.assertIn(('page', '#top', ' aria-current="page"', 'Booking'), [l[:4] for l in pages["booking"]])
 
     def test_both_pages_load_the_same_stylesheet_fonts_and_main_script(self):
         for name, source in PAGES.items():

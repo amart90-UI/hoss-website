@@ -119,7 +119,7 @@ Generate Event JSON-LD from the upcoming show data. Do not maintain a separate m
 ## Booking and press kit
 
 - /booking/ (booking/index.html) is a static, hand-written page: lineups, booking details, past venues, a prefilled "mailto:" inquiry (date, venue, event type, lineup, budget) and press kit downloads. Do not invent testimonials, rates, technical specifications or band details; use only what the band has provided.
-- scripts/generate_press_kit.py runs in the deploy workflow and writes booking/press/ (PDF and JPG photos; generated and git-ignored). Past venues come from data/past-shows.json. The booking page's "Where we've played" cards come from data/venue-history.json (scripts/generate_venue_history.py: top six venues by show count; logos are committed in img/venues/<venue-slug>.<svg|webp|png|jpg>; the logo links to the venue's venue_url; a link goes to /#past-shows on the home page). Logos are committed in img/ (hoss_logo_white/dark .svg/.png).
+- scripts/generate_press_kit.py runs in the deploy workflow and writes booking/press/ (PDF and JPG photos; generated and git-ignored). Past venues come from data/past-shows.json. The booking page's "Where we've played" cards come from data/venue-history.json (scripts/generate_venue_history.py: top six venues by show count; logos are committed in img/venues/<venue-slug>.<svg|webp|png|jpg>; the logo links to the venue's venue_url; a link goes to /#past-shows on the home page). Logos are committed in img/ (hoss-logo-light/dark .svg/.png).
 - All photographs are by Darrin Williams (LICENSE-MEDIA.md). Keep the credit, linked to https://darrinwilliamsmedia.com, on the page and in the PDF. Rates are not published; direct bookers to inquire.
 
 ## SEO requirements

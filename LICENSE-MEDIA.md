@@ -14,8 +14,8 @@ the website.
 - **Photographs** in `img/`: `hero-band.webp`, `alex*.webp`, `anthony*.webp`,
   `anthony.png`, `ben*.webp`, `upcomingshow.jpg`, and any other photograph
   added to the repository.
-- **Band logos and artwork**: `img/hoss_logo_white.svg`, `img/hoss_logo_white.png`, `img/hoss_logo_dark.svg`,
-  `img/hoss_logo_dark.png`, `img/favicon.svg`,
+- **Band logos and artwork**: `img/hoss-logo-light.svg`, `img/hoss-logo-light.png`, `img/hoss-logo-dark.svg`,
+  `img/hoss-logo-dark.png`, `img/favicon.svg`,
   `img/og-image.jpg`, `favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png`,
   `apple-touch-icon.png`, `android-chrome-192x192.png`,
   `android-chrome-512x512.png`.
