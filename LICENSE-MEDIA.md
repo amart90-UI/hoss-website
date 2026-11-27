@@ -1,6 +1,6 @@
 # Media license: all rights reserved
 
-Photographs: Copyright (c) 2026 Darrin Williams. All rights reserved.
+Photographs: Copyright (c) 2026 Darrin Williams (https://darrinwilliamsmedia.com). All rights reserved.
 Logos and band artwork: Copyright (c) 2026 Hoss and the Hangmen. All rights reserved.
 
 The files listed below are **not** covered by the MIT license in `LICENSE`.
@@ -14,7 +14,8 @@ the website.
 - **Photographs** in `img/`: `hero-band.webp`, `alex*.webp`, `anthony*.webp`,
   `anthony.png`, `ben*.webp`, `upcomingshow.jpg`, and any other photograph
   added to the repository.
-- **Band logos and artwork**: `img/hoss_logo_white.svg`, `img/favicon.svg`,
+- **Band logos and artwork**: `img/hoss_logo_white.svg`, `img/hoss_logo_white.png`, `img/hoss_logo_dark.svg`,
+  `img/hoss_logo_dark.png`, `img/favicon.svg`,
   `img/og-image.jpg`, `favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png`,
   `apple-touch-icon.png`, `android-chrome-192x192.png`,
   `android-chrome-512x512.png`.

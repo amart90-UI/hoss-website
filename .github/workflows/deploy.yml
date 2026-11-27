@@ -48,17 +48,13 @@ jobs:
       - name: Assemble site
         run: |
           mkdir _site
-          for item in index.html css js img data robots.txt sitemap.xml CNAME 404.html favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
+          for item in index.html booking css js img data robots.txt sitemap.xml CNAME 404.html favicon.ico favicon-*.png apple-touch-icon.png android-chrome-*.png site.webmanifest; do
             if [ -e "$item" ]; then cp -r "$item" _site/; fi
           done
           # The site is already built, so tell GitHub Pages not to run Jekyll on it.
           touch _site/.nojekyll
           # The poster template and its design example are only inputs to the poster script.
           rm -f _site/img/blank-poster.webp _site/img/example_poster.png
-
-      # Stamp the build time (UTC) into the page. The browser converts it to the visitor's local time.
-      - name: Stamp build time
-        run: sed -i "s/__BUILD_TIME__/$(date -u +%Y-%m-%dT%H:%M:%SZ)/" _site/index.html
 
       # If the sheet can't be downloaded or any row is invalid, this step fails and nothing is deployed,
       # so the live site keeps its last good data.
@@ -67,12 +63,22 @@ jobs:
           SCHEDULE_CSV_URL: ${{ vars.SCHEDULE_CSV_URL }}
         run: python3 scripts/process_schedule.py --output-dir _site/data --generate-events --site-root _site
 
+      - name: Generate venue history
+        run: python3 scripts/generate_venue_history.py --shows-file _site/data/past-shows.json --output _site/data/venue-history.json
+
       # Replaces the copied data/videos.json with the list from the video sheet, keeping its channel_url.
       # Fails the same way as the schedule step.
       - name: Generate video list from Google Sheets
         env:
           VIDEO_CSV_URL: ${{ vars.VIDEO_CSV_URL }}
         run: python3 scripts/process_videos.py --output-dir _site/data
+
+      # Stamp the build time (UTC) into the footer of every page (home, booking and event pages), after the
+      # event pages have been generated. The browser converts it to the visitor's local time.
+      - name: Stamp build time
+        run: |
+          stamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          find _site -name index.html -exec sed -i "s/__BUILD_TIME__/$stamp/" {} +
 
       # Scheduled runs only deploy when the new data differs from what is on the gh-pages branch.
       # Pushes and manual runs always deploy. The poster is built only from shows.json, so it needs
@@ -83,7 +89,7 @@ jobs:
           deploy=true
           if [ "${{ github.event_name }}" = "schedule" ] && git fetch --quiet --depth=1 origin gh-pages; then
             deploy=false
-            for file in data/shows.json data/past-shows.json data/videos.json; do
+            for file in data/shows.json data/past-shows.json data/venue-history.json data/videos.json; do
               if ! git show "FETCH_HEAD:$file" > live.tmp 2>/dev/null || ! cmp -s live.tmp "_site/$file"; then
                 deploy=true
               fi
@@ -112,6 +118,12 @@ jobs:
       - name: Generate event posters
         if: steps.changed.outputs.deploy == 'true'
         run: python3 scripts/generate_event_posters.py --shows-file _site/data/shows.json --site-root _site
+      # The booking page downloads: the one-page press kit PDF (with the past venues from past-shows.json)
+      # and JPG copies of the band photos, written to booking/press/.
+      - name: Generate press kit
+        if: steps.changed.outputs.deploy == 'true'
+        run: python3 scripts/generate_press_kit.py --site-root _site
+
       # Commits the contents of _site as a new commit with no parent and force-pushes it to gh-pages,
       # so the branch always holds exactly one commit: the current site. GitHub Pages then publishes it
       # (see the "pages build and deployment" runs in the Actions tab).

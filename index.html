@@ -84,6 +84,7 @@
 </head>
 
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
         <noscript> Please enable JavaScript to see the show schedule and videos. </noscript>
 
 <a id="top"></a>
@@ -102,7 +103,7 @@
 		</a>
 	</div>
 
-	<nav class="menu-nav" aria-label="Page sections">
+	<nav class="menu-nav" aria-label="Site sections">
 		<button class="menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu-items">
 			<span class="line line1"></span>
 			<span class="line line2"></span>
@@ -122,7 +123,10 @@
 			<a class="ss-menu ss-menu4" href="#music">
                         <img src="img/menu-video.svg" alt="Videos" />
 			</a>
-			<a class="ss-menu ss-menu5" href="#contact">
+			<a class="ss-menu ss-menu5" href="booking/">
+                        <img src="img/menu-book.svg" alt="Booking and press kit" />
+			</a>
+			<a class="ss-menu ss-menu6" href="#contact">
                         <img src="img/menu-email.svg" alt="Contact" />
 			</a>
 		</div>
@@ -139,7 +143,14 @@
 	</h1>
 
 	<h2 id="slogan">Northern Colorado country, folk & Americana</h2>
+
+	<div class="hero-cta">
+		<a class="btn btn-primary" href="booking/">Book the band</a>
+		<a class="btn" href="#nextShow">Next show</a>
+	</div>
 </section>
+
+<main id="main-content" tabindex="-1">
 
         <a id="nextShow"></a>
 
@@ -206,22 +217,6 @@
                 <div class="card animatableY">
                     <img
                         class="lazyload"
-                        src="img/alex-blur.webp"
-                        data-src="img/alex.webp"
-                        width="500"
-                        height="500"
-                        alt="Closeup photo of Alex playing drums"
-                    />
-                    <noscript>
-                        <img src="img/alex.webp" width="500" height="500" alt="Closeup photo of Alex playing drums" />
-                    </noscript>
-                    <p>Alex</p>
-                    <p>drums</p>
-                </div>
-
-                <div class="card animatableY">
-                    <img
-                        class="lazyload"
                         src="img/anthony-blur.webp"
                         data-src="img/anthony.webp"
                         width="500"
@@ -238,6 +233,22 @@
                     </noscript>
                     <p>Anthony</p>
                     <p>upright bass</p>
+                </div>
+
+                <div class="card animatableY">
+                    <img
+                        class="lazyload"
+                        src="img/alex-blur.webp"
+                        data-src="img/alex.webp"
+                        width="500"
+                        height="500"
+                        alt="Closeup photo of Alex playing drums"
+                    />
+                    <noscript>
+                        <img src="img/alex.webp" width="500" height="500" alt="Closeup photo of Alex playing drums" />
+                    </noscript>
+                    <p>Alex</p>
+                    <p>drums</p>
                 </div>
             </div>
         </section>
@@ -273,42 +284,33 @@
         <a id="contact"></a>
 
         <section class="contact">
-            <h2 class="animatableX">Contact</h2>
+            <h2 class="animatableX">Contact &amp; booking</h2>
             <div class="separator animatableOpacity"></div>
 
             <p class="hardLight">
-                Bookings and general inquiries:<br />
+                <a href="booking/">Lineups, booking details &amp; press kit &#10142;</a>
+            </p>
+            <p class="hardLight">
+                General inquiries:<br />
                 <a class="email-link" href="mailto:hossandthehangmen@gmail.com">hossandthehangmen@gmail.com</a>
             </p>
         </section>
+</main>
 
 <footer>
 	<div class="footerBaner">
-                <img
-                    class="bandBanner"
-                    src="img/hoss_logo_white.svg"
-                    alt="Text logo that says 'Hoss and the Hangmen' with a gallows and letters forming the shape of a stick figure being hanged"
-                    width="75"
-                    height="60"
-                />
+		<img class="bandBanner" src="img/hoss_logo_white.svg" alt="Hoss and the Hangmen logo" width="75" height="60" />
 	</div>
-
-	<!-- Same links as the social buttons at the top of the page. -->
 	<div class="socialBanner">
-                <a
-                    href="https://www.facebook.com/people/Hoss-and-the-Hangmen/61590706506140/"
-                    target="_blank"
-                    rel="noopener"
-                >
-                    <img src="img/facebook-light.svg" alt="Hoss and the Hangmen on Facebook" />
+		<a href="https://www.facebook.com/people/Hoss-and-the-Hangmen/61590706506140/" target="_blank" rel="noopener">
+			<img src="img/facebook-light.svg" alt="Hoss and the Hangmen on Facebook" />
 		</a>
 		<a href="https://www.instagram.com/hossandthehangmen" target="_blank" rel="noopener">
-                    <img src="img/instagram-light.svg" alt="Hoss and the Hangmen on Instagram" />
+			<img src="img/instagram-light.svg" alt="Hoss and the Hangmen on Instagram" />
 		</a>
 	</div>
-
+	<p class="footer-links"><a href="./">Home</a> &middot; <a href="#shows">Shows</a> &middot; <a href="booking/">Booking &amp; press kit</a> &middot; <a href="mailto:hossandthehangmen@gmail.com">Email us</a></p>
 	<p>&copy; 2026 Hoss and the Hangmen</p>
-	<!-- The deploy workflow replaces __BUILD_TIME__ with the UTC build time; js/mainFunctions.js shows it in the visitor's local time. -->
 	<p class="buildInfo">Updated <time id="buildTime" datetime="__BUILD_TIME__"></time></p>
 </footer>
 
