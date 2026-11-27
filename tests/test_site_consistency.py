@@ -117,8 +117,11 @@ class SharedStructureTests(unittest.TestCase):
     def test_both_pages_load_the_same_stylesheet_fonts_and_main_script(self):
         for name, source in PAGES.items():
             self.assertEqual(len(re.findall(r'<link rel="stylesheet" href="(?:\.\./)?css/style\.css"', source)), 1, name)
-            for font in ("Faculty+Glyphic", "Amatic+SC"):
-                self.assertIn(f"fonts.googleapis.com/css2?family={font}", source, name)
+            self.assertNotIn("fonts.googleapis.com", source, name)
+            for font in ("FacultyGlyphic-Regular", "AmaticSC-Bold", "AmaticSC-Regular"):
+                self.assertRegex(source, rf'<link rel="preload" href="(?:\.\./)?fonts/{font}-latin\.woff2" as="font"', name)
+                self.assertTrue((ROOT / "fonts" / f"{font}-latin.woff2").exists(), font)
+            self.assertIn('href="img/hero-band-mobile.webp"' if name == "home" else 'href="../img/hero-band-mobile.webp"', source, name)
             self.assertRegex(source, r'<script defer src="(?:\.\./)?js/mainFunctions\.js"></script>', name)
             self.assertIn('<meta name="theme-color" content="#323536" />', source, name)
             self.assertRegex(source, r'<html lang="en"', name)

@@ -277,8 +277,8 @@ def render_event_page(event):
 <meta name="description" content="{html.escape(description, quote=True)}">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="{html.escape(event["page_url"], quote=True)}">
-<link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic:wght@400&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&amp;display=swap" rel="stylesheet">
+<link rel="preload" href="../../fonts/FacultyGlyphic-Regular-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../fonts/AmaticSC-Bold-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../css/style.css">
 <link rel="icon" type="image/svg+xml" href="../../img/favicon.svg">
 <script type="application/ld+json">

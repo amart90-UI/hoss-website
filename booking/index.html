@@ -68,8 +68,23 @@
         </script>
 
         <!-- Fonts and stylesheets (same as the home page) -->
-        <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic:wght@400&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet" />
+        <link rel="preload" href="../fonts/FacultyGlyphic-Regular-latin.woff2" as="font" type="font/woff2" crossorigin />
+        <link rel="preload" href="../fonts/AmaticSC-Bold-latin.woff2" as="font" type="font/woff2" crossorigin />
+        <link rel="preload" href="../fonts/AmaticSC-Regular-latin.woff2" as="font" type="font/woff2" crossorigin />
+        <link
+            rel="preload"
+            href="../img/hero-band-mobile.webp"
+            as="image"
+            type="image/webp"
+            media="screen and (max-width: 767px) and (orientation: portrait)"
+        />
+        <link
+            rel="preload"
+            href="../img/hero-band.webp"
+            as="image"
+            type="image/webp"
+            media="screen and (min-width: 768px), screen and (orientation: landscape)"
+        />
         <link rel="stylesheet" href="../css/style.css" />
 </head>
 

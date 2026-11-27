@@ -3,6 +3,29 @@
    #efe1c6 light text           #BDB199 muted text, borders
    #AA5321 highlight            #ff9760 links in the show list and contact section */
 
+/* Fonts, hosted here instead of Google Fonts (Latin subset, WOFF2). The matching .woff2 files are
+   preloaded in each page's <head>. The .ttf files in fonts/ are only used by the poster and press-kit scripts. */
+@font-face {
+font-family: "Faculty Glyphic";
+font-style: normal;
+font-weight: 400;
+font-display: swap;
+src: url("../fonts/FacultyGlyphic-Regular-latin.woff2") format("woff2");
+}
+@font-face {
+font-family: "Amatic SC";
+font-style: normal;
+font-weight: 400;
+font-display: swap;
+src: url("../fonts/AmaticSC-Regular-latin.woff2") format("woff2");
+}
+@font-face {
+font-family: "Amatic SC";
+font-style: normal;
+font-weight: 700;
+font-display: swap;
+src: url("../fonts/AmaticSC-Bold-latin.woff2") format("woff2");
+}
 /* ------------------------------------------------------------------ base */
 
 html {
@@ -1833,4 +1856,19 @@ a.booking-venue-logo:focus-visible {
 	.hero-cta .btn {
 		flex: 0 1 auto;
 	}
+}
+
+/* Phones held upright only show a narrow slice of the wide hero photo, so they load a smaller,
+   pre-cropped copy (img/hero-band-mobile.webp, 1100x1485) instead of the 2970px original.
+   Keep the matching preload media queries in index.html and booking/index.html in sync. */
+@media screen and (max-width: 767px) and (orientation: portrait) {
+.mainView {
+background-image: url("../img/hero-band-mobile.webp");
+background-position: center;
+}
+.booking-hero {
+background-image: linear-gradient(rgba(50, 53, 54, 0.5), rgba(50, 53, 54, 0.88)),
+url("../img/hero-band-mobile.webp");
+background-position: center;
+}
 }

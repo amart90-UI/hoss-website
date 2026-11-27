@@ -77,7 +77,8 @@ These live in `index.html`.
 - **Member names, roles and photos:** the three `card` blocks. Each photo has a small blurred version (`*-blur.webp`) that shows first and a full version that loads as the card scrolls into view. Add both files to `img/` and update the `src` and `data-src` paths.
 - **Social links:** the Facebook and Instagram links appear in the top-left buttons and in the shared footer (see [Site footer](#site-footer)).
 - **Booking email:** the `mailto:` link in the `contact` section.
-- **Hero image:** `img/hero-band.webp`, set in the `.mainView` rule in `css/style.css`. The logo over it is `img/hoss-logo-light.svg`.
+- **Hero image:** `img/hero-band.webp`, set in the `.mainView` rule in `css/style.css`. The logo over it is `img/hoss-logo-light.svg`. Phones held upright load `img/hero-band-mobile.webp` instead, a 1100x1485 crop of the same photo (about 54 KB). If you replace the hero photo, re-crop the mobile copy too. The `<link rel="preload">` tags in `index.html` and `booking/index.html` use the same breakpoint as the CSS.
+- **Fonts:** Faculty Glyphic and Amatic SC are hosted in `fonts/` as Latin-subset `.woff2` files (declared with `@font-face` at the top of `css/style.css`), so pages make no requests to Google. The `.ttf` files in `fonts/` are only used by the poster and press-kit scripts and are not deployed.
 - **Colors and fonts:** `css/style.css`. The page uses Amatic SC for headings and Faculty Glyphic for body text from Google Fonts.
 
 For images, use WebP, keep them small, and give each one a descriptive `alt` text. Keep the original large photos outside the repo (for example in Google Drive).
