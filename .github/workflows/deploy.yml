@@ -14,8 +14,10 @@ on:
   push:
     branches: [deploy]
   schedule:
+    # 07:05 UTC = 00:05 Mountain Standard Time / 01:05 Mountain Daylight Time, just after Denver midnight.
+    - cron: "5 7 * * *"
     # At 5 minutes past the hour, at 12:00 AM through 05:59 AM and 01:00 PM through 11:59 PM UTC (6a-11p MT)
-    - cron: "5 0-5,13-23 * * *"
+    #- cron: "5 0-5,13-23 * * *"
     # Run every 5 minutes between 6 am and 11 pm mountain time
     #- cron: '*/5 6-22 * * *'
     #  timezone: 'America/Denver'
