@@ -174,7 +174,8 @@ body {
 	margin-right: -7px;
 }
 
-.ss-page + .ss-section {
+.ss-page + .ss-section,
+.ss-section + .ss-page {
 	margin-top: 8px;
 }
 

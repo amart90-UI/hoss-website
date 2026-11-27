@@ -88,9 +88,14 @@ class SharedStructureTests(unittest.TestCase):
         pages = {name: menu(source) for name, source in PAGES.items()}
         shared = {}
         for name, links in pages.items():
-            kinds = [kind for kind, *_ in links]
-            self.assertEqual(kinds, sorted(kinds, key=("page", "section").index), name)  # pages first
             page_links = [l for l in links if l[0] == "page"]
+            # The section links sit directly under the link for the page they belong to.
+            expected = []
+            for page in page_links:
+                expected.append(page)
+                if 'aria-current="page"' in page[2]:
+                    expected.extend(l for l in links if l[0] == "section")
+            self.assertEqual(links, expected, name)
             self.assertEqual([l[3] for l in page_links], ["Home", "Booking"], name)
             self.assertEqual([l[2] for l in page_links].count(' aria-current="page"'), 1, name)
             shared[name] = [(l[3], l[4].rsplit("/", 1)[-1]) for l in page_links]
