@@ -269,14 +269,16 @@ class BookingPageTests(unittest.TestCase):
         linked = {ref for ref in self.page.hrefs if ref.startswith("press/")}
         self.assertEqual(linked, {f"press/{pk.PDF_NAME}"} | {f"press/{name}" for name in pk.PHOTOS})
 
-    def test_menu_has_six_links_ending_in_the_booking_item_and_css_covers_them(self):
+    def test_menu_has_two_page_links_and_four_section_links_and_icons_exist(self):
         for source in (BOOKING_HTML, INDEX_HTML):
-            self.assertEqual(len(re.findall(r'class="ss-menu ss-menu\d"', source)), 6)
-        for number in range(1, 7):
-            self.assertRegex(CSS, rf"\.visible{number}\b")
+            self.assertEqual(len(re.findall(r'class="ss-menu ss-page"', source)), 2)
+            self.assertEqual(len(re.findall(r'class="ss-menu ss-section"', source)), 4)
+            for icon in re.findall(r'<span class="ss-icon"><img src="(?:\.\./)?(img/[^"]+)"', source):
+                self.assertTrue((ROOT / icon).exists(), icon)
+        for selector in (".ss-page", ".ss-section", ".ss-label", ".ss-icon", "#menu-items.open"):
+            self.assertIn(selector, CSS)
         self.assertIn('href="booking/"', INDEX_HTML)
         self.assertTrue((ROOT / "img" / "menu-book.svg").exists())
-
     def test_homepage_hero_footer_and_contact_link_to_booking(self):
         self.assertIn('<div class="hero-cta">', INDEX_HTML)
         self.assertIn('<a href="booking/">Booking &amp; press kit</a>', INDEX_HTML)
@@ -286,7 +288,11 @@ class BookingPageTests(unittest.TestCase):
         self.assertEqual(self.page.h1_count, 1)
         self.assertEqual(len(self.page.ids), len(set(self.page.ids)))
         for image in self.page.images:
-            self.assertTrue(image.get("alt"), image)
+            if "/menu-" in image.get("src", ""):
+                # Menu icons are decorative: the visible label next to each one names the link.
+                self.assertEqual(image.get("alt"), "", image)
+            else:
+                self.assertTrue(image.get("alt"), image)
 
     def test_seo_metadata(self):
         self.assertIn('<link rel="canonical" href="https://hossandthehangmen.com/booking/" />', BOOKING_HTML)

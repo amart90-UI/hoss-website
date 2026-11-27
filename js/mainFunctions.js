@@ -1,7 +1,7 @@
 // Page behavior: hamburger menu, parallax logo, lazy-loaded member photos, fade-in on scroll,
 // and the back-to-top arrow.
 
-// Hamburger menu. The button opens and closes the five section links.
+// Hamburger menu. The button opens and closes the page and section links.
 // While closed, the links are "inert": they can't be focused or clicked and screen readers skip them.
 document.addEventListener('DOMContentLoaded', function () {
 	const nav = document.querySelector('.menu-nav');
@@ -13,14 +13,16 @@ document.addEventListener('DOMContentLoaded', function () {
 	const items = nav.querySelectorAll('.ss-menu');
 	const isOpen = () => toggle.classList.contains('active');
 
-	// The visible1...visible5 classes slide each link into place (see css/style.css).
+	// The "open" class slides the links into place (see css/style.css).
 	function setOpen(open) {
 		toggle.classList.toggle('active', open);
 		toggle.setAttribute('aria-expanded', String(open));
 		if (list) {
 			list.inert = !open;
 		}
-		items.forEach((item, index) => item.classList.toggle('visible' + (index + 1), open));
+		if (list) {
+			list.classList.toggle('open', open);
+		}
 	}
 
 	toggle.addEventListener('click', () => setOpen(!isOpen()));
