@@ -37,7 +37,7 @@ FETCH_TIMEOUT_SECONDS = 30
 REQUIRED_COLUMNS = ["date", "start_time", "venue", "city", "state"]
 OPTIONAL_COLUMNS = [
     "end_time", "venue_url", "event_url", "notes", "address", "zip_code", "zip",
-    "performers", "description", "country", "timezone",
+    "performers", "description", "country", "timezone", "venue_logo_url", "venue_video_url",
 ]
 
 DATE_RE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")  # M/D/YYYY, day and month may be 1 or 2 digits
@@ -189,7 +189,7 @@ def build_show(row):
         problems.append("end_time must occur after start_time")
     if row.get("state") and not STATE_RE.match(row["state"]):
         problems.append(f"state '{row['state']}' must be a two-letter code such as CO")
-    for column in ("venue_url", "event_url"):
+    for column in ("venue_url", "event_url", "venue_logo_url", "venue_video_url"):
         if row.get(column):
             try:
                 check_url(row[column], column)
@@ -215,6 +215,8 @@ def build_show(row):
         "end": end_iso,
         "venue": row["venue"],
         "venue_url": row.get("venue_url") or None,
+        "venue_logo_url": row.get("venue_logo_url") or None,
+        "venue_video_url": row.get("venue_video_url") or None,
         "city": row["city"],
         "state": row["state"].upper(),
         "event_url": row.get("event_url") or None,

@@ -15,7 +15,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import process_schedule as ps  # noqa: E402
 
-HEADER = "date,start_time,end_time,venue,venue_url,city,state,event_url,notes\n"
+HEADER = "date,start_time,end_time,venue,venue_url,city,state,event_url,notes,venue_logo_url,venue_video_url\n"
 
 
 def csv_text(*rows):
@@ -36,6 +36,8 @@ class ParsingTests(unittest.TestCase):
         self.assertEqual(show["end"], "2026-07-18T22:00:00-06:00")
         self.assertEqual(show["state"], "CO")
         self.assertEqual(show["notes"], "Bring friends")
+        self.assertIsNone(show["venue_logo_url"])
+        self.assertIsNone(show["venue_video_url"])
 
     def test_optional_fields_become_null(self):
         show = ps.parse_csv(csv_text("1/10/2026,7:00 PM,,Venue,,Denver,co,,"))[0]
@@ -44,6 +46,8 @@ class ParsingTests(unittest.TestCase):
         self.assertIsNone(show["venue_url"])
         self.assertIsNone(show["event_url"])
         self.assertIsNone(show["notes"])
+        self.assertIsNone(show["venue_logo_url"])
+        self.assertIsNone(show["venue_video_url"])
         self.assertEqual(show["state"], "CO")
         self.assertEqual(show["start"], "2026-01-10T19:00:00-07:00")  # MST
 
@@ -123,6 +127,15 @@ class ParsingTests(unittest.TestCase):
         self.assertRowError("7/18/2026,7:00 PM,,V,,Denver,CO,example.com,", "event_url")
         self.assertRowError("7/18/2026,7:00 PM,,V,https://exa mple.com,Denver,CO,,", "venue_url")
         self.assertRowError("7/18/2026,7:00 PM,,V,ftp://example.com,Denver,CO,,", "venue_url")
+        self.assertRowError("7/18/2026,7:00 PM,,V,,Denver,CO,,,javascript:alert(1),", "venue_logo_url")
+        self.assertRowError("7/18/2026,7:00 PM,,V,,Denver,CO,,,,ftp://example.com", "venue_video_url")
+
+    def test_venue_history_metadata(self):
+        show = ps.parse_csv(csv_text(
+            "7/18/2026,7:00 PM,,V,,Denver,CO,,,https://example.com/logo.png,https://youtube.com/watch?v=abc"
+        ))[0]
+        self.assertEqual(show["venue_logo_url"], "https://example.com/logo.png")
+        self.assertEqual(show["venue_video_url"], "https://youtube.com/watch?v=abc")
 
     def test_all_bad_rows_reported_together(self):
         with self.assertRaises(ps.ScheduleError) as ctx:

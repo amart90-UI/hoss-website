@@ -204,8 +204,69 @@
 			return;
 		}
 		const details = el('details', 'past-shows');
+		details.id = 'past-shows';
+		details.open = window.location.hash === '#past-shows';
 		details.append(el('summary', '', 'Past shows (' + shows.length + ')'), buildTable(shows, 'Past shows'));
 		pastEl.replaceChildren(details);
+	}
+
+	function openPastShowsFromHash() {
+		const details = document.getElementById('past-shows');
+		if (details && window.location.hash === '#past-shows') {
+			details.open = true;
+		}
+	}
+
+	function renderVenueHistory(venues) {
+		const items = venues.filter(venue =>
+			venue && typeof venue.venue === 'string' && venue.venue &&
+			Number.isInteger(venue.count) && venue.count > 0
+		);
+		if (items.length === 0) {
+			venueHistoryEl.replaceChildren(el('p', 'venue-history-empty', 'Venue history coming soon.'));
+			return;
+		}
+
+		const list = el('ul', 'venue-history-grid');
+		items.forEach(venue => {
+			const card = el('li', 'venue-history-card');
+			const logo = safeUrl(venue.logo_url)
+				? el('img', 'venue-history-logo')
+				: el('span', 'venue-history-initial', venue.venue.charAt(0).toUpperCase());
+			if (logo.tagName === 'IMG') {
+				logo.src = venue.logo_url;
+				logo.alt = venue.venue + ' logo';
+				logo.loading = 'lazy';
+				logo.addEventListener('error', () => {
+					logo.replaceWith(el('span', 'venue-history-initial', venue.venue.charAt(0).toUpperCase()));
+				}, {once: true});
+			}
+
+			const videoUrl = safeUrl(venue.video_url);
+			if (videoUrl) {
+				const link = el('a', 'venue-history-logo-link');
+				link.href = videoUrl;
+				link.target = '_blank';
+				link.rel = 'noopener';
+				link.setAttribute('aria-label', 'Watch our performances at ' + venue.venue);
+				link.append(logo);
+				card.append(link);
+			} else {
+				card.append(logo);
+			}
+
+			card.append(
+				el('h4', 'venue-history-name', venue.venue),
+				el('p', 'venue-history-count', venue.count + (venue.count === 1 ? ' performance' : ' performances'))
+			);
+			list.append(card);
+		});
+
+		const more = el('p', 'more-link venue-history-more');
+		const pastLink = el('a', '', 'See all past shows \u279E');
+		pastLink.href = '#past-shows';
+		more.append(pastLink);
+		venueHistoryEl.replaceChildren(list, more);
 	}
 
 	// Event structured data (JSON-LD) for search engines, one MusicEvent per upcoming show.
@@ -297,4 +358,16 @@
 			afterRender();
 		})
 		.catch(error => console.error('Could not load past shows:', error));
+
+	const venueHistoryEl = document.getElementById('venue-history');
+	if (venueHistoryEl) {
+		load('data/venue-history.json')
+			.then(renderVenueHistory)
+			.catch(error => {
+				console.error('Could not load venue history:', error);
+				venueHistoryEl.replaceChildren(el('p', 'venue-history-empty', 'Venue history is unavailable right now.'));
+			});
+	}
+
+	window.addEventListener('hashchange', openPastShowsFromHash);
 })();
