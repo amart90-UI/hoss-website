@@ -1,0 +1,7 @@
+# Allow all crawlers to read everything, including CSS, JavaScript and images.
+User-agent: *
+Allow: /
+# Social-media poster image; the /showposter/ page is excluded from the index with a noindex tag.
+Disallow: /img/upcomingshow.jpg
+
+Sitemap: https://hossandthehangmen.com/sitemap.xml

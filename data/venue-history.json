@@ -1,0 +1,62 @@
+[
+  {
+    "venue": "Velvet Lounge",
+    "city": "Estes Park",
+    "state": "CO",
+    "count": 10,
+    "last_date": "2026-11-06",
+    "url": "https://www.facebook.com/share/14zqjBLtQgU/",
+    "logo": "img/venues/velvet-lounge.webp",
+    "logo_background": "black"
+  },
+  {
+    "venue": "The Slab",
+    "city": "Estes Park",
+    "state": "CO",
+    "count": 6,
+    "last_date": "2026-09-19",
+    "url": "https://theslab.pub",
+    "logo": "img/venues/the-slab.webp",
+    "logo_background": "white"
+  },
+  {
+    "venue": "The Old Mine",
+    "city": "Erie",
+    "state": "CO",
+    "count": 5,
+    "last_date": "2026-11-25",
+    "url": "https://www.theoldmine.com/",
+    "logo": "img/venues/the-old-mine.webp",
+    "logo_background": "white"
+  },
+  {
+    "venue": "City Star",
+    "city": "Berthoud",
+    "state": "CO",
+    "count": 5,
+    "last_date": "2026-11-07",
+    "url": "https://citystarbrewing.com/",
+    "logo": "img/venues/city-star.webp",
+    "logo_background": "white"
+  },
+  {
+    "venue": "Abbott and Wallace",
+    "city": "Longmont",
+    "state": "CO",
+    "count": 3,
+    "last_date": "2026-11-14",
+    "url": "https://www.abbottandwallace.com/",
+    "logo": "img/venues/abbott-and-wallace.webp",
+    "logo_background": "black"
+  },
+  {
+    "venue": "Horsetooth Tavern",
+    "city": "Fort Collins",
+    "state": "CO",
+    "count": 2,
+    "last_date": "2026-11-07",
+    "url": "https://www.horsetoothtavern.com/",
+    "logo": "img/venues/horsetooth-tavern.webp",
+    "logo_background": "white"
+  }
+]
